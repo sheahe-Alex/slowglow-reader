@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>慢光阅读 Slowglow Reader</title>
+  <title>顺读 Reader</title>
   <style>
     :root {
       color-scheme: light;
@@ -636,9 +636,10 @@
   <div class="app">
     <header class="toolbar">
       <div class="toolbar-row">
-        <div class="brand">慢光阅读 <span style="font-weight: 600; color: var(--muted);">Slowglow Reader</span></div>
+        <div class="brand">顺读 <span style="font-weight: 600; color: var(--muted);">Reader</span></div>
         <button class="button" id="clipboardButton" type="button">读取剪贴板</button>
-        <button class="button primary" id="playButton" type="button">从头播放</button>
+        <button class="button primary" id="playButton" type="button">开始阅读</button>
+        <button class="button utility" id="voiceButton" type="button" aria-pressed="true">声音：开</button>
         <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">舒缓阅读</button>
         <button class="button utility" id="menuButton" type="button" aria-expanded="true">收起设置</button>
         <button class="button advanced-control" id="pauseButton" type="button" disabled>暂停</button>
@@ -672,7 +673,7 @@
         <div class="comfort-note" id="comfortNote">读一点也算。走神了也没关系，从高亮处回来就好。</div>
         <div class="gentle-guide" id="gentleGuide">当前句会显示在这里。</div>
         <div class="reader" id="reader">
-          <div class="empty-state">把文字放进左侧，然后从头播放。这里会用大字号显示文本、可选 Bionic，并高亮当前读到的词。</div>
+          <div class="empty-state">把文字放进左侧，然后开始阅读。这里会用大字号显示文本，并高亮当前读到的位置。</div>
         </div>
       </section>
 
@@ -696,6 +697,7 @@
     const readerPanel = document.querySelector("#readerPanel");
     const clipboardButton = document.querySelector("#clipboardButton");
     const playButton = document.querySelector("#playButton");
+    const voiceButton = document.querySelector("#voiceButton");
     const menuButton = document.querySelector("#menuButton");
     const pauseButton = document.querySelector("#pauseButton");
     const stopButton = document.querySelector("#stopButton");
@@ -736,14 +738,18 @@
     let isPaused = false;
     let playbackRunId = 0;
     let speechOffset = 0;
+    let silentTimer = null;
     let rateRestartTimer = null;
+    let voiceEnabled = localStorage.getItem("slowglow-voice-enabled") !== "false";
     let menuCollapsed = window.matchMedia("(max-width: 900px)").matches;
     let uiLanguage = localStorage.getItem("slowglow-ui-language") || (navigator.language?.toLowerCase().startsWith("zh") ? "zh" : "en");
 
     const copy = {
       zh: {
         clipboard: "读取剪贴板",
-        play: "从头播放",
+        play: "开始阅读",
+        voiceOn: "声音：开",
+        voiceOff: "声音：关",
         showMenu: "更多设置",
         hideMenu: "收起设置",
         pause: "暂停",
@@ -767,7 +773,7 @@
         progress: ({ current, total }) => `第 ${current} 段 / 共 ${total} 段`,
         comfortDefault: "读一点也算。走神了也没关系，从高亮处回来就好。",
         guideDefault: "当前句会显示在这里。",
-        empty: "把文字放进左侧，然后从头播放。这里会用大字号显示文本，并高亮当前读到的位置。",
+        empty: "把文字放进左侧，然后开始阅读。这里会用大字号显示文本，并高亮当前读到的位置。",
         notesSummary: "笔记辅助：关键词 / 关键句",
         generateNotes: "生成候选",
         copyNotes: "复制笔记草稿",
@@ -787,11 +793,13 @@
         stopped: "已停止。",
         reading: ({ token }) => `正在读：${token}`,
         finished: "读完了。你可以复制下一段，再点读取剪贴板。",
-        interrupted: ({ seconds }) => `朗读中断了，已播放 ${seconds} 秒。可以再按从头播放重试。`,
-        started: ({ rate }) => `开始朗读。语速 ${rate}x`,
+        interrupted: ({ seconds }) => `阅读中断了，已进行 ${seconds} 秒。可以再按开始阅读重试。`,
+        started: ({ rate }) => `开始阅读。速度 ${rate}x`,
+        voiceEnabled: "声音已开启。会朗读并高亮当前读到的位置。",
+        voiceMuted: "声音已关闭。高亮会按速度继续推进。",
         rateChangedNow: ({ rate }) => `已切换到 ${rate}x，从当前位置继续。`,
         clipboardEmpty: "剪贴板里没有文字。",
-        clipboardLoaded: "已读取剪贴板。按从头播放开始。",
+        clipboardLoaded: "已读取剪贴板。按开始阅读开始。",
         clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
         gentleOn: "舒缓阅读已开启。当前句会被托出来，其他文字会轻轻退后。",
         gentleOff: "已退出舒缓阅读。",
@@ -822,7 +830,9 @@
       },
       en: {
         clipboard: "Read Clipboard",
-        play: "Play From Start",
+        play: "Start Reading",
+        voiceOn: "Voice: On",
+        voiceOff: "Voice: Off",
         showMenu: "More Settings",
         hideMenu: "Hide Settings",
         pause: "Pause",
@@ -846,7 +856,7 @@
         progress: ({ current, total }) => `Paragraph ${current} / ${total}`,
         comfortDefault: "Reading a little counts. If your attention drifts, come back to the highlight.",
         guideDefault: "The current sentence will appear here.",
-        empty: "Put text on the left, then play from the start. This area will show large text and highlight the current reading position.",
+        empty: "Put text on the left, then start reading. This area will show large text and highlight the current reading position.",
         notesSummary: "Note helper: keywords / key sentences",
         generateNotes: "Generate Suggestions",
         copyNotes: "Copy Note Draft",
@@ -866,11 +876,13 @@
         stopped: "Stopped.",
         reading: ({ token }) => `Reading: ${token}`,
         finished: "Finished. You can copy the next passage, then click Read Clipboard.",
-        interrupted: ({ seconds }) => `Reading was interrupted after ${seconds} seconds. You can try Play From Start again.`,
+        interrupted: ({ seconds }) => `Reading was interrupted after ${seconds} seconds. You can try Start Reading again.`,
         started: ({ rate }) => `Started reading at ${rate}x.`,
+        voiceEnabled: "Voice is on. It will read aloud and highlight the current position.",
+        voiceMuted: "Voice is off. Highlighting will keep moving at the selected speed.",
         rateChangedNow: ({ rate }) => `Switched to ${rate}x and continued from the current position.`,
         clipboardEmpty: "There is no text in the clipboard.",
-        clipboardLoaded: "Clipboard loaded. Click Play From Start.",
+        clipboardLoaded: "Clipboard loaded. Click Start Reading.",
         clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
         gentleOn: "Gentle Reading is on. The current sentence is lifted forward, and surrounding text fades back.",
         gentleOff: "Gentle Reading is off.",
@@ -979,6 +991,7 @@
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
       playButton.textContent = t("play");
+      updateVoiceButton();
       updateMenuButton();
       stopButton.textContent = t("stop");
       languageButton.textContent = t("languageButton");
@@ -1016,6 +1029,11 @@
     function updatePlaybackButtons() {
       pauseButton.disabled = !isReading;
       pauseButton.textContent = isPaused ? t("resume") : t("pause");
+    }
+
+    function updateVoiceButton() {
+      voiceButton.textContent = voiceEnabled ? t("voiceOn") : t("voiceOff");
+      voiceButton.setAttribute("aria-pressed", String(voiceEnabled));
     }
 
     function normalizeForSpeech(text) {
@@ -1531,8 +1549,62 @@
       return nearest;
     }
 
+    function clearSilentTimer() {
+      if (silentTimer) {
+        window.clearTimeout(silentTimer);
+        silentTimer = null;
+      }
+    }
+
+    function finishReading(runId) {
+      if (runId !== playbackRunId) return;
+      clearSilentTimer();
+      utterance = null;
+      isReading = false;
+      isPaused = false;
+      activeIndex = -1;
+      render();
+      updateProgress();
+      updatePlaybackButtons();
+      setStatus(t("finished"));
+    }
+
+    function tokenDurationMs(token) {
+      const rate = Math.max(0.1, Number(rateInput.value) || 1);
+      const text = token?.text ?? "";
+      let base = 300;
+      if (/[。！？.!?]/.test(text)) {
+        base = 520;
+      } else if (/[，,、；;：:]/.test(text)) {
+        base = 340;
+      } else if (/[\u3400-\u9fff]/.test(text)) {
+        base = 360;
+      } else {
+        base = Math.min(650, Math.max(230, 170 + text.length * 34));
+      }
+      return Math.max(90, base / rate);
+    }
+
+    function scheduleSilentAdvance(runId) {
+      clearSilentTimer();
+      if (runId !== playbackRunId || !isReading || isPaused) return;
+      if (activeIndex >= tokens.length - 1) {
+        silentTimer = window.setTimeout(() => finishReading(runId), tokenDurationMs(tokens[activeIndex]));
+        return;
+      }
+
+      silentTimer = window.setTimeout(() => {
+        if (runId !== playbackRunId || !isReading || isPaused) return;
+        activeIndex += 1;
+        render();
+        setStatus(t("reading", { token: tokens[activeIndex]?.text ?? "" }));
+        scheduleSilentAdvance(runId);
+      }, tokenDurationMs(tokens[activeIndex]));
+    }
+
     function stopReading() {
       playbackRunId += 1;
+      clearSilentTimer();
       window.speechSynthesis.cancel();
       utterance = null;
       isReading = false;
@@ -1552,6 +1624,7 @@
       speechOffset = tokens[safeStartIndex].start;
       const text = normalizeForSpeech(source.slice(speechOffset));
 
+      clearSilentTimer();
       window.speechSynthesis.cancel();
       activeIndex = safeStartIndex;
       isReading = true;
@@ -1577,14 +1650,7 @@
       };
 
       utterance.onend = () => {
-        if (runId !== playbackRunId) return;
-        isReading = false;
-        isPaused = false;
-        activeIndex = -1;
-        render();
-        updateProgress();
-        updatePlaybackButtons();
-        setStatus(t("finished"));
+        finishReading(runId);
       };
 
       utterance.onerror = () => {
@@ -1603,10 +1669,36 @@
       window.speechSynthesis.speak(utterance);
     }
 
+    function readSilentlyFromToken(startIndex) {
+      if (!tokens.length) return;
+      const safeStartIndex = Math.max(0, Math.min(startIndex, tokens.length - 1));
+      const runId = ++playbackRunId;
+
+      clearSilentTimer();
+      window.speechSynthesis.cancel();
+      utterance = null;
+      activeIndex = safeStartIndex;
+      isReading = true;
+      isPaused = false;
+      playStartedAt = Date.now();
+      render();
+      updatePlaybackButtons();
+      setStatus(t("started", { rate: Number(rateInput.value).toFixed(2) }));
+      scheduleSilentAdvance(runId);
+    }
+
+    function startFromToken(startIndex) {
+      if (voiceEnabled) {
+        speakFromToken(startIndex);
+      } else {
+        readSilentlyFromToken(startIndex);
+      }
+    }
+
     function restartAtCurrentWord() {
       if (!isReading || !tokens.length) return;
       const resumeIndex = activeIndex >= 0 ? activeIndex : 0;
-      speakFromToken(resumeIndex);
+      startFromToken(resumeIndex);
       setStatus(t("rateChangedNow", { rate: Number(rateInput.value).toFixed(2) }));
     }
 
@@ -1619,7 +1711,7 @@
       }
 
       tokens = tokenize(sourceText.value);
-      speakFromToken(0);
+      startFromToken(0);
     }
 
     async function readClipboard() {
@@ -1746,6 +1838,16 @@
 
     clipboardButton.addEventListener("click", readClipboard);
     playButton.addEventListener("click", play);
+    voiceButton.addEventListener("click", () => {
+      voiceEnabled = !voiceEnabled;
+      localStorage.setItem("slowglow-voice-enabled", String(voiceEnabled));
+      updateVoiceButton();
+
+      if (isReading && !isPaused) {
+        restartAtCurrentWord();
+      }
+      setStatus(voiceEnabled ? t("voiceEnabled") : t("voiceMuted"));
+    });
     menuButton.addEventListener("click", () => {
       menuCollapsed = !menuCollapsed;
       updateMenuButton();
@@ -1754,7 +1856,11 @@
       if (isPaused) {
         restartAtCurrentWord();
       } else {
-        window.speechSynthesis.pause();
+        if (voiceEnabled) {
+          window.speechSynthesis.pause();
+        } else {
+          clearSilentTimer();
+        }
         isPaused = true;
         setStatus(t("paused"));
         updatePlaybackButtons();
@@ -1797,7 +1903,10 @@
     sourceText.addEventListener("input", rebuildTokens);
     rateInput.addEventListener("input", handleRateInput);
     [fontInput, lineInput, widthInput].forEach(input => input.addEventListener("input", updateSettings));
-    window.addEventListener("beforeunload", () => window.speechSynthesis.cancel());
+    window.addEventListener("beforeunload", () => {
+      clearSilentTimer();
+      window.speechSynthesis.cancel();
+    });
 
     updateSettings();
     applyLanguage({ resetStatus: true });

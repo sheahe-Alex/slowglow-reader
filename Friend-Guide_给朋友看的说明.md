@@ -1,10 +1,10 @@
-# 慢光阅读 Slowglow Reader
+# 顺读 Reader
 
-这是一个面向长文和严肃内容的舒缓朗读阅读器，适合想更低阻力地开始阅读、读下去、回到注意力的人。  
-This is a gentle read-aloud reader for long-form and serious reading, for people who want less friction when starting, continuing, and returning to a text.
+这是一个面向长文和严肃内容的温柔辅助阅读器，适合想更低阻力地开始阅读、读下去、回到注意力的人。  
+This is a gentle assisted reader for long-form and serious reading, for people who want less friction when starting, continuing, and returning to a text.
 
-它不是速读工具，也不是翻译器。它可以把你复制的文字放大显示，朗读出来，并高亮当前读到的位置。你也可以打开“舒缓阅读”，让界面减少干扰，把当前句托出来，让其他文字轻轻退后，只跟着当前高亮慢慢走。  
-It is not a speed-reading tool or a translator. It can enlarge copied text, read it aloud, and highlight the current word. You can also turn on Gentle Reading, which reduces visual noise, lifts the current sentence forward, and lets the surrounding text gently fade back.
+它不是速读工具，也不是翻译器。它可以把你复制的文字放大显示，可以朗读，也可以关闭声音只保留高亮导读。你也可以打开“舒缓阅读”，让界面减少干扰，把当前句托出来，让其他文字轻轻退后，只跟着当前高亮慢慢走。  
+It is not a speed-reading tool or a translator. It can enlarge copied text, read it aloud, or keep the voice off while the highlight still guides you. You can also turn on Gentle Reading, which reduces visual noise, lifts the current sentence forward, and lets the surrounding text gently fade back.
 
 它不会要求登录，不会上传你的文字，也不需要 AI。  
 It does not ask you to log in, does not upload your text, and does not require AI.
@@ -47,8 +47,8 @@ If you are on Mac:
    Unzip this folder.
 2. 双击 `OpenSlowglowReader.command`。  
    Double-click `OpenSlowglowReader.command`.
-3. 浏览器会打开慢光阅读。  
-   Your browser will open Slowglow Reader.
+3. 浏览器会打开顺读 Reader。  
+   Your browser will open Reader.
 
 如果系统阻止打开：  
 If macOS blocks it:
@@ -66,12 +66,12 @@ If macOS blocks it:
    Select text in a webpage, PDF, or document.
 2. 按 `Command C` 复制。  
    Press `Command C` to copy.
-3. 回到慢光阅读。  
-   Return to Slowglow Reader.
+3. 回到顺读 Reader。  
+   Return to Reader.
 4. 点 `读取剪贴板`。  
    Click `读取剪贴板`.
-5. 点 `从头播放`。  
-   Click `从头播放`.
+5. 点 `开始阅读`。  
+   Click `Start Reading`.
 
 如果读取剪贴板失败，也可以直接把文字粘贴到左侧文本框。  
 If clipboard reading does not work, you can paste the text directly into the left text box.
@@ -82,6 +82,8 @@ If clipboard reading does not work, you can paste the text directly into the lef
   If the text feels too dense: increase font size and line spacing.
 - 如果觉得声音太慢或太快：调“语速”。  
   If the voice feels too slow or too fast: adjust speech speed.
+- 如果暂时不想听声音：点 `声音：开`，切到 `声音：关`。高亮仍会继续走。  
+  If you do not want audio right now: click `Voice: On` to switch it off. The highlight will still keep moving.
 - 如果觉得辅助痕迹太多：点 `辅助强度`，切到 `无`。  
   If there are too many visual cues: click `Support Level` and switch to `None`.
 - 如果状态不好、很抗拒阅读：点 `舒缓阅读`。  
