@@ -82,8 +82,8 @@ If clipboard reading does not work, you can paste the text directly into the lef
   If the text feels too dense: increase font size and line spacing.
 - 如果觉得声音太慢或太快：调“语速”。  
   If the voice feels too slow or too fast: adjust speech speed.
-- 如果觉得标注太多：点 `标注`，切到 `无`。  
-  If there are too many markings: click `标注` and switch to `无`.
+- 如果觉得辅助痕迹太多：点 `辅助强度`，切到 `无`。  
+  If there are too many visual cues: click `Support Level` and switch to `None`.
 - 如果状态不好、很抗拒阅读：点 `温柔模式`。  
   If reading feels hard to approach right now: try `温柔模式` / Gentle Mode.
 

@@ -47,8 +47,8 @@ The core belief:
 - 播放中调整语速 / Adjust speech speed during playback
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
 - 温柔模式：隐藏干扰，把当前句托出来，让已读内容和非当前句轻轻退后 / Gentle mode: hides distractions, lifts the current sentence forward, and lets read text and surrounding text fade back
-- 可选 Bionic Reading 风格显示 / Optional Bionic Reading-style display
-- 可选信息流/逻辑信号标注 / Optional information-flow and logic-signal markings
+- 可选加粗引导，帮助眼睛更容易落回文字 / Optional bold guidance to make it easier for the eyes to return to the text
+- 可选结构提示，轻量标出连接词和少量逻辑信号 / Optional structure hints for connectors and light logic signals
 - 本地关键词和关键句候选，帮助做笔记起步 / Local keyword and key-sentence suggestions for note-taking
 - 根据浏览器语言自动显示中文或英文界面，也可以手动切换 / Automatically uses Chinese or English based on browser language, with manual switching available
 
