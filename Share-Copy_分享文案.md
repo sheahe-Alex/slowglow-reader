@@ -7,7 +7,9 @@
 直接打开在线版：  
 https://sheahe-alex.github.io/slowglow-reader/
 
-它是一个面向长文、学习材料和严肃内容的低阻力阅读辅助工具，不需要登录，也不会上传文字。你可以把文章、论文、课程材料、文档或长邮件复制进去，它会放大显示，可以朗读，也可以关闭声音只保留高亮导读。
+它是一个面向长文、学习材料和严肃内容的低阻力阅读辅助工具，适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。
+
+它不需要登录，也不会上传文字。你可以把内容复制进去，它会放大显示，可以朗读，也可以关闭声音只保留高亮导读。
 
 它不是速读工具，也不是翻译器。我最想做的是「舒缓阅读」：它会把当前句托出来，让其他文字轻轻退后，帮助人一小句一小句地读，不用一下子面对整屏文字。
 
@@ -28,7 +30,9 @@ I made a small tool called Reader.
 Open the online version here:  
 https://sheahe-alex.github.io/slowglow-reader/
 
-It is a low-friction reading support tool for long-form text, study materials, and serious reading. It does not require login, and it does not upload your text. You can copy articles, papers, course materials, documentation, or long emails into it, and it will enlarge the text, read it aloud if you want, or keep the voice off while the highlight still guides you.
+It is a low-friction reading support tool for long-form text, study materials, and serious reading. It is for articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
+
+It does not require login, and it does not upload your text. You can paste content into it, and it will enlarge the text, read it aloud if you want, or keep the voice off while the highlight still guides you.
 
 It is not a speed-reading tool or a translator. The part I care about most is Gentle Reading. It lifts the current sentence forward and lets the surrounding text gently fade back, so you can read one sentence at a time without facing the whole page all at once.
 

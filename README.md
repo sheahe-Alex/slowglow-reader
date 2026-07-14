@@ -3,8 +3,11 @@
 一个面向长文、学习材料和严肃内容的低阻力阅读辅助工具。  
 A low-friction reading support tool for long-form text, study materials, and serious reading.
 
-它不是速读工具，也不是翻译器。它通过可开关声音的导读、当前词高亮、当前句托出、低干扰排版和轻量结构提示，帮助你面对文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
-It is not a speed-reading tool or a translator. It uses optional voice, guided highlighting, sentence focus, low-distraction layout, and light structure hints to help with articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
+适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
+For articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
+
+它不是速读工具，也不是翻译器。它通过可开关声音的导读、当前词高亮、当前句托出、低干扰排版和轻量结构提示，帮助你更容易开始、继续，并在走神后回到文本。  
+It is not a speed-reading tool or a translator. It uses optional voice, guided highlighting, sentence focus, low-distraction layout, and light structure hints to help you start, continue, and return to the text after drifting away.
 
 ## 直接使用 / Start Here
 
