@@ -15,6 +15,9 @@ The easiest way to use Slowglow Reader is to open the online version:
 不需要安装，不需要登录。打开网页后，把文字粘贴进去即可。  
 No installation or login is required. Open the page and paste text into the reader.
 
+手机上如果 `读取剪贴板` 不可用，直接点文本框手动粘贴即可。  
+On phones, if `Read Clipboard` does not work, tap the text box and paste manually.
+
 如果在线版打不开，或者所在网络访问 GitHub Pages 不稳定，可以下载这个仓库后本地打开 `index.html`。  
 If the online version does not open, or if GitHub Pages is unstable on your network, download this repository and open `index.html` locally.
 

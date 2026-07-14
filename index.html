@@ -198,6 +198,11 @@
         var(--panel);
     }
 
+    .toolbar.collapsed .advanced-control,
+    .toolbar.collapsed .settings-row {
+      display: none;
+    }
+
     .input-panel, .reader-panel, .notes-panel {
       background: var(--panel);
       border: 1px solid var(--line);
@@ -555,12 +560,58 @@
     }
 
     @media (max-width: 900px) {
+      .toolbar {
+        gap: 8px;
+        padding: 8px;
+      }
+
+      .toolbar-row {
+        gap: 8px;
+      }
+
+      .brand {
+        flex: 1 1 100%;
+        font-size: 18px;
+        line-height: 1.25;
+      }
+
+      .button {
+        min-height: 40px;
+        padding: 0 10px;
+      }
+
+      .toolbar-row.settings-row {
+        align-items: stretch;
+      }
+
+      .control {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .control input[type="range"] {
+        width: min(52vw, 220px);
+      }
+
       .reader-shell {
         grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 8px;
       }
 
       textarea {
-        min-height: 180px;
+        min-height: 42vh;
+        font-size: 18px;
+      }
+
+      .input-panel,
+      .reader-panel,
+      .notes-panel {
+        padding: 10px;
+      }
+
+      .reader-panel {
+        padding: 16px 10px;
       }
 
       .notes-output {
@@ -576,14 +627,15 @@
         <div class="brand">慢光阅读 <span style="font-weight: 600; color: var(--muted);">Slowglow Reader</span></div>
         <button class="button" id="clipboardButton" type="button">读取剪贴板</button>
         <button class="button primary" id="playButton" type="button">从头播放</button>
-        <button class="button" id="pauseButton" type="button" disabled>暂停</button>
-        <button class="button" id="stopButton" type="button">停止</button>
-        <button class="button" id="flowButton" type="button" aria-pressed="true">信息流：自动</button>
-        <button class="button" id="bionicButton" type="button" aria-pressed="true">Bionic：自动</button>
-        <button class="button" id="intensityButton" type="button">标注：轻</button>
-        <button class="button" id="focusButton" type="button" aria-pressed="false">专注</button>
-        <button class="button" id="gentleButton" type="button" aria-pressed="false">温柔模式</button>
-        <button class="button" id="languageButton" type="button">中文 / English</button>
+        <button class="button" id="menuButton" type="button" aria-expanded="true">收起菜单</button>
+        <button class="button advanced-control" id="pauseButton" type="button" disabled>暂停</button>
+        <button class="button advanced-control" id="stopButton" type="button">停止</button>
+        <button class="button advanced-control" id="flowButton" type="button" aria-pressed="true">信息流：自动</button>
+        <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="true">Bionic：自动</button>
+        <button class="button advanced-control" id="intensityButton" type="button">标注：轻</button>
+        <button class="button advanced-control" id="focusButton" type="button" aria-pressed="false">专注</button>
+        <button class="button advanced-control" id="gentleButton" type="button" aria-pressed="false">温柔模式</button>
+        <button class="button advanced-control" id="languageButton" type="button">中文 / English</button>
       </div>
       <div class="toolbar-row settings-row">
         <label class="control">语速 <input id="rateInput" type="range" min="0.7" max="2" step="0.05" value="1.15"><span id="rateValue">1.15x</span></label>
@@ -633,6 +685,7 @@
     const readerPanel = document.querySelector("#readerPanel");
     const clipboardButton = document.querySelector("#clipboardButton");
     const playButton = document.querySelector("#playButton");
+    const menuButton = document.querySelector("#menuButton");
     const pauseButton = document.querySelector("#pauseButton");
     const stopButton = document.querySelector("#stopButton");
     const flowButton = document.querySelector("#flowButton");
@@ -675,12 +728,15 @@
     let playbackRunId = 0;
     let speechOffset = 0;
     let rateRestartTimer = null;
+    let menuCollapsed = window.matchMedia("(max-width: 900px)").matches;
     let uiLanguage = localStorage.getItem("slowglow-ui-language") || (navigator.language?.toLowerCase().startsWith("zh") ? "zh" : "en");
 
     const copy = {
       zh: {
         clipboard: "读取剪贴板",
         play: "从头播放",
+        showMenu: "展开菜单",
+        hideMenu: "收起菜单",
         pause: "暂停",
         resume: "继续",
         stop: "停止",
@@ -700,7 +756,7 @@
         textTitle: "文本",
         placeholder: "从网页复制文字后，点“读取剪贴板”，或直接粘贴到这里。",
         ready: "准备好了。",
-        hint: "浏览器第一次读取剪贴板时可能会弹权限。若按钮失败，直接在文本框里按 Command V。",
+        hint: "手机上可以直接点文本框粘贴。若“读取剪贴板”失败，手动粘贴即可。",
         progress: ({ current, total }) => `第 ${current} 段 / 共 ${total} 段`,
         comfortDefault: "读一点也算。走神了也没关系，从高亮处回来就好。",
         guideDefault: "当前句会显示在这里。",
@@ -760,6 +816,8 @@
       en: {
         clipboard: "Read Clipboard",
         play: "Play From Start",
+        showMenu: "Show Menu",
+        hideMenu: "Hide Menu",
         pause: "Pause",
         resume: "Resume",
         stop: "Stop",
@@ -779,7 +837,7 @@
         textTitle: "Text",
         placeholder: "Copy text from a webpage, then click Read Clipboard, or paste it here.",
         ready: "Ready.",
-        hint: "Your browser may ask for clipboard permission the first time. If the button fails, click the text box and press Command V.",
+        hint: "On phones, tap the text box and paste directly. If Read Clipboard fails, manual paste still works.",
         progress: ({ current, total }) => `Paragraph ${current} / ${total}`,
         comfortDefault: "Reading a little counts. If your attention drifts, come back to the highlight.",
         guideDefault: "The current sentence will appear here.",
@@ -916,6 +974,7 @@
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
       playButton.textContent = t("play");
+      updateMenuButton();
       stopButton.textContent = t("stop");
       languageButton.textContent = t("languageButton");
       document.querySelector(".panel-title").textContent = t("textTitle");
@@ -941,6 +1000,12 @@
       updateModeButtons();
       applyTheme({ applyPreset: false });
       updateProgress();
+    }
+
+    function updateMenuButton() {
+      document.querySelector(".toolbar").classList.toggle("collapsed", menuCollapsed);
+      menuButton.textContent = menuCollapsed ? t("showMenu") : t("hideMenu");
+      menuButton.setAttribute("aria-expanded", String(!menuCollapsed));
     }
 
     function updatePlaybackButtons() {
@@ -1680,6 +1745,10 @@
 
     clipboardButton.addEventListener("click", readClipboard);
     playButton.addEventListener("click", play);
+    menuButton.addEventListener("click", () => {
+      menuCollapsed = !menuCollapsed;
+      updateMenuButton();
+    });
     pauseButton.addEventListener("click", () => {
       if (isPaused) {
         restartAtCurrentWord();
