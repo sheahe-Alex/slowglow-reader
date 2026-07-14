@@ -633,7 +633,6 @@
         <button class="button advanced-control" id="flowButton" type="button" aria-pressed="true">信息流：自动</button>
         <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="true">Bionic：自动</button>
         <button class="button advanced-control" id="intensityButton" type="button">标注：轻</button>
-        <button class="button advanced-control" id="focusButton" type="button" aria-pressed="false">专注</button>
         <button class="button advanced-control" id="gentleButton" type="button" aria-pressed="false">温柔模式</button>
         <button class="button advanced-control" id="languageButton" type="button">中文 / English</button>
       </div>
@@ -691,7 +690,6 @@
     const flowButton = document.querySelector("#flowButton");
     const bionicButton = document.querySelector("#bionicButton");
     const intensityButton = document.querySelector("#intensityButton");
-    const focusButton = document.querySelector("#focusButton");
     const gentleButton = document.querySelector("#gentleButton");
     const languageButton = document.querySelector("#languageButton");
     const themeButton = document.querySelector("#themeButton");
@@ -720,7 +718,6 @@
     let bionicMode = "auto";
     let annotationIntensity = "light";
     let currentTheme = "soft";
-    let focusMode = false;
     let gentleMode = false;
     let previousGentleSettings = null;
     let isReading = false;
@@ -743,8 +740,6 @@
         flowPrefix: "信息流",
         bionicPrefix: "Bionic",
         intensityPrefix: "标注",
-        focus: "专注",
-        exitFocus: "退出专注",
         gentle: "温柔模式",
         exitGentle: "退出温柔",
         languageButton: "中文 / English",
@@ -824,8 +819,6 @@
         flowPrefix: "Flow",
         bionicPrefix: "Bionic",
         intensityPrefix: "Marks",
-        focus: "Focus",
-        exitFocus: "Exit Focus",
         gentle: "Gentle Mode",
         exitGentle: "Exit Gentle",
         languageButton: "English / 中文",
@@ -1661,15 +1654,12 @@
       bionicButton.textContent = `${t("bionicPrefix")}：${currentCopyGroup("bionicLabels")[bionicMode]}`;
       bionicButton.setAttribute("aria-pressed", String(bionicMode !== "off"));
       intensityButton.textContent = `${t("intensityPrefix")}：${currentCopyGroup("intensityLabels")[annotationIntensity]}`;
-      focusButton.textContent = focusMode ? t("exitFocus") : t("focus");
-      focusButton.setAttribute("aria-pressed", String(focusMode));
       gentleButton.textContent = gentleMode ? t("exitGentle") : t("gentle");
       gentleButton.setAttribute("aria-pressed", String(gentleMode));
     }
 
     function setFocusMode(value) {
-      focusMode = value;
-      document.body.classList.toggle("focus-mode", focusMode);
+      document.body.classList.toggle("focus-mode", value);
       updateModeButtons();
     }
 
@@ -1685,7 +1675,6 @@
           bionicMode,
           annotationIntensity,
           currentTheme,
-          focusMode,
           rate: rateInput.value,
           font: fontInput.value,
           line: lineInput.value,
@@ -1720,7 +1709,7 @@
           fontInput.value = previousGentleSettings.font;
           lineInput.value = previousGentleSettings.line;
           widthInput.value = previousGentleSettings.width;
-          setFocusMode(previousGentleSettings.focusMode);
+          setFocusMode(false);
           applyTheme({ applyPreset: false });
           updateSettings();
         }
@@ -1777,9 +1766,6 @@
       annotationIntensity = annotationIntensities[nextIndex];
       updateModeButtons();
       render();
-    });
-    focusButton.addEventListener("click", () => {
-      setFocusMode(!focusMode);
     });
     gentleButton.addEventListener("click", () => setGentleMode(!gentleMode));
     languageButton.addEventListener("click", () => {

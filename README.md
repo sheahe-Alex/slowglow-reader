@@ -46,8 +46,7 @@ The core belief:
 - 当前词高亮 / Current-word highlight
 - 播放中调整语速 / Adjust speech speed during playback
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
-- 专注模式 / Focus mode
-- 温柔模式：把当前句托出来，让已读内容和非当前句轻轻退后 / Gentle mode: lifts the current sentence forward and lets read text and surrounding text fade back
+- 温柔模式：隐藏干扰，把当前句托出来，让已读内容和非当前句轻轻退后 / Gentle mode: hides distractions, lifts the current sentence forward, and lets read text and surrounding text fade back
 - 可选 Bionic Reading 风格显示 / Optional Bionic Reading-style display
 - 可选信息流/逻辑信号标注 / Optional information-flow and logic-signal markings
 - 本地关键词和关键句候选，帮助做笔记起步 / Local keyword and key-sentence suggestions for note-taking
