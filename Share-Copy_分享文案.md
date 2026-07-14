@@ -2,7 +2,7 @@
 
 ## 中文版
 
-我做了一个小工具，叫「顺读 Reader」。
+我做了一个小工具，叫「伴读 Reader」。
 
 直接打开在线版：  
 https://sheahe-alex.github.io/slowglow-reader/

@@ -1,4 +1,4 @@
-# 顺读 Reader
+# 伴读 Reader
 
 一个面向长文和严肃内容的温柔辅助阅读器，帮助人更低阻力地开始阅读、读下去，并回到注意力。  
 A gentle assisted reader for long-form and serious reading, designed to reduce friction and make it easier to start, continue, and return to the text.
@@ -24,7 +24,7 @@ If the online version does not open, or if GitHub Pages is unstable on your netw
 
 ## 为什么做 / Why
 
-顺读 Reader 不是为了催人读得更快，也不是为了证明谁的专注力够好。
+伴读 Reader 不是为了催人读得更快，也不是为了证明谁的专注力够好。
 
 Reader is not about forcing people to read faster or proving that they can focus well enough.
 
@@ -84,7 +84,7 @@ If macOS blocks it, right-click the file, choose "Open", and confirm once more.
    Select text in a webpage, PDF, or document.
 2. 按 `Command C` 复制。  
    Press `Command C` to copy.
-3. 回到顺读 Reader。  
+3. 回到伴读 Reader。  
    Return to Reader.
 4. 点 `读取剪贴板`，或直接粘贴到左侧文本框。  
    Click `读取剪贴板`, or paste directly into the text box on the left.

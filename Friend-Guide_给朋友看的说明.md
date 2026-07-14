@@ -1,4 +1,4 @@
-# 顺读 Reader
+# 伴读 Reader
 
 这是一个面向长文和严肃内容的温柔辅助阅读器，适合想更低阻力地开始阅读、读下去、回到注意力的人。  
 This is a gentle assisted reader for long-form and serious reading, for people who want less friction when starting, continuing, and returning to a text.
@@ -47,7 +47,7 @@ If you are on Mac:
    Unzip this folder.
 2. 双击 `OpenSlowglowReader.command`。  
    Double-click `OpenSlowglowReader.command`.
-3. 浏览器会打开顺读 Reader。  
+3. 浏览器会打开伴读 Reader。  
    Your browser will open Reader.
 
 如果系统阻止打开：  
@@ -66,7 +66,7 @@ If macOS blocks it:
    Select text in a webpage, PDF, or document.
 2. 按 `Command C` 复制。  
    Press `Command C` to copy.
-3. 回到顺读 Reader。  
+3. 回到伴读 Reader。  
    Return to Reader.
 4. 点 `读取剪贴板`。  
    Click `读取剪贴板`.
