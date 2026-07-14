@@ -1,7 +1,7 @@
 # 伴读 Reader
 
-这是一个面向长文和严肃内容的温柔辅助阅读器，适合想更低阻力地开始阅读、读下去、回到注意力的人。  
-This is a gentle assisted reader for long-form and serious reading, for people who want less friction when starting, continuing, and returning to a text.
+这是一个面向长文、学习材料和严肃内容的低阻力阅读辅助工具，适合想更容易开始阅读、读下去、回到注意力的人。  
+This is a low-friction reading support tool for long-form text, study materials, and serious reading, for people who want less friction when starting, continuing, and returning to a text.
 
 它不是速读工具，也不是翻译器。它可以把你复制的文字放大显示，可以朗读，也可以关闭声音只保留高亮导读。你也可以打开“舒缓阅读”，让界面减少干扰，把当前句托出来，让其他文字轻轻退后，只跟着当前高亮慢慢走。  
 It is not a speed-reading tool or a translator. It can enlarge copied text, read it aloud, or keep the voice off while the highlight still guides you. You can also turn on Gentle Reading, which reduces visual noise, lifts the current sentence forward, and lets the surrounding text gently fade back.
