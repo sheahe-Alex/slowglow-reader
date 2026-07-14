@@ -583,6 +583,7 @@
         <button class="button" id="intensityButton" type="button">标注：轻</button>
         <button class="button" id="focusButton" type="button" aria-pressed="false">专注</button>
         <button class="button" id="gentleButton" type="button" aria-pressed="false">温柔模式</button>
+        <button class="button" id="languageButton" type="button">中文 / English</button>
       </div>
       <div class="toolbar-row settings-row">
         <label class="control">语速 <input id="rateInput" type="range" min="0.7" max="2" step="0.05" value="1.15"><span id="rateValue">1.15x</span></label>
@@ -639,6 +640,7 @@
     const intensityButton = document.querySelector("#intensityButton");
     const focusButton = document.querySelector("#focusButton");
     const gentleButton = document.querySelector("#gentleButton");
+    const languageButton = document.querySelector("#languageButton");
     const themeButton = document.querySelector("#themeButton");
     const progressPill = document.querySelector("#progressPill");
     const comfortNote = document.querySelector("#comfortNote");
@@ -673,36 +675,185 @@
     let playbackRunId = 0;
     let speechOffset = 0;
     let rateRestartTimer = null;
+    let uiLanguage = localStorage.getItem("slowglow-ui-language") || (navigator.language?.toLowerCase().startsWith("zh") ? "zh" : "en");
+
+    const copy = {
+      zh: {
+        clipboard: "读取剪贴板",
+        play: "从头播放",
+        pause: "暂停",
+        resume: "继续",
+        stop: "停止",
+        flowPrefix: "信息流",
+        bionicPrefix: "Bionic",
+        intensityPrefix: "标注",
+        focus: "专注",
+        exitFocus: "退出专注",
+        gentle: "温柔模式",
+        exitGentle: "退出温柔",
+        languageButton: "中文 / English",
+        rate: "语速 ",
+        font: "字号 ",
+        line: "行距 ",
+        width: "宽度 ",
+        themePrefix: "主题",
+        textTitle: "文本",
+        placeholder: "从网页复制文字后，点“读取剪贴板”，或直接粘贴到这里。",
+        ready: "准备好了。",
+        hint: "浏览器第一次读取剪贴板时可能会弹权限。若按钮失败，直接在文本框里按 Command V。",
+        progress: ({ current, total }) => `第 ${current} 段 / 共 ${total} 段`,
+        comfortDefault: "读一点也算。走神了也没关系，从高亮处回来就好。",
+        guideDefault: "当前句会显示在这里。",
+        empty: "把文字放进左侧，然后从头播放。这里会用大字号显示文本、可选 Bionic，并高亮当前读到的词。",
+        notesSummary: "笔记辅助：关键词 / 关键句",
+        generateNotes: "生成候选",
+        copyNotes: "复制笔记草稿",
+        notesIntro: "这里会用本地规则提取关键词和关键句，作为做笔记的起点。它不是 AI 总结，也不会联网。",
+        pasteFirst: "先粘贴或读取一段文字。",
+        keywordsTitle: "关键词候选",
+        keySentencesTitle: "关键句候选",
+        none: "暂无",
+        noteMeta: ({ chars, words }) => `${chars} 字符，约 ${words} 词/中文词组`,
+        notesDisclaimer: "本地规则提取，用来起笔和搭逻辑，不等同于 AI 总结。",
+        draftKeywords: "关键词：",
+        draftKeySentences: "关键句：",
+        notesCopied: "笔记草稿已复制。",
+        copyFailed: "复制失败，可以手动选中笔记内容复制。",
+        loaded: ({ tokens, chars }) => `已载入 ${tokens} 个词/片段，约 ${chars} 字符。`,
+        noText: "还没有文本。",
+        stopped: "已停止。",
+        reading: ({ token }) => `正在读：${token}`,
+        finished: "读完了。你可以复制下一段，再点读取剪贴板。",
+        interrupted: ({ seconds }) => `朗读中断了，已播放 ${seconds} 秒。可以再按从头播放重试。`,
+        started: ({ rate }) => `开始朗读。语速 ${rate}x`,
+        rateChangedNow: ({ rate }) => `已切换到 ${rate}x，从当前位置继续。`,
+        clipboardEmpty: "剪贴板里没有文字。",
+        clipboardLoaded: "已读取剪贴板。按从头播放开始。",
+        clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
+        gentleOn: "温柔模式已开启。当前句会被托出来，其他文字会轻轻退后。",
+        gentleOff: "已退出温柔模式。",
+        rateAfterResume: ({ rate }) => `语速已改为 ${rate}x，点继续后生效。`,
+        paused: "已暂停。",
+        currentSentence: ({ current, total }) => `当前句 ${current} / ${total}`,
+        flowLabels: { auto: "自动", en: "英文", zh: "中文", off: "关" },
+        bionicLabels: { auto: "自动", on: "开", off: "关" },
+        intensityLabels: { off: "无", light: "轻", standard: "标准" },
+        themeLabels: { soft: "柔和", clean: "清爽", open: "开阔", night: "夜间" },
+        zhLegend: {
+          link: "中文逻辑信号",
+          old: "指代/承接",
+          new: "句末推进重点"
+        },
+        enLegend: {
+          link: "连接词/逻辑关系",
+          old: "旧信息/重复主题",
+          new: "新信息/句末重点"
+        },
+        comfortMessages: [
+          "读一点也算。走神了也没关系，从高亮处回来就好。",
+          "不用一次读完。今天能靠近文本一点点，就已经很好。",
+          "这不是考试。你可以慢慢读，也可以只听一段。",
+          "如果脑子开始乱，先跟着当前高亮走一小步。",
+          "卡住不是失败，只是这里需要更温柔的速度。"
+        ]
+      },
+      en: {
+        clipboard: "Read Clipboard",
+        play: "Play From Start",
+        pause: "Pause",
+        resume: "Resume",
+        stop: "Stop",
+        flowPrefix: "Flow",
+        bionicPrefix: "Bionic",
+        intensityPrefix: "Marks",
+        focus: "Focus",
+        exitFocus: "Exit Focus",
+        gentle: "Gentle Mode",
+        exitGentle: "Exit Gentle",
+        languageButton: "English / 中文",
+        rate: "Speed ",
+        font: "Font ",
+        line: "Line ",
+        width: "Width ",
+        themePrefix: "Theme",
+        textTitle: "Text",
+        placeholder: "Copy text from a webpage, then click Read Clipboard, or paste it here.",
+        ready: "Ready.",
+        hint: "Your browser may ask for clipboard permission the first time. If the button fails, click the text box and press Command V.",
+        progress: ({ current, total }) => `Paragraph ${current} / ${total}`,
+        comfortDefault: "Reading a little counts. If your attention drifts, come back to the highlight.",
+        guideDefault: "The current sentence will appear here.",
+        empty: "Put text on the left, then play from the start. This area will show large text, optional Bionic styling, and the current highlighted word.",
+        notesSummary: "Note helper: keywords / key sentences",
+        generateNotes: "Generate Suggestions",
+        copyNotes: "Copy Note Draft",
+        notesIntro: "Local rules will extract keyword and key-sentence candidates as a starting point for notes. This is not an AI summary and does not go online.",
+        pasteFirst: "Paste or read some text first.",
+        keywordsTitle: "Keyword Candidates",
+        keySentencesTitle: "Key Sentence Candidates",
+        none: "None yet",
+        noteMeta: ({ chars, words }) => `${chars} characters, about ${words} words / Chinese chunks`,
+        notesDisclaimer: "Extracted with local rules to help you start notes and build structure. Not an AI summary.",
+        draftKeywords: "Keywords:",
+        draftKeySentences: "Key sentences:",
+        notesCopied: "Note draft copied.",
+        copyFailed: "Copy failed. You can manually select and copy the note content.",
+        loaded: ({ tokens, chars }) => `Loaded ${tokens} words/chunks, about ${chars} characters.`,
+        noText: "No text yet.",
+        stopped: "Stopped.",
+        reading: ({ token }) => `Reading: ${token}`,
+        finished: "Finished. You can copy the next passage, then click Read Clipboard.",
+        interrupted: ({ seconds }) => `Reading was interrupted after ${seconds} seconds. You can try Play From Start again.`,
+        started: ({ rate }) => `Started reading at ${rate}x.`,
+        rateChangedNow: ({ rate }) => `Switched to ${rate}x and continued from the current position.`,
+        clipboardEmpty: "There is no text in the clipboard.",
+        clipboardLoaded: "Clipboard loaded. Click Play From Start.",
+        clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
+        gentleOn: "Gentle Mode is on. The current sentence is lifted forward, and surrounding text fades back.",
+        gentleOff: "Gentle Mode is off.",
+        rateAfterResume: ({ rate }) => `Speed changed to ${rate}x. It will apply when you resume.`,
+        paused: "Paused.",
+        currentSentence: ({ current, total }) => `Current sentence ${current} / ${total}`,
+        flowLabels: { auto: "Auto", en: "English", zh: "Chinese", off: "Off" },
+        bionicLabels: { auto: "Auto", on: "On", off: "Off" },
+        intensityLabels: { off: "None", light: "Light", standard: "Standard" },
+        themeLabels: { soft: "Soft", clean: "Clean", open: "Open", night: "Night" },
+        zhLegend: {
+          link: "Chinese logic signal",
+          old: "reference / carried context",
+          new: "sentence-end focus"
+        },
+        enLegend: {
+          link: "connector / logic relation",
+          old: "old or repeated topic",
+          new: "new info / sentence-end focus"
+        },
+        comfortMessages: [
+          "Reading a little counts. If your attention drifts, come back to the highlight.",
+          "You do not have to finish everything at once. Getting close to the text already matters.",
+          "This is not a test. You can read slowly, or just listen to one passage.",
+          "If your mind starts to scatter, follow the current highlight for one small step.",
+          "Getting stuck is not failure. This part may simply need a gentler pace."
+        ]
+      }
+    };
+
+    function t(key, params = {}) {
+      const value = copy[uiLanguage][key] ?? copy.zh[key] ?? key;
+      return typeof value === "function" ? value(params) : value;
+    }
+
+    function currentCopyGroup(key) {
+      return copy[uiLanguage][key] ?? copy.zh[key];
+    }
 
     const flowModes = ["auto", "en", "zh", "off"];
-    const flowModeLabels = {
-      auto: "自动",
-      en: "英文",
-      zh: "中文",
-      off: "关"
-    };
 
     const bionicModes = ["auto", "on", "off"];
-    const bionicModeLabels = {
-      auto: "自动",
-      on: "开",
-      off: "关"
-    };
 
     const annotationIntensities = ["off", "light", "standard"];
-    const annotationIntensityLabels = {
-      off: "无",
-      light: "轻",
-      standard: "标准"
-    };
 
     const themes = ["soft", "clean", "open", "night"];
-    const themeLabels = {
-      soft: "柔和",
-      clean: "清爽",
-      open: "开阔",
-      night: "夜间"
-    };
 
     const themePresets = {
       soft: { font: 38, line: 1.75, width: 980 },
@@ -710,14 +861,6 @@
       open: { font: 40, line: 1.95, width: 860 },
       night: { font: 38, line: 1.8, width: 940 }
     };
-
-    const comfortMessages = [
-      "读一点也算。走神了也没关系，从高亮处回来就好。",
-      "不用一次读完。今天能靠近文本一点点，就已经很好。",
-      "这不是考试。你可以慢慢读，也可以只听一段。",
-      "如果脑子开始乱，先跟着当前高亮走一小步。",
-      "卡住不是失败，只是这里需要更温柔的速度。"
-    ];
 
     const connectorGroups = [
       { label: "转折", words: ["however", "but", "yet", "although", "though", "nevertheless", "nonetheless", "whereas", "while", "despite", "instead", "rather"] },
@@ -763,9 +906,46 @@
       status.textContent = message;
     }
 
+    function setLabelText(input, text) {
+      if (input?.parentElement?.childNodes?.[0]) {
+        input.parentElement.childNodes[0].nodeValue = text;
+      }
+    }
+
+    function applyLanguage({ resetStatus = false } = {}) {
+      document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
+      clipboardButton.textContent = t("clipboard");
+      playButton.textContent = t("play");
+      stopButton.textContent = t("stop");
+      languageButton.textContent = t("languageButton");
+      document.querySelector(".panel-title").textContent = t("textTitle");
+      sourceText.placeholder = t("placeholder");
+      document.querySelector(".hint").textContent = t("hint");
+      comfortNote.textContent = t("comfortDefault");
+      gentleGuide.textContent = t("guideDefault");
+      notesPanel.querySelector("summary").textContent = t("notesSummary");
+      notesButton.textContent = t("generateNotes");
+      copyNotesButton.textContent = t("copyNotes");
+      setLabelText(rateInput, t("rate"));
+      setLabelText(fontInput, t("font"));
+      setLabelText(lineInput, t("line"));
+      setLabelText(widthInput, t("width"));
+
+      if (!tokens.length) {
+        reader.innerHTML = `<div class="empty-state">${escapeHTML(t("empty"))}</div>`;
+        notesOutput.innerHTML = `<div class="note-card">${escapeHTML(t("notesIntro"))}</div>`;
+      }
+
+      if (resetStatus) setStatus(t("ready"));
+      updatePlaybackButtons();
+      updateModeButtons();
+      applyTheme({ applyPreset: false });
+      updateProgress();
+    }
+
     function updatePlaybackButtons() {
       pauseButton.disabled = !isReading;
-      pauseButton.textContent = isPaused ? "继续" : "暂停";
+      pauseButton.textContent = isPaused ? t("resume") : t("pause");
     }
 
     function normalizeForSpeech(text) {
@@ -971,26 +1151,29 @@
     function renderNotes() {
       const text = sourceText.value.trim();
       if (!text) {
-        notesOutput.innerHTML = `<div class="note-card">先粘贴或读取一段文字。</div>`;
+        notesOutput.innerHTML = `<div class="note-card">${escapeHTML(t("pasteFirst"))}</div>`;
         return;
       }
 
       const { keywords, keySentences } = buildNotesDraft(text);
-      const meta = `${text.length.toLocaleString()} 字符，约 ${roughWordCount(text).toLocaleString()} 词/中文词组`;
+      const meta = t("noteMeta", {
+        chars: text.length.toLocaleString(),
+        words: roughWordCount(text).toLocaleString()
+      });
       notesOutput.innerHTML = `
         <section class="note-card">
-          <h2>关键词候选</h2>
+          <h2>${escapeHTML(t("keywordsTitle"))}</h2>
           <ul class="keyword-list">
-            ${keywords.map(keyword => `<li>${escapeHTML(keyword)}</li>`).join("") || "<li>暂无</li>"}
+            ${keywords.map(keyword => `<li>${escapeHTML(keyword)}</li>`).join("") || `<li>${escapeHTML(t("none"))}</li>`}
           </ul>
           <div class="note-meta">${meta}</div>
         </section>
         <section class="note-card">
-          <h2>关键句候选</h2>
+          <h2>${escapeHTML(t("keySentencesTitle"))}</h2>
           <ol class="key-sentence-list">
-            ${keySentences.map(sentence => `<li>${escapeHTML(sentence)}</li>`).join("") || "<li>暂无</li>"}
+            ${keySentences.map(sentence => `<li>${escapeHTML(sentence)}</li>`).join("") || `<li>${escapeHTML(t("none"))}</li>`}
           </ol>
-          <div class="note-meta">本地规则提取，用来起笔和搭逻辑，不等同于 AI 总结。</div>
+          <div class="note-meta">${escapeHTML(t("notesDisclaimer"))}</div>
         </section>
       `;
     }
@@ -998,24 +1181,24 @@
     async function copyNotesDraft() {
       const text = sourceText.value.trim();
       if (!text) {
-        setStatus("先粘贴或读取一段文字。");
+        setStatus(t("pasteFirst"));
         return;
       }
 
       const { keywords, keySentences } = buildNotesDraft(text);
       const draft = [
-        "关键词：",
-        keywords.map(keyword => `- ${keyword}`).join("\n") || "- 暂无",
+        t("draftKeywords"),
+        keywords.map(keyword => `- ${keyword}`).join("\n") || `- ${t("none")}`,
         "",
-        "关键句：",
-        keySentences.map(sentence => `- ${sentence}`).join("\n") || "- 暂无"
+        t("draftKeySentences"),
+        keySentences.map(sentence => `- ${sentence}`).join("\n") || `- ${t("none")}`
       ].join("\n");
 
       try {
         await navigator.clipboard.writeText(draft);
-        setStatus("笔记草稿已复制。");
+        setStatus(t("notesCopied"));
       } catch {
-        setStatus("复制失败，可以手动选中笔记内容复制。");
+        setStatus(t("copyFailed"));
       }
     }
 
@@ -1161,7 +1344,7 @@
 
     function render() {
       if (!tokens.length) {
-        reader.innerHTML = `<div class="empty-state">把文字放进左侧，然后从头播放。这里会用大字号显示文本、可选 Bionic，并高亮当前读到的词。</div>`;
+        reader.innerHTML = `<div class="empty-state">${escapeHTML(t("empty"))}</div>`;
         gentleGuide.classList.remove("visible");
         updateProgress();
         return;
@@ -1188,14 +1371,14 @@
       const legend = currentFlowMode === "off" || annotationIntensity === "off" ? "" : (
         currentFlowMode === "zh"
           ? `<div class="legend">
-              <span class="legend-item"><span class="swatch link">线</span>中文逻辑信号</span>
-              <span class="legend-item"><span class="swatch old">底</span>指代/承接</span>
-              <span class="legend-item"><span class="swatch new">点</span>句末推进重点</span>
+              <span class="legend-item"><span class="swatch link">线</span>${escapeHTML(currentCopyGroup("zhLegend").link)}</span>
+              <span class="legend-item"><span class="swatch old">底</span>${escapeHTML(currentCopyGroup("zhLegend").old)}</span>
+              <span class="legend-item"><span class="swatch new">点</span>${escapeHTML(currentCopyGroup("zhLegend").new)}</span>
             </div>`
           : `<div class="legend">
-              <span class="legend-item"><span class="swatch link">line</span>连接词/逻辑关系</span>
-              <span class="legend-item"><span class="swatch old">old</span>旧信息/重复主题</span>
-              <span class="legend-item"><span class="swatch new">new</span>新信息/句末重点</span>
+              <span class="legend-item"><span class="swatch link">line</span>${escapeHTML(currentCopyGroup("enLegend").link)}</span>
+              <span class="legend-item"><span class="swatch old">old</span>${escapeHTML(currentCopyGroup("enLegend").old)}</span>
+              <span class="legend-item"><span class="swatch new">new</span>${escapeHTML(currentCopyGroup("enLegend").new)}</span>
             </div>`
       );
 
@@ -1230,7 +1413,7 @@
       const sentenceCount = splitSentences(sourceText.value).length;
       const sentenceText = sentenceFocus.text.trim().replace(/\s+/g, " ");
       gentleGuide.innerHTML = `
-        <strong>当前句 ${currentSentenceIndex + 1} / ${sentenceCount}</strong><br>
+        <strong>${escapeHTML(t("currentSentence", { current: currentSentenceIndex + 1, total: sentenceCount }))}</strong><br>
         ${escapeHTML(sentenceText)}
       `;
       gentleGuide.classList.add("visible");
@@ -1249,7 +1432,7 @@
         return;
       }
 
-      progressPill.textContent = `第 ${paragraphIndex + 1} 段 / 共 ${ranges.length} 段`;
+      progressPill.textContent = t("progress", { current: paragraphIndex + 1, total: ranges.length });
       progressPill.classList.add("visible");
     }
 
@@ -1258,9 +1441,12 @@
       activeIndex = -1;
       render();
       if (tokens.length) {
-        setStatus(`已载入 ${tokens.length.toLocaleString()} 个词/片段，约 ${sourceText.value.length.toLocaleString()} 字符。`);
+        setStatus(t("loaded", {
+          tokens: tokens.length.toLocaleString(),
+          chars: sourceText.value.length.toLocaleString()
+        }));
       } else {
-        setStatus("还没有文本。");
+        setStatus(t("noText"));
       }
     }
 
@@ -1285,7 +1471,7 @@
       render();
       updateProgress();
       updatePlaybackButtons();
-      setStatus("已停止。");
+      setStatus(t("stopped"));
     }
 
     function speakFromToken(startIndex) {
@@ -1316,7 +1502,7 @@
         if (nextIndex !== activeIndex) {
           activeIndex = nextIndex;
           render();
-          setStatus(`正在读：${tokens[activeIndex]?.text ?? ""}`);
+          setStatus(t("reading", { token: tokens[activeIndex]?.text ?? "" }));
         }
       };
 
@@ -1328,7 +1514,7 @@
         render();
         updateProgress();
         updatePlaybackButtons();
-        setStatus("读完了。你可以复制下一段，再点读取剪贴板。");
+        setStatus(t("finished"));
       };
 
       utterance.onerror = () => {
@@ -1340,10 +1526,10 @@
         render();
         updateProgress();
         updatePlaybackButtons();
-        setStatus(`朗读中断了，已播放 ${elapsed} 秒。可以再按从头播放重试。`);
+        setStatus(t("interrupted", { seconds: elapsed }));
       };
 
-      setStatus(`开始朗读。语速 ${Number(rateInput.value).toFixed(2)}x`);
+      setStatus(t("started", { rate: Number(rateInput.value).toFixed(2) }));
       window.speechSynthesis.speak(utterance);
     }
 
@@ -1351,13 +1537,13 @@
       if (!isReading || !tokens.length) return;
       const resumeIndex = activeIndex >= 0 ? activeIndex : 0;
       speakFromToken(resumeIndex);
-      setStatus(`已切换到 ${Number(rateInput.value).toFixed(2)}x，从当前位置继续。`);
+      setStatus(t("rateChangedNow", { rate: Number(rateInput.value).toFixed(2) }));
     }
 
     function play() {
       const text = normalizeForSpeech(sourceText.value);
       if (!text) {
-        setStatus("先粘贴或读取一段文字。");
+        setStatus(t("pasteFirst"));
         sourceText.focus();
         return;
       }
@@ -1370,14 +1556,14 @@
       try {
         const text = await navigator.clipboard.readText();
         if (!text.trim()) {
-          setStatus("剪贴板里没有文字。");
+          setStatus(t("clipboardEmpty"));
           return;
         }
         sourceText.value = text;
         rebuildTokens();
-        setStatus("已读取剪贴板。按从头播放开始。");
+        setStatus(t("clipboardLoaded"));
       } catch {
-        setStatus("读取剪贴板失败。请点左侧文本框后按 Command V。");
+        setStatus(t("clipboardFailed"));
         sourceText.focus();
       }
     }
@@ -1401,18 +1587,18 @@
         widthInput.value = preset.width;
         updateSettings();
       }
-      themeButton.textContent = `主题：${themeLabels[currentTheme]}`;
+      themeButton.textContent = `${t("themePrefix")}：${currentCopyGroup("themeLabels")[currentTheme]}`;
     }
 
     function updateModeButtons() {
-      flowButton.textContent = `信息流：${flowModeLabels[flowMode]}`;
+      flowButton.textContent = `${t("flowPrefix")}：${currentCopyGroup("flowLabels")[flowMode]}`;
       flowButton.setAttribute("aria-pressed", String(flowMode !== "off"));
-      bionicButton.textContent = `Bionic：${bionicModeLabels[bionicMode]}`;
+      bionicButton.textContent = `${t("bionicPrefix")}：${currentCopyGroup("bionicLabels")[bionicMode]}`;
       bionicButton.setAttribute("aria-pressed", String(bionicMode !== "off"));
-      intensityButton.textContent = `标注：${annotationIntensityLabels[annotationIntensity]}`;
-      focusButton.textContent = focusMode ? "退出专注" : "专注";
+      intensityButton.textContent = `${t("intensityPrefix")}：${currentCopyGroup("intensityLabels")[annotationIntensity]}`;
+      focusButton.textContent = focusMode ? t("exitFocus") : t("focus");
       focusButton.setAttribute("aria-pressed", String(focusMode));
-      gentleButton.textContent = gentleMode ? "退出温柔" : "温柔模式";
+      gentleButton.textContent = gentleMode ? t("exitGentle") : t("gentle");
       gentleButton.setAttribute("aria-pressed", String(gentleMode));
     }
 
@@ -1423,7 +1609,8 @@
     }
 
     function randomComfortMessage() {
-      return comfortMessages[Math.floor(Math.random() * comfortMessages.length)];
+      const messages = currentCopyGroup("comfortMessages");
+      return messages[Math.floor(Math.random() * messages.length)];
     }
 
     function setGentleMode(value) {
@@ -1454,7 +1641,7 @@
         widthInput.value = "780";
         updateSettings();
         comfortNote.textContent = randomComfortMessage();
-        setStatus("温柔模式已开启。当前句会被托出来，其他文字会轻轻退后。");
+        setStatus(t("gentleOn"));
       } else if (!value && gentleMode) {
         gentleMode = false;
         document.body.classList.remove("gentle-mode");
@@ -1473,7 +1660,7 @@
           updateSettings();
         }
 
-        setStatus("已退出温柔模式。");
+        setStatus(t("gentleOff"));
       }
 
       updateModeButtons();
@@ -1484,7 +1671,7 @@
       updateSettings();
       if (!isReading) return;
       if (isPaused) {
-        setStatus(`语速已改为 ${Number(rateInput.value).toFixed(2)}x，点继续后生效。`);
+        setStatus(t("rateAfterResume", { rate: Number(rateInput.value).toFixed(2) }));
         return;
       }
       window.clearTimeout(rateRestartTimer);
@@ -1499,7 +1686,7 @@
       } else {
         window.speechSynthesis.pause();
         isPaused = true;
-        setStatus("已暂停。");
+        setStatus(t("paused"));
         updatePlaybackButtons();
       }
     });
@@ -1507,27 +1694,32 @@
     flowButton.addEventListener("click", () => {
       const nextIndex = (flowModes.indexOf(flowMode) + 1) % flowModes.length;
       flowMode = flowModes[nextIndex];
-      flowButton.textContent = `信息流：${flowModeLabels[flowMode]}`;
-      flowButton.setAttribute("aria-pressed", String(flowMode !== "off"));
+      updateModeButtons();
       render();
     });
     bionicButton.addEventListener("click", () => {
       const nextIndex = (bionicModes.indexOf(bionicMode) + 1) % bionicModes.length;
       bionicMode = bionicModes[nextIndex];
-      bionicButton.textContent = `Bionic：${bionicModeLabels[bionicMode]}`;
-      bionicButton.setAttribute("aria-pressed", String(bionicMode !== "off"));
+      updateModeButtons();
       render();
     });
     intensityButton.addEventListener("click", () => {
       const nextIndex = (annotationIntensities.indexOf(annotationIntensity) + 1) % annotationIntensities.length;
       annotationIntensity = annotationIntensities[nextIndex];
-      intensityButton.textContent = `标注：${annotationIntensityLabels[annotationIntensity]}`;
+      updateModeButtons();
       render();
     });
     focusButton.addEventListener("click", () => {
       setFocusMode(!focusMode);
     });
     gentleButton.addEventListener("click", () => setGentleMode(!gentleMode));
+    languageButton.addEventListener("click", () => {
+      uiLanguage = uiLanguage === "zh" ? "en" : "zh";
+      localStorage.setItem("slowglow-ui-language", uiLanguage);
+      applyLanguage({ resetStatus: true });
+      render();
+      if (notesPanel.open) renderNotes();
+    });
     themeButton.addEventListener("click", () => {
       const nextIndex = (themes.indexOf(currentTheme) + 1) % themes.length;
       currentTheme = themes[nextIndex];
@@ -1541,9 +1733,7 @@
     window.addEventListener("beforeunload", () => window.speechSynthesis.cancel());
 
     updateSettings();
-    applyTheme();
-    updateModeButtons();
-    updatePlaybackButtons();
+    applyLanguage({ resetStatus: true });
   </script>
 </body>
 </html>

@@ -35,6 +35,7 @@ The core belief:
 - 可选 Bionic Reading 风格显示 / Optional Bionic Reading-style display
 - 可选信息流/逻辑信号标注 / Optional information-flow and logic-signal markings
 - 本地关键词和关键句候选，帮助做笔记起步 / Local keyword and key-sentence suggestions for note-taking
+- 根据浏览器语言自动显示中文或英文界面，也可以手动切换 / Automatically uses Chinese or English based on browser language, with manual switching available
 
 ## 运行方式 / How To Run
 
