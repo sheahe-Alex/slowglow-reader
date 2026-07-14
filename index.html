@@ -633,7 +633,7 @@
         <button class="button advanced-control" id="flowButton" type="button" aria-pressed="true">结构提示：自动</button>
         <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="true">加粗引导：自动</button>
         <button class="button advanced-control" id="intensityButton" type="button">辅助强度：轻</button>
-        <button class="button advanced-control" id="gentleButton" type="button" aria-pressed="false">温柔模式</button>
+        <button class="button advanced-control" id="gentleButton" type="button" aria-pressed="false">舒缓阅读</button>
         <button class="button advanced-control" id="languageButton" type="button">中文 / English</button>
       </div>
       <div class="toolbar-row settings-row">
@@ -740,8 +740,8 @@
         flowPrefix: "结构提示",
         bionicPrefix: "加粗引导",
         intensityPrefix: "辅助强度",
-        gentle: "温柔模式",
-        exitGentle: "退出温柔",
+        gentle: "舒缓阅读",
+        exitGentle: "退出舒缓",
         languageButton: "中文 / English",
         rate: "语速 ",
         font: "字号 ",
@@ -781,8 +781,8 @@
         clipboardEmpty: "剪贴板里没有文字。",
         clipboardLoaded: "已读取剪贴板。按从头播放开始。",
         clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
-        gentleOn: "温柔模式已开启。当前句会被托出来，其他文字会轻轻退后。",
-        gentleOff: "已退出温柔模式。",
+        gentleOn: "舒缓阅读已开启。当前句会被托出来，其他文字会轻轻退后。",
+        gentleOff: "已退出舒缓阅读。",
         rateAfterResume: ({ rate }) => `语速已改为 ${rate}x，点继续后生效。`,
         paused: "已暂停。",
         currentSentence: ({ current, total }) => `当前句 ${current} / ${total}`,
@@ -805,7 +805,7 @@
           "不用一次读完。今天能靠近文本一点点，就已经很好。",
           "这不是考试。你可以慢慢读，也可以只听一段。",
           "如果脑子开始乱，先跟着当前高亮走一小步。",
-          "卡住不是失败，只是这里需要更温柔的速度。"
+          "卡住不是失败，只是这里需要更舒缓的速度。"
         ]
       },
       en: {
@@ -819,8 +819,8 @@
         flowPrefix: "Structure Hints",
         bionicPrefix: "Bold Guide",
         intensityPrefix: "Support Level",
-        gentle: "Gentle Mode",
-        exitGentle: "Exit Gentle",
+        gentle: "Gentle Reading",
+        exitGentle: "Exit Gentle Reading",
         languageButton: "English / 中文",
         rate: "Speed ",
         font: "Font ",
@@ -860,8 +860,8 @@
         clipboardEmpty: "There is no text in the clipboard.",
         clipboardLoaded: "Clipboard loaded. Click Play From Start.",
         clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
-        gentleOn: "Gentle Mode is on. The current sentence is lifted forward, and surrounding text fades back.",
-        gentleOff: "Gentle Mode is off.",
+        gentleOn: "Gentle Reading is on. The current sentence is lifted forward, and surrounding text fades back.",
+        gentleOff: "Gentle Reading is off.",
         rateAfterResume: ({ rate }) => `Speed changed to ${rate}x. It will apply when you resume.`,
         paused: "Paused.",
         currentSentence: ({ current, total }) => `Current sentence ${current} / ${total}`,

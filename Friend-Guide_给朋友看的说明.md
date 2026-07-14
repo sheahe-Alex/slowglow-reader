@@ -1,10 +1,10 @@
 # 慢光阅读 Slowglow Reader
 
-这是一个本地温柔朗读阅读器，适合想把阅读变得更不吓人、更容易开始的人。  
-This is a gentle local read-aloud reader for people who want reading to feel less scary and easier to begin.
+这是一个面向长文和严肃内容的舒缓朗读阅读器，适合想更低阻力地开始阅读、读下去、回到注意力的人。  
+This is a gentle read-aloud reader for long-form and serious reading, for people who want less friction when starting, continuing, and returning to a text.
 
-它可以把你复制的文字放大显示，朗读出来，并高亮当前读到的位置。你也可以打开“温柔模式”，让界面减少干扰，把当前句托出来，让其他文字轻轻退后，只跟着当前高亮慢慢走。  
-It can enlarge copied text, read it aloud, and highlight the current word. You can also turn on Gentle Mode, which reduces visual noise, lifts the current sentence forward, and lets the surrounding text gently fade back.
+它不是速读工具，也不是翻译器。它可以把你复制的文字放大显示，朗读出来，并高亮当前读到的位置。你也可以打开“舒缓阅读”，让界面减少干扰，把当前句托出来，让其他文字轻轻退后，只跟着当前高亮慢慢走。  
+It is not a speed-reading tool or a translator. It can enlarge copied text, read it aloud, and highlight the current word. You can also turn on Gentle Reading, which reduces visual noise, lifts the current sentence forward, and lets the surrounding text gently fade back.
 
 它不会要求登录，不会上传你的文字，也不需要 AI。  
 It does not ask you to log in, does not upload your text, and does not require AI.
@@ -84,8 +84,8 @@ If clipboard reading does not work, you can paste the text directly into the lef
   If the voice feels too slow or too fast: adjust speech speed.
 - 如果觉得辅助痕迹太多：点 `辅助强度`，切到 `无`。  
   If there are too many visual cues: click `Support Level` and switch to `None`.
-- 如果状态不好、很抗拒阅读：点 `温柔模式`。  
-  If reading feels hard to approach right now: try `温柔模式` / Gentle Mode.
+- 如果状态不好、很抗拒阅读：点 `舒缓阅读`。  
+  If reading feels hard to approach right now: try `舒缓阅读` / Gentle Reading.
 
 ## 关于隐私 / Privacy
 

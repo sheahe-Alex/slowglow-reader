@@ -1,9 +1,10 @@
 # 慢光阅读 Slowglow Reader
 
-一个本地、无登录、不上传文字的温柔朗读阅读器。  
-A gentle local read-aloud reader that does not require login or upload your text.
+一个面向长文和严肃内容的舒缓朗读阅读器，帮助人更低阻力地开始阅读、读下去，并回到注意力。  
+A gentle read-aloud reader for long-form and serious reading, designed to reduce friction and make it easier to start, continue, and return to the text.
 
-Slowglow Reader is for people who want reading to feel safer, softer, and easier to return to.
+它不是速读工具，也不是翻译器。它通过朗读、当前词高亮、当前句托出、低干扰排版和轻量结构提示，帮助你面对文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
+It is not a speed-reading tool or a translator. It uses read-aloud, current-word highlighting, sentence focus, low-distraction layout, and light structure hints to help with articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
 
 ## 直接使用 / Start Here
 
@@ -46,7 +47,7 @@ The core belief:
 - 当前词高亮 / Current-word highlight
 - 播放中调整语速 / Adjust speech speed during playback
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
-- 温柔模式：隐藏干扰，把当前句托出来，让已读内容和非当前句轻轻退后 / Gentle mode: hides distractions, lifts the current sentence forward, and lets read text and surrounding text fade back
+- 舒缓阅读：隐藏干扰，把当前句托出来，让已读内容和非当前句轻轻退后 / Gentle reading: hides distractions, lifts the current sentence forward, and lets read text and surrounding text fade back
 - 可选加粗引导，帮助眼睛更容易落回文字 / Optional bold guidance to make it easier for the eyes to return to the text
 - 可选结构提示，轻量标出连接词和少量逻辑信号 / Optional structure hints for connectors and light logic signals
 - 本地关键词和关键句候选，帮助做笔记起步 / Local keyword and key-sentence suggestions for note-taking
@@ -90,8 +91,8 @@ If macOS blocks it, right-click the file, choose "Open", and confirm once more.
 5. 点 `从头播放`。  
    Click `从头播放` to start reading from the beginning.
 
-状态不好、文字太压迫时，可以点 `温柔模式`。  
-When the text feels overwhelming, try `温柔模式` / Gentle Mode.
+状态不好、文字太压迫时，可以点 `舒缓阅读`。  
+When the text feels overwhelming, try `舒缓阅读` / Gentle Reading.
 
 ## 隐私 / Privacy
 
@@ -133,7 +134,7 @@ You can use:
 - 更正式的跨平台网页版 / A more polished cross-platform web version
 - 更稳定的大段文本朗读 / More stable long-text read-aloud
 - 可选的 PDF/OCR 辅助 / Optional PDF/OCR support
-- 更细腻的温柔模式调节 / More nuanced Gentle Mode controls
+- 更细腻的舒缓阅读调节 / More nuanced Gentle Reading controls
 - 多语言阅读体验优化 / Better multilingual reading experience
 
 ## License
