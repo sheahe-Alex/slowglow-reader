@@ -141,6 +141,18 @@
       font-weight: 700;
     }
 
+    .button.comfort {
+      border-color: var(--comfort-line);
+      background: var(--comfort-bg);
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .button.utility {
+      color: var(--muted);
+      background: color-mix(in srgb, var(--panel) 86%, var(--bg));
+    }
+
     .button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -627,13 +639,13 @@
         <div class="brand">慢光阅读 <span style="font-weight: 600; color: var(--muted);">Slowglow Reader</span></div>
         <button class="button" id="clipboardButton" type="button">读取剪贴板</button>
         <button class="button primary" id="playButton" type="button">从头播放</button>
-        <button class="button" id="menuButton" type="button" aria-expanded="true">收起菜单</button>
+        <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">舒缓阅读</button>
+        <button class="button utility" id="menuButton" type="button" aria-expanded="true">收起设置</button>
         <button class="button advanced-control" id="pauseButton" type="button" disabled>暂停</button>
         <button class="button advanced-control" id="stopButton" type="button">停止</button>
         <button class="button advanced-control" id="flowButton" type="button" aria-pressed="true">结构提示：自动</button>
         <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="true">加粗引导：自动</button>
         <button class="button advanced-control" id="intensityButton" type="button">辅助强度：轻</button>
-        <button class="button advanced-control" id="gentleButton" type="button" aria-pressed="false">舒缓阅读</button>
         <button class="button advanced-control" id="languageButton" type="button">中文 / English</button>
       </div>
       <div class="toolbar-row settings-row">
@@ -732,8 +744,8 @@
       zh: {
         clipboard: "读取剪贴板",
         play: "从头播放",
-        showMenu: "展开菜单",
-        hideMenu: "收起菜单",
+        showMenu: "更多设置",
+        hideMenu: "收起设置",
         pause: "暂停",
         resume: "继续",
         stop: "停止",
@@ -811,8 +823,8 @@
       en: {
         clipboard: "Read Clipboard",
         play: "Play From Start",
-        showMenu: "Show Menu",
-        hideMenu: "Hide Menu",
+        showMenu: "More Settings",
+        hideMenu: "Hide Settings",
         pause: "Pause",
         resume: "Resume",
         stop: "Stop",
