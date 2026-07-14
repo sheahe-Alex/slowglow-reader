@@ -39,10 +39,16 @@ The core belief:
 
 ## 运行方式 / How To Run
 
+核心阅读器可以在 Windows 和 Mac 的现代浏览器里使用。  
+The core reader works in modern browsers on both Windows and Mac.
+
 ### 直接打开 / Directly Open
 
 双击 `index.html`。  
 Double-click `index.html`.
+
+Windows 用户可以用 Chrome 或 Edge 打开 `index.html`。  
+Windows users can open `index.html` with Chrome or Edge.
 
 ### Mac 推荐方式 / Recommended On Mac
 

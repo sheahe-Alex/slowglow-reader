@@ -11,6 +11,19 @@ It does not ask you to log in, does not upload your text, and does not require A
 
 ## 怎么打开 / How To Open
 
+Windows 和 Mac 都可以使用核心阅读器，只需要现代浏览器。  
+The core reader works on both Windows and Mac in a modern browser.
+
+如果你用 Windows：  
+If you are on Windows:
+
+1. 解压这个文件夹。  
+   Unzip this folder.
+2. 用 Chrome 或 Edge 打开 `index.html`。  
+   Open `index.html` with Chrome or Edge.
+3. 如果读取剪贴板失败，直接把文字粘贴到左侧文本框。  
+   If clipboard reading does not work, paste text directly into the left text box.
+
 如果你用 Mac：  
 If you are on Mac:
 
