@@ -1,0 +1,1549 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>慢光阅读 Slowglow Reader</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f3ec;
+      --panel: #fffefa;
+      --ink: #171717;
+      --muted: #68635b;
+      --line: #d9d1c3;
+      --accent: #0b7a75;
+      --accent-ink: #ffffff;
+      --highlight: #ffe66d;
+      --highlight-ink: #101010;
+      --flow-link: #1d70b8;
+      --flow-old: #fff0a6;
+      --flow-new: #147a4b;
+      --flow-tag: #f3dfb2;
+      --sentence-bg: rgba(11, 122, 117, 0.06);
+      --sentence-line: rgba(11, 122, 117, 0.22);
+      --comfort-bg: rgba(11, 122, 117, 0.08);
+      --comfort-line: rgba(11, 122, 117, 0.2);
+      --font-size: 34px;
+      --line-height: 1.75;
+      --max-width: 980px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body[data-theme="soft"] {
+      --bg: #f6f3ec;
+      --panel: #fffefa;
+      --ink: #171717;
+      --muted: #68635b;
+      --line: #d9d1c3;
+      --highlight: #ffe66d;
+    }
+
+    body[data-theme="clean"] {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --ink: #111827;
+      --muted: #667085;
+      --line: #d0d5dd;
+      --highlight: #fff176;
+    }
+
+    body[data-theme="open"] {
+      --bg: #f2f7f4;
+      --panel: #fffffb;
+      --ink: #102019;
+      --muted: #617068;
+      --line: #cbd9d1;
+      --highlight: #ffec8a;
+      --line-height: 1.95;
+      --max-width: 860px;
+    }
+
+    body[data-theme="night"] {
+      color-scheme: dark;
+      --bg: #111318;
+      --panel: #181b22;
+      --ink: #f2f4f7;
+      --muted: #a4aab5;
+      --line: #333844;
+      --accent: #55b8ad;
+      --accent-ink: #071412;
+      --highlight: #f2c94c;
+      --highlight-ink: #111318;
+      --flow-old: rgba(242, 201, 76, 0.22);
+      --flow-tag: rgba(242, 201, 76, 0.22);
+      --sentence-bg: rgba(85, 184, 173, 0.09);
+      --sentence-line: rgba(85, 184, 173, 0.28);
+      --comfort-bg: rgba(85, 184, 173, 0.12);
+      --comfort-line: rgba(85, 184, 173, 0.3);
+    }
+
+    button, textarea, input, select {
+      font: inherit;
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: grid;
+      gap: 12px;
+      padding: 14px 18px;
+      background: rgba(255, 254, 250, 0.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand {
+      font-weight: 800;
+      font-size: 22px;
+      margin-right: auto;
+    }
+
+    .button {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-weight: 700;
+    }
+
+    .button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 15px;
+      white-space: nowrap;
+    }
+
+    .control input[type="range"] {
+      width: 150px;
+      accent-color: var(--accent);
+    }
+
+    .reader-shell {
+      display: grid;
+      grid-template-columns: minmax(280px, 380px) 1fr;
+      gap: 18px;
+      padding: 18px;
+      min-height: 0;
+    }
+
+    body.focus-mode .toolbar {
+      grid-template-rows: auto;
+    }
+
+    body.focus-mode .toolbar-row.settings-row,
+    body.focus-mode .input-panel,
+    body.focus-mode .notes-panel {
+      display: none;
+    }
+
+    body.focus-mode .reader-shell {
+      grid-template-columns: 1fr;
+      padding: 10px;
+    }
+
+    body.focus-mode .reader-panel {
+      border-color: transparent;
+      padding-top: clamp(14px, 2vw, 28px);
+    }
+
+    body.gentle-mode .toolbar {
+      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.04);
+    }
+
+    body.gentle-mode .reader-panel {
+      background:
+        linear-gradient(90deg, color-mix(in srgb, var(--bg) 35%, transparent), transparent 18%, transparent 82%, color-mix(in srgb, var(--bg) 35%, transparent)),
+        var(--panel);
+    }
+
+    .input-panel, .reader-panel, .notes-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-height: 0;
+    }
+
+    .input-panel {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 10px;
+      padding: 14px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 320px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #ffffff;
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .reader-panel {
+      overflow: auto;
+      padding: clamp(18px, 3vw, 44px);
+    }
+
+    .reader {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      font-family: Georgia, "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+      font-size: var(--font-size);
+      line-height: var(--line-height);
+      letter-spacing: 0;
+      white-space: pre-wrap;
+    }
+
+    .paragraph {
+      margin: 0 0 1.1em;
+    }
+
+    .paragraph:last-child {
+      margin-bottom: 0;
+    }
+
+    .token {
+      display: inline;
+      padding: 0 0.03em;
+      border-radius: 4px;
+      transition: background-color 120ms ease, color 120ms ease, opacity 140ms ease, box-shadow 140ms ease;
+    }
+
+    .token strong {
+      font-weight: 900;
+    }
+
+    .token.active {
+      background: var(--highlight);
+      color: var(--highlight-ink);
+      box-shadow: 0 0 0 0.08em var(--highlight);
+    }
+
+    body.gentle-mode .token.active {
+      border-radius: 7px;
+      box-shadow: 0 0 0 0.14em var(--highlight), 0 0.18em 0.7em rgba(16, 24, 40, 0.08);
+      text-decoration-line: underline;
+      text-decoration-color: color-mix(in srgb, var(--highlight-ink) 55%, transparent);
+      text-decoration-thickness: 0.09em;
+      text-underline-offset: 0.2em;
+    }
+
+    .sentence-focus {
+      background: var(--sentence-bg);
+      box-shadow: 0 0 0 0.16em var(--sentence-bg);
+      border-bottom: 1px solid var(--sentence-line);
+      border-radius: 5px;
+    }
+
+    body.gentle-mode .sentence-focus {
+      background: color-mix(in srgb, var(--comfort-bg) 78%, transparent);
+      box-shadow: 0 0 0 0.18em color-mix(in srgb, var(--comfort-bg) 72%, transparent);
+      border-bottom-color: var(--comfort-line);
+    }
+
+    body.gentle-mode .token.gentle-read {
+      opacity: 0.48;
+    }
+
+    body.gentle-mode .token.gentle-outside {
+      opacity: 0.3;
+    }
+
+    body.gentle-mode .paragraph.gentle-away {
+      opacity: 0.38;
+    }
+
+    body.gentle-mode .paragraph.gentle-current {
+      opacity: 1;
+    }
+
+    .token.flow-link {
+      color: #064f86;
+      text-decoration-line: underline;
+      text-decoration-color: var(--flow-link);
+      text-decoration-thickness: 0.12em;
+      text-underline-offset: 0.18em;
+    }
+
+    .token.flow-old {
+      background: var(--flow-old);
+      box-shadow: 0 0 0 0.08em var(--flow-old);
+    }
+
+    .token.flow-new {
+      color: #0b5d36;
+      text-decoration-line: underline;
+      text-decoration-color: rgba(20, 122, 75, 0.55);
+      text-decoration-style: dotted;
+      text-decoration-thickness: 0.1em;
+      text-underline-offset: 0.18em;
+    }
+
+    .token.active.flow-link,
+    .token.active.flow-old,
+    .token.active.flow-new {
+      background: var(--highlight);
+      color: var(--highlight-ink);
+      box-shadow: 0 0 0 0.08em var(--highlight);
+      text-decoration-color: currentColor;
+    }
+
+    .flow-label {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: 0.14em;
+      margin-right: 0.45em;
+      padding: 0.1em 0.45em;
+      border-radius: 999px;
+      background: var(--flow-tag);
+      color: #4d3900;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.42em;
+      font-weight: 800;
+      line-height: 1.35;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 1rem;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      display: inline-flex;
+      align-items: center;
+      min-width: 2.4em;
+      height: 1.5em;
+      padding: 0 0.35em;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      color: var(--ink);
+      background: #fff;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .swatch.link {
+      color: #064f86;
+      text-decoration-line: underline;
+      text-decoration-color: var(--flow-link);
+      text-decoration-thickness: 0.12em;
+      text-underline-offset: 0.18em;
+    }
+
+    .swatch.old {
+      background: var(--flow-old);
+    }
+
+    .swatch.new {
+      color: #0b5d36;
+      text-decoration-line: underline;
+      text-decoration-color: rgba(20, 122, 75, 0.55);
+      text-decoration-style: dotted;
+      text-decoration-thickness: 0.1em;
+      text-underline-offset: 0.18em;
+    }
+
+    .empty-state {
+      color: var(--muted);
+      font-size: var(--font-size);
+      line-height: var(--line-height);
+    }
+
+    .status {
+      min-height: 22px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .notes-panel {
+      grid-column: 1 / -1;
+      padding: 14px;
+    }
+
+    .notes-panel summary {
+      cursor: pointer;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .notes-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .notes-output {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.9fr) 1.4fr;
+      gap: 16px;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .note-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: color-mix(in srgb, var(--panel) 92%, var(--bg));
+    }
+
+    .note-card h2 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .keyword-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .keyword-list li {
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      background: var(--flow-old);
+    }
+
+    .key-sentence-list {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    .key-sentence-list li {
+      margin: 0.45rem 0;
+    }
+
+    .note-meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .progress-pill {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      width: fit-content;
+      margin: 0 auto 1rem;
+      padding: 0.28rem 0.65rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--panel) 88%, transparent);
+      color: var(--muted);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.2;
+      backdrop-filter: blur(8px);
+    }
+
+    .progress-pill.visible {
+      display: block;
+    }
+
+    .comfort-note {
+      display: none;
+      max-width: var(--max-width);
+      margin: 0 auto 1rem;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid var(--comfort-line);
+      border-radius: 8px;
+      background: var(--comfort-bg);
+      color: var(--muted);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    body.gentle-mode .comfort-note {
+      display: block;
+    }
+
+    .gentle-guide {
+      display: none;
+      max-width: var(--max-width);
+      margin: 0 auto 1rem;
+      padding: 0.75rem 0.85rem;
+      border-left: 4px solid var(--comfort-line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--comfort-bg) 70%, transparent);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    body.gentle-mode .gentle-guide.visible {
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      .reader-shell {
+        grid-template-columns: 1fr;
+      }
+
+      textarea {
+        min-height: 180px;
+      }
+
+      .notes-output {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="toolbar">
+      <div class="toolbar-row">
+        <div class="brand">慢光阅读 <span style="font-weight: 600; color: var(--muted);">Slowglow Reader</span></div>
+        <button class="button" id="clipboardButton" type="button">读取剪贴板</button>
+        <button class="button primary" id="playButton" type="button">从头播放</button>
+        <button class="button" id="pauseButton" type="button" disabled>暂停</button>
+        <button class="button" id="stopButton" type="button">停止</button>
+        <button class="button" id="flowButton" type="button" aria-pressed="true">信息流：自动</button>
+        <button class="button" id="bionicButton" type="button" aria-pressed="true">Bionic：自动</button>
+        <button class="button" id="intensityButton" type="button">标注：轻</button>
+        <button class="button" id="focusButton" type="button" aria-pressed="false">专注</button>
+        <button class="button" id="gentleButton" type="button" aria-pressed="false">温柔模式</button>
+      </div>
+      <div class="toolbar-row settings-row">
+        <label class="control">语速 <input id="rateInput" type="range" min="0.7" max="2" step="0.05" value="1.15"><span id="rateValue">1.15x</span></label>
+        <label class="control">字号 <input id="fontInput" type="range" min="24" max="64" step="2" value="38"><span id="fontValue">38px</span></label>
+        <label class="control">行距 <input id="lineInput" type="range" min="1.35" max="2.2" step="0.05" value="1.75"><span id="lineValue">1.75</span></label>
+        <label class="control">宽度 <input id="widthInput" type="range" min="620" max="1280" step="20" value="980"><span id="widthValue">980px</span></label>
+        <button class="button" id="themeButton" type="button">主题：柔和</button>
+      </div>
+    </header>
+
+    <main class="reader-shell">
+      <section class="input-panel">
+        <h1 class="panel-title">文本</h1>
+        <textarea id="sourceText" placeholder="从网页复制文字后，点“读取剪贴板”，或直接粘贴到这里。"></textarea>
+        <div>
+          <div class="status" id="status">准备好了。</div>
+          <div class="hint">浏览器第一次读取剪贴板时可能会弹权限。若按钮失败，直接在文本框里按 Command V。</div>
+        </div>
+      </section>
+
+      <section class="reader-panel" id="readerPanel">
+        <div class="progress-pill" id="progressPill">第 1 段 / 共 1 段</div>
+        <div class="comfort-note" id="comfortNote">读一点也算。走神了也没关系，从高亮处回来就好。</div>
+        <div class="gentle-guide" id="gentleGuide">当前句会显示在这里。</div>
+        <div class="reader" id="reader">
+          <div class="empty-state">把文字放进左侧，然后从头播放。这里会用大字号显示文本、可选 Bionic，并高亮当前读到的词。</div>
+        </div>
+      </section>
+
+      <details class="notes-panel" id="notesPanel">
+        <summary>笔记辅助：关键词 / 关键句</summary>
+        <div class="notes-tools">
+          <button class="button" id="notesButton" type="button">生成候选</button>
+          <button class="button" id="copyNotesButton" type="button">复制笔记草稿</button>
+        </div>
+        <div class="notes-output" id="notesOutput">
+          <div class="note-card">这里会用本地规则提取关键词和关键句，作为做笔记的起点。它不是 AI 总结，也不会联网。</div>
+        </div>
+      </details>
+
+    </main>
+  </div>
+
+  <script>
+    const sourceText = document.querySelector("#sourceText");
+    const reader = document.querySelector("#reader");
+    const readerPanel = document.querySelector("#readerPanel");
+    const clipboardButton = document.querySelector("#clipboardButton");
+    const playButton = document.querySelector("#playButton");
+    const pauseButton = document.querySelector("#pauseButton");
+    const stopButton = document.querySelector("#stopButton");
+    const flowButton = document.querySelector("#flowButton");
+    const bionicButton = document.querySelector("#bionicButton");
+    const intensityButton = document.querySelector("#intensityButton");
+    const focusButton = document.querySelector("#focusButton");
+    const gentleButton = document.querySelector("#gentleButton");
+    const themeButton = document.querySelector("#themeButton");
+    const progressPill = document.querySelector("#progressPill");
+    const comfortNote = document.querySelector("#comfortNote");
+    const gentleGuide = document.querySelector("#gentleGuide");
+    const notesPanel = document.querySelector("#notesPanel");
+    const notesButton = document.querySelector("#notesButton");
+    const copyNotesButton = document.querySelector("#copyNotesButton");
+    const notesOutput = document.querySelector("#notesOutput");
+    const rateInput = document.querySelector("#rateInput");
+    const fontInput = document.querySelector("#fontInput");
+    const lineInput = document.querySelector("#lineInput");
+    const widthInput = document.querySelector("#widthInput");
+    const rateValue = document.querySelector("#rateValue");
+    const fontValue = document.querySelector("#fontValue");
+    const lineValue = document.querySelector("#lineValue");
+    const widthValue = document.querySelector("#widthValue");
+    const status = document.querySelector("#status");
+
+    let tokens = [];
+    let activeIndex = -1;
+    let utterance = null;
+    let playStartedAt = 0;
+    let flowMode = "auto";
+    let bionicMode = "auto";
+    let annotationIntensity = "light";
+    let currentTheme = "soft";
+    let focusMode = false;
+    let gentleMode = false;
+    let previousGentleSettings = null;
+    let isReading = false;
+    let isPaused = false;
+    let playbackRunId = 0;
+    let speechOffset = 0;
+    let rateRestartTimer = null;
+
+    const flowModes = ["auto", "en", "zh", "off"];
+    const flowModeLabels = {
+      auto: "自动",
+      en: "英文",
+      zh: "中文",
+      off: "关"
+    };
+
+    const bionicModes = ["auto", "on", "off"];
+    const bionicModeLabels = {
+      auto: "自动",
+      on: "开",
+      off: "关"
+    };
+
+    const annotationIntensities = ["off", "light", "standard"];
+    const annotationIntensityLabels = {
+      off: "无",
+      light: "轻",
+      standard: "标准"
+    };
+
+    const themes = ["soft", "clean", "open", "night"];
+    const themeLabels = {
+      soft: "柔和",
+      clean: "清爽",
+      open: "开阔",
+      night: "夜间"
+    };
+
+    const themePresets = {
+      soft: { font: 38, line: 1.75, width: 980 },
+      clean: { font: 36, line: 1.65, width: 1000 },
+      open: { font: 40, line: 1.95, width: 860 },
+      night: { font: 38, line: 1.8, width: 940 }
+    };
+
+    const comfortMessages = [
+      "读一点也算。走神了也没关系，从高亮处回来就好。",
+      "不用一次读完。今天能靠近文本一点点，就已经很好。",
+      "这不是考试。你可以慢慢读，也可以只听一段。",
+      "如果脑子开始乱，先跟着当前高亮走一小步。",
+      "卡住不是失败，只是这里需要更温柔的速度。"
+    ];
+
+    const connectorGroups = [
+      { label: "转折", words: ["however", "but", "yet", "although", "though", "nevertheless", "nonetheless", "whereas", "while", "despite", "instead", "rather"] },
+      { label: "因果", words: ["because", "since", "as", "therefore", "thus", "hence", "consequently", "so", "accordingly"] },
+      { label: "举例", words: ["for example", "for instance", "including", "such as", "like", "namely"] },
+      { label: "递进", words: ["also", "moreover", "furthermore", "besides", "additionally", "in addition", "another"] },
+      { label: "顺承", words: ["then", "next", "afterward", "finally", "first", "second", "third"] },
+      { label: "目的", words: ["to", "in order to", "so that"] },
+      { label: "总结", words: ["overall", "in short", "in summary", "therefore", "ultimately"] }
+    ];
+
+    const stopWords = new Set([
+      "a", "an", "the", "and", "or", "but", "if", "then", "so", "to", "of", "in", "on", "for", "with", "as", "by", "at", "from",
+      "is", "are", "was", "were", "be", "been", "being", "it", "this", "that", "these", "those", "you", "your", "we", "they",
+      "he", "she", "i", "me", "my", "our", "their", "his", "her", "its", "not", "can", "will", "would", "should", "could",
+      "when", "where", "what", "which", "who", "how", "about", "into", "than", "through", "use", "uses", "used"
+    ]);
+
+    const zhConnectorGroups = [
+      { label: "转折", words: ["但是", "但", "不过", "然而", "可是", "只是", "反而", "尽管", "虽然", "却"] },
+      { label: "因果", words: ["因为", "由于", "因此", "所以", "因而", "于是", "导致", "使得", "由此", "可见"] },
+      { label: "举例", words: ["例如", "比如", "譬如", "像", "包括", "尤其", "具体来说"] },
+      { label: "递进", words: ["而且", "并且", "同时", "此外", "另外", "更重要的是", "甚至"] },
+      { label: "顺承", words: ["首先", "其次", "然后", "接着", "最后", "随后", "一方面", "另一方面"] },
+      { label: "解释", words: ["也就是说", "换句话说", "也即", "这意味着", "具体而言"] },
+      { label: "总结", words: ["总之", "综上", "因此", "所以", "归根结底", "整体来看"] }
+    ];
+
+    const zhReferenceWords = [
+      "这", "这个", "这些", "这种", "这里", "上述", "前者", "后者", "它", "他们", "她们", "其", "该", "此", "这些内容", "这种方式"
+    ];
+
+    const zhNoteStopWords = new Set([
+      "这个", "这些", "这种", "一个", "一些", "如果", "因为", "所以", "但是", "我们", "你们", "他们", "可以", "需要", "进行", "通过",
+      "以及", "或者", "并且", "没有", "不是", "就是", "然后", "非常", "比较", "可能", "应该", "对于", "关于", "其中", "时候"
+    ]);
+
+    const segmenter = typeof Intl !== "undefined" && Intl.Segmenter
+      ? new Intl.Segmenter(["zh", "en"], { granularity: "word" })
+      : null;
+
+    function setStatus(message) {
+      status.textContent = message;
+    }
+
+    function updatePlaybackButtons() {
+      pauseButton.disabled = !isReading;
+      pauseButton.textContent = isPaused ? "继续" : "暂停";
+    }
+
+    function normalizeForSpeech(text) {
+      return text.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+    }
+
+    function lowerToken(text) {
+      return text.toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
+    }
+
+    function roughWordCount(text) {
+      const enWords = text.match(/[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)?/g)?.length || 0;
+      const cjkChars = text.match(/[\u3400-\u9fff]/g)?.length || 0;
+      return enWords + Math.ceil(cjkChars / 2);
+    }
+
+    function cjkRatio(text) {
+      const visible = Array.from(text).filter(char => !/\s/.test(char));
+      if (!visible.length) return 0;
+      const cjk = visible.filter(char => /[\u3400-\u9fff]/.test(char)).length;
+      return cjk / visible.length;
+    }
+
+    function effectiveFlowMode(source) {
+      if (flowMode !== "auto") return flowMode;
+      return cjkRatio(source) > 0.35 ? "zh" : "en";
+    }
+
+    function splitSentences(text) {
+      const source = text.trim();
+      if (!source) return [];
+      const matches = source.matchAll(/[^.!?。！？]+[.!?。！？]?/g);
+      return Array.from(matches)
+        .map(match => ({
+          text: match[0],
+          start: match.index,
+          end: match.index + match[0].length
+        }))
+        .filter(sentence => sentence.text.trim());
+    }
+
+    function paragraphRanges(text) {
+      const source = text.trim();
+      if (!source) return [];
+      const ranges = [];
+      const pattern = /\n{2,}/g;
+      let start = 0;
+      let match;
+
+      while ((match = pattern.exec(source)) !== null) {
+        if (match.index > start) {
+          ranges.push({ start, end: match.index });
+        }
+        start = match.index + match[0].length;
+      }
+
+      if (start < source.length) {
+        ranges.push({ start, end: source.length });
+      }
+
+      return ranges.length ? ranges : [{ start: 0, end: source.length }];
+    }
+
+    function paragraphIndexForToken(index) {
+      const source = sourceText.value.trim();
+      if (!source || index < 0 || !tokens[index]) return -1;
+      const ranges = paragraphRanges(source);
+      return ranges.findIndex(range => tokens[index].start >= range.start && tokens[index].start <= range.end);
+    }
+
+    function sentenceRangeForToken(index) {
+      const source = sourceText.value.trim();
+      if (!source || index < 0 || !tokens[index]) return null;
+      return splitSentences(source).find(sentence => tokens[index].start >= sentence.start && tokens[index].start < sentence.end) || null;
+    }
+
+    function sentenceIndexForToken(index) {
+      const source = sourceText.value.trim();
+      if (!source || index < 0 || !tokens[index]) return -1;
+      return splitSentences(source).findIndex(sentence => tokens[index].start >= sentence.start && tokens[index].start < sentence.end);
+    }
+
+    function connectorLabelForSentence(sentenceText) {
+      const normalized = sentenceText.toLowerCase().replace(/\s+/g, " ").trim();
+      for (const group of connectorGroups) {
+        if (group.words.some(word => normalized.startsWith(word + " ") || normalized.includes(" " + word + " "))) {
+          return group.label;
+        }
+      }
+      return "";
+    }
+
+    function zhConnectorLabelForSentence(sentenceText) {
+      for (const group of zhConnectorGroups) {
+        if (group.words.some(word => sentenceText.includes(word))) {
+          return group.label;
+        }
+      }
+      if (/[?？]$/.test(sentenceText.trim())) return "问题";
+      return "";
+    }
+
+    function tokenize(text) {
+      const source = text.trim();
+      if (!source) return [];
+
+      if (segmenter) {
+        return Array.from(segmenter.segment(source))
+          .filter(part => part.isWordLike || /[，。！？；：、,.!?;:]/.test(part.segment))
+          .map(part => ({
+            text: part.segment,
+            start: part.index,
+            end: part.index + part.segment.length,
+            flow: ""
+          }));
+      }
+
+      const matches = source.matchAll(/[\p{Script=Han}]{1,4}|[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)?|[^\s]/gu);
+      return Array.from(matches).map(match => ({
+        text: match[0],
+        start: match.index,
+        end: match.index + match[0].length,
+        flow: ""
+      }));
+    }
+
+    function noteTokens(text) {
+      const source = text.trim();
+      if (!source) return [];
+      const matches = source.matchAll(/[\u3400-\u9fff]{2,6}|[A-Za-z][A-Za-z0-9]+(?:['-][A-Za-z0-9]+)?/gu);
+      return Array.from(matches).map(match => ({
+        text: match[0],
+        index: match.index,
+        key: /[\u3400-\u9fff]/.test(match[0]) ? match[0] : lowerToken(match[0])
+      }));
+    }
+
+    function isUsefulNoteToken(token) {
+      if (!token.key) return false;
+      if (/^[0-9]+$/.test(token.key)) return false;
+      if (/[\u3400-\u9fff]/.test(token.key)) {
+        return token.key.length >= 2 && !zhNoteStopWords.has(token.key);
+      }
+      return token.key.length >= 4 && !stopWords.has(token.key);
+    }
+
+    function extractKeywords(text, limit = 18) {
+      const items = noteTokens(text).filter(isUsefulNoteToken);
+      const counts = new Map();
+
+      for (const item of items) {
+        const entry = counts.get(item.key) || { text: item.text, count: 0, first: item.index };
+        entry.count += 1;
+        entry.first = Math.min(entry.first, item.index);
+        if (item.text.length > entry.text.length) entry.text = item.text;
+        counts.set(item.key, entry);
+      }
+
+      const textLength = Math.max(text.length, 1);
+      return Array.from(counts.values())
+        .map(item => ({
+          ...item,
+          score: item.count * 3 + (1 - item.first / textLength)
+        }))
+        .sort((a, b) => b.score - a.score || a.first - b.first)
+        .slice(0, limit)
+        .map(item => item.text);
+    }
+
+    function sentenceScore(sentence, keywordSet, position, total) {
+      const tokensInSentence = noteTokens(sentence.text).filter(isUsefulNoteToken);
+      const unique = new Set(tokensInSentence.map(token => token.key));
+      const keywordHits = Array.from(unique).filter(key => keywordSet.has(key)).length;
+      const connectorBoost = connectorGroups.concat(zhConnectorGroups)
+        .some(group => group.words.some(word => sentence.text.toLowerCase().includes(word))) ? 1.2 : 0;
+      const lengthPenalty = sentence.text.length > 240 ? -1.5 : sentence.text.length < 24 ? -1 : 0;
+      const earlyBoost = position < Math.max(2, total * 0.2) ? 0.8 : 0;
+      return keywordHits * 2 + connectorBoost + earlyBoost + lengthPenalty;
+    }
+
+    function extractKeySentences(text, keywords, limit = 5) {
+      const sentences = splitSentences(text);
+      const keywordSet = new Set(keywords.map(keyword => /[\u3400-\u9fff]/.test(keyword) ? keyword : lowerToken(keyword)));
+      return sentences
+        .map((sentence, index) => ({
+          text: sentence.text.trim(),
+          index,
+          score: sentenceScore(sentence, keywordSet, index, sentences.length)
+        }))
+        .filter(item => item.text.length >= 12)
+        .sort((a, b) => b.score - a.score || a.index - b.index)
+        .slice(0, limit)
+        .sort((a, b) => a.index - b.index)
+        .map(item => item.text);
+    }
+
+    function buildNotesDraft(text) {
+      const keywords = extractKeywords(text);
+      const keySentences = extractKeySentences(text, keywords);
+      return { keywords, keySentences };
+    }
+
+    function renderNotes() {
+      const text = sourceText.value.trim();
+      if (!text) {
+        notesOutput.innerHTML = `<div class="note-card">先粘贴或读取一段文字。</div>`;
+        return;
+      }
+
+      const { keywords, keySentences } = buildNotesDraft(text);
+      const meta = `${text.length.toLocaleString()} 字符，约 ${roughWordCount(text).toLocaleString()} 词/中文词组`;
+      notesOutput.innerHTML = `
+        <section class="note-card">
+          <h2>关键词候选</h2>
+          <ul class="keyword-list">
+            ${keywords.map(keyword => `<li>${escapeHTML(keyword)}</li>`).join("") || "<li>暂无</li>"}
+          </ul>
+          <div class="note-meta">${meta}</div>
+        </section>
+        <section class="note-card">
+          <h2>关键句候选</h2>
+          <ol class="key-sentence-list">
+            ${keySentences.map(sentence => `<li>${escapeHTML(sentence)}</li>`).join("") || "<li>暂无</li>"}
+          </ol>
+          <div class="note-meta">本地规则提取，用来起笔和搭逻辑，不等同于 AI 总结。</div>
+        </section>
+      `;
+    }
+
+    async function copyNotesDraft() {
+      const text = sourceText.value.trim();
+      if (!text) {
+        setStatus("先粘贴或读取一段文字。");
+        return;
+      }
+
+      const { keywords, keySentences } = buildNotesDraft(text);
+      const draft = [
+        "关键词：",
+        keywords.map(keyword => `- ${keyword}`).join("\n") || "- 暂无",
+        "",
+        "关键句：",
+        keySentences.map(sentence => `- ${sentence}`).join("\n") || "- 暂无"
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(draft);
+        setStatus("笔记草稿已复制。");
+      } catch {
+        setStatus("复制失败，可以手动选中笔记内容复制。");
+      }
+    }
+
+    function annotateInformationFlow(sourceTokens, source) {
+      if (annotationIntensity === "off") return sourceTokens;
+      const annotated = sourceTokens.map(token => ({ ...token, flow: "" }));
+      const seenTerms = new Map();
+
+      for (const token of annotated) {
+        const key = lowerToken(token.text);
+        if (!key || key.length < 3 || stopWords.has(key)) continue;
+        seenTerms.set(key, (seenTerms.get(key) ?? 0) + 1);
+      }
+
+      const alreadySeen = new Set();
+      const sentences = splitSentences(source);
+
+      for (const sentence of sentences) {
+        const indices = annotated
+          .map((token, index) => ({ token, index }))
+          .filter(item => item.token.start >= sentence.start && item.token.end <= sentence.end)
+          .map(item => item.index);
+
+        if (!indices.length) continue;
+
+        const label = connectorLabelForSentence(sentence.text);
+        if (label) annotated[indices[0]].sentenceLabel = label;
+
+        for (const index of indices) {
+          const token = annotated[index];
+          const key = lowerToken(token.text);
+          if (!key) continue;
+
+          const isConnector = connectorGroups.some(group => group.words.includes(key));
+          if (isConnector) {
+            token.flow = "link";
+          } else if (key.length >= 3 && seenTerms.get(key) > 1 && alreadySeen.has(key)) {
+            token.flow = "old";
+          }
+
+          if (key.length >= 3 && !stopWords.has(key)) {
+            alreadySeen.add(key);
+          }
+        }
+
+        const contentIndices = indices.filter(index => {
+          const key = lowerToken(annotated[index].text);
+          return key.length >= 4 && !stopWords.has(key) && annotated[index].flow !== "link";
+        });
+
+        const hasSignal = indices.some(index => annotated[index].flow === "link" || annotated[index].flow === "old");
+        if (annotationIntensity === "light" && !hasSignal) continue;
+        if (!hasSignal && contentIndices.length < 8) continue;
+
+        const newLimit = annotationIntensity === "standard" ? 2 : 1;
+        for (const index of contentIndices.slice(-newLimit)) {
+          if (!annotated[index].flow) annotated[index].flow = "new";
+        }
+      }
+
+      return annotated;
+    }
+
+    function annotateChineseFlow(sourceTokens, source) {
+      if (annotationIntensity === "off") return sourceTokens;
+      const annotated = sourceTokens.map(token => ({ ...token, flow: "" }));
+      const sentences = splitSentences(source);
+
+      for (const sentence of sentences) {
+        const indices = annotated
+          .map((token, index) => ({ token, index }))
+          .filter(item => item.token.start >= sentence.start && item.token.end <= sentence.end)
+          .map(item => item.index);
+
+        if (!indices.length) continue;
+
+        const label = zhConnectorLabelForSentence(sentence.text);
+        if (label) annotated[indices[0]].sentenceLabel = label;
+
+        for (const index of indices) {
+          const tokenText = annotated[index].text;
+          const inConnector = zhConnectorGroups.some(group => group.words.some(word => tokenText.includes(word) || sentence.text.slice(annotated[index].start - sentence.start).startsWith(word)));
+          const isReference = zhReferenceWords.some(word => tokenText === word || tokenText.includes(word));
+
+          if (inConnector) {
+            annotated[index].flow = "link";
+          } else if (isReference) {
+            annotated[index].flow = "old";
+          }
+        }
+
+        const contentIndices = indices.filter(index => {
+          const token = annotated[index];
+          return /[\u3400-\u9fffA-Za-z0-9]/.test(token.text) && token.flow !== "link" && token.flow !== "old";
+        });
+
+        const hasSignal = indices.some(index => annotated[index].flow === "link" || annotated[index].flow === "old");
+        if (annotationIntensity === "light" && !hasSignal) continue;
+        if (!hasSignal && contentIndices.length < 8) continue;
+
+        const newLimit = annotationIntensity === "standard" ? 2 : 1;
+        for (const index of contentIndices.slice(-newLimit)) {
+          if (!annotated[index].flow) annotated[index].flow = "new";
+        }
+      }
+
+      return annotated;
+    }
+
+    function annotateFlow(sourceTokens, source, mode) {
+      if (mode === "off") return sourceTokens;
+      if (mode === "zh") return annotateChineseFlow(sourceTokens, source);
+      return annotateInformationFlow(sourceTokens, source);
+    }
+
+    function bionicHTML(word) {
+      const chars = Array.from(word);
+      if (!chars.length) return "";
+      const prefixLength = Math.min(chars.length, Math.max(1, Math.ceil(chars.length * 0.45)));
+      const prefix = escapeHTML(chars.slice(0, prefixLength).join(""));
+      const suffix = escapeHTML(chars.slice(prefixLength).join(""));
+      return `<strong>${prefix}</strong>${suffix}`;
+    }
+
+    function shouldUseBionic(word) {
+      if (bionicMode === "off") return false;
+      if (bionicMode === "on") return true;
+      return !/[\u3400-\u9fff]/.test(word);
+    }
+
+    function tokenHTML(word) {
+      return shouldUseBionic(word) ? bionicHTML(word) : escapeHTML(word);
+    }
+
+    function escapeHTML(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function render() {
+      if (!tokens.length) {
+        reader.innerHTML = `<div class="empty-state">把文字放进左侧，然后从头播放。这里会用大字号显示文本、可选 Bionic，并高亮当前读到的词。</div>`;
+        gentleGuide.classList.remove("visible");
+        updateProgress();
+        return;
+      }
+
+      const source = sourceText.value.trim();
+      const currentFlowMode = effectiveFlowMode(source);
+      const displayTokens = annotateFlow(tokens, source, currentFlowMode);
+      const sentenceFocus = sentenceRangeForToken(activeIndex);
+      const activeParagraphIndex = paragraphIndexForToken(activeIndex);
+      let cursor = 0;
+      const html = displayTokens.map((token, index) => {
+        const active = index === activeIndex ? " active" : "";
+        const flowClass = currentFlowMode !== "off" && token.flow ? ` flow-${token.flow}` : "";
+        const sentenceClass = sentenceFocus && token.start >= sentenceFocus.start && token.end <= sentenceFocus.end ? " sentence-focus" : "";
+        const gentleReadClass = gentleMode && activeIndex >= 0 && index < activeIndex ? " gentle-read" : "";
+        const gentleOutsideClass = gentleMode && sentenceFocus && (token.start < sentenceFocus.start || token.end > sentenceFocus.end) ? " gentle-outside" : "";
+        const label = currentFlowMode !== "off" && token.sentenceLabel ? `<span class="flow-label">${token.sentenceLabel}</span>` : "";
+        const spacer = escapeHTML(source.slice(cursor, token.start));
+        cursor = token.end;
+        return `${spacer}${label}<span class="token${active}${flowClass}${sentenceClass}${gentleReadClass}${gentleOutsideClass}" data-index="${index}">${tokenHTML(token.text)}</span>`;
+      }).join("") + escapeHTML(source.slice(cursor));
+
+      const legend = currentFlowMode === "off" || annotationIntensity === "off" ? "" : (
+        currentFlowMode === "zh"
+          ? `<div class="legend">
+              <span class="legend-item"><span class="swatch link">线</span>中文逻辑信号</span>
+              <span class="legend-item"><span class="swatch old">底</span>指代/承接</span>
+              <span class="legend-item"><span class="swatch new">点</span>句末推进重点</span>
+            </div>`
+          : `<div class="legend">
+              <span class="legend-item"><span class="swatch link">line</span>连接词/逻辑关系</span>
+              <span class="legend-item"><span class="swatch old">old</span>旧信息/重复主题</span>
+              <span class="legend-item"><span class="swatch new">new</span>新信息/句末重点</span>
+            </div>`
+      );
+
+      const paragraphs = html
+        .split(/\n{2,}/)
+        .map((block, index) => {
+          const gentleClass = gentleMode && activeParagraphIndex >= 0
+            ? (index === activeParagraphIndex ? " gentle-current" : " gentle-away")
+            : "";
+          return `<p class="paragraph${gentleClass}">${block}</p>`;
+        })
+        .join("");
+
+      reader.innerHTML = legend + paragraphs;
+      updateGentleGuide(sentenceFocus);
+
+      const active = reader.querySelector(".token.active");
+      if (active) {
+        active.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+      }
+
+      updateProgress();
+    }
+
+    function updateGentleGuide(sentenceFocus) {
+      if (!gentleMode || !sentenceFocus || activeIndex < 0) {
+        gentleGuide.classList.remove("visible");
+        return;
+      }
+
+      const currentSentenceIndex = sentenceIndexForToken(activeIndex);
+      const sentenceCount = splitSentences(sourceText.value).length;
+      const sentenceText = sentenceFocus.text.trim().replace(/\s+/g, " ");
+      gentleGuide.innerHTML = `
+        <strong>当前句 ${currentSentenceIndex + 1} / ${sentenceCount}</strong><br>
+        ${escapeHTML(sentenceText)}
+      `;
+      gentleGuide.classList.add("visible");
+    }
+
+    function updateProgress() {
+      if (!tokens.length || activeIndex < 0) {
+        progressPill.classList.remove("visible");
+        return;
+      }
+
+      const ranges = paragraphRanges(sourceText.value);
+      const paragraphIndex = paragraphIndexForToken(activeIndex);
+      if (paragraphIndex < 0) {
+        progressPill.classList.remove("visible");
+        return;
+      }
+
+      progressPill.textContent = `第 ${paragraphIndex + 1} 段 / 共 ${ranges.length} 段`;
+      progressPill.classList.add("visible");
+    }
+
+    function rebuildTokens() {
+      tokens = tokenize(sourceText.value);
+      activeIndex = -1;
+      render();
+      if (tokens.length) {
+        setStatus(`已载入 ${tokens.length.toLocaleString()} 个词/片段，约 ${sourceText.value.length.toLocaleString()} 字符。`);
+      } else {
+        setStatus("还没有文本。");
+      }
+    }
+
+    function tokenIndexForChar(charIndex) {
+      if (!tokens.length) return -1;
+      const found = tokens.findIndex(token => charIndex >= token.start && charIndex < token.end);
+      if (found >= 0) return found;
+      let nearest = 0;
+      for (let index = 0; index < tokens.length; index += 1) {
+        if (tokens[index].start <= charIndex) nearest = index;
+      }
+      return nearest;
+    }
+
+    function stopReading() {
+      playbackRunId += 1;
+      window.speechSynthesis.cancel();
+      utterance = null;
+      isReading = false;
+      isPaused = false;
+      activeIndex = -1;
+      render();
+      updateProgress();
+      updatePlaybackButtons();
+      setStatus("已停止。");
+    }
+
+    function speakFromToken(startIndex) {
+      if (!tokens.length) return;
+      const safeStartIndex = Math.max(0, Math.min(startIndex, tokens.length - 1));
+      const source = sourceText.value.trim();
+      const runId = ++playbackRunId;
+      speechOffset = tokens[safeStartIndex].start;
+      const text = normalizeForSpeech(source.slice(speechOffset));
+
+      window.speechSynthesis.cancel();
+      activeIndex = safeStartIndex;
+      isReading = true;
+      isPaused = false;
+      render();
+      updatePlaybackButtons();
+
+      utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = /[\u4e00-\u9fff]/.test(text) ? "zh-CN" : "en-US";
+      utterance.rate = Number(rateInput.value);
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      playStartedAt = Date.now();
+
+      utterance.onboundary = event => {
+        if (runId !== playbackRunId || event.charIndex == null) return;
+        const nextIndex = tokenIndexForChar(speechOffset + event.charIndex);
+        if (nextIndex !== activeIndex) {
+          activeIndex = nextIndex;
+          render();
+          setStatus(`正在读：${tokens[activeIndex]?.text ?? ""}`);
+        }
+      };
+
+      utterance.onend = () => {
+        if (runId !== playbackRunId) return;
+        isReading = false;
+        isPaused = false;
+        activeIndex = -1;
+        render();
+        updateProgress();
+        updatePlaybackButtons();
+        setStatus("读完了。你可以复制下一段，再点读取剪贴板。");
+      };
+
+      utterance.onerror = () => {
+        if (runId !== playbackRunId) return;
+        const elapsed = ((Date.now() - playStartedAt) / 1000).toFixed(1);
+        isReading = false;
+        isPaused = false;
+        activeIndex = -1;
+        render();
+        updateProgress();
+        updatePlaybackButtons();
+        setStatus(`朗读中断了，已播放 ${elapsed} 秒。可以再按从头播放重试。`);
+      };
+
+      setStatus(`开始朗读。语速 ${Number(rateInput.value).toFixed(2)}x`);
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function restartAtCurrentWord() {
+      if (!isReading || !tokens.length) return;
+      const resumeIndex = activeIndex >= 0 ? activeIndex : 0;
+      speakFromToken(resumeIndex);
+      setStatus(`已切换到 ${Number(rateInput.value).toFixed(2)}x，从当前位置继续。`);
+    }
+
+    function play() {
+      const text = normalizeForSpeech(sourceText.value);
+      if (!text) {
+        setStatus("先粘贴或读取一段文字。");
+        sourceText.focus();
+        return;
+      }
+
+      tokens = tokenize(sourceText.value);
+      speakFromToken(0);
+    }
+
+    async function readClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (!text.trim()) {
+          setStatus("剪贴板里没有文字。");
+          return;
+        }
+        sourceText.value = text;
+        rebuildTokens();
+        setStatus("已读取剪贴板。按从头播放开始。");
+      } catch {
+        setStatus("读取剪贴板失败。请点左侧文本框后按 Command V。");
+        sourceText.focus();
+      }
+    }
+
+    function updateSettings() {
+      document.documentElement.style.setProperty("--font-size", `${fontInput.value}px`);
+      document.documentElement.style.setProperty("--line-height", lineInput.value);
+      document.documentElement.style.setProperty("--max-width", `${widthInput.value}px`);
+      rateValue.textContent = `${Number(rateInput.value).toFixed(2)}x`;
+      fontValue.textContent = `${fontInput.value}px`;
+      lineValue.textContent = Number(lineInput.value).toFixed(2);
+      widthValue.textContent = `${widthInput.value}px`;
+    }
+
+    function applyTheme({ applyPreset = true } = {}) {
+      document.body.dataset.theme = currentTheme;
+      const preset = themePresets[currentTheme];
+      if (applyPreset && preset) {
+        fontInput.value = preset.font;
+        lineInput.value = preset.line;
+        widthInput.value = preset.width;
+        updateSettings();
+      }
+      themeButton.textContent = `主题：${themeLabels[currentTheme]}`;
+    }
+
+    function updateModeButtons() {
+      flowButton.textContent = `信息流：${flowModeLabels[flowMode]}`;
+      flowButton.setAttribute("aria-pressed", String(flowMode !== "off"));
+      bionicButton.textContent = `Bionic：${bionicModeLabels[bionicMode]}`;
+      bionicButton.setAttribute("aria-pressed", String(bionicMode !== "off"));
+      intensityButton.textContent = `标注：${annotationIntensityLabels[annotationIntensity]}`;
+      focusButton.textContent = focusMode ? "退出专注" : "专注";
+      focusButton.setAttribute("aria-pressed", String(focusMode));
+      gentleButton.textContent = gentleMode ? "退出温柔" : "温柔模式";
+      gentleButton.setAttribute("aria-pressed", String(gentleMode));
+    }
+
+    function setFocusMode(value) {
+      focusMode = value;
+      document.body.classList.toggle("focus-mode", focusMode);
+      updateModeButtons();
+    }
+
+    function randomComfortMessage() {
+      return comfortMessages[Math.floor(Math.random() * comfortMessages.length)];
+    }
+
+    function setGentleMode(value) {
+      if (value && !gentleMode) {
+        previousGentleSettings = {
+          flowMode,
+          bionicMode,
+          annotationIntensity,
+          currentTheme,
+          focusMode,
+          rate: rateInput.value,
+          font: fontInput.value,
+          line: lineInput.value,
+          width: widthInput.value
+        };
+
+        gentleMode = true;
+        document.body.classList.add("gentle-mode");
+        flowMode = "off";
+        bionicMode = "auto";
+        annotationIntensity = "off";
+        currentTheme = "open";
+        rateInput.value = "0.95";
+        setFocusMode(true);
+        applyTheme();
+        fontInput.value = "42";
+        lineInput.value = "2.05";
+        widthInput.value = "780";
+        updateSettings();
+        comfortNote.textContent = randomComfortMessage();
+        setStatus("温柔模式已开启。当前句会被托出来，其他文字会轻轻退后。");
+      } else if (!value && gentleMode) {
+        gentleMode = false;
+        document.body.classList.remove("gentle-mode");
+
+        if (previousGentleSettings) {
+          flowMode = previousGentleSettings.flowMode;
+          bionicMode = previousGentleSettings.bionicMode;
+          annotationIntensity = previousGentleSettings.annotationIntensity;
+          currentTheme = previousGentleSettings.currentTheme;
+          rateInput.value = previousGentleSettings.rate;
+          fontInput.value = previousGentleSettings.font;
+          lineInput.value = previousGentleSettings.line;
+          widthInput.value = previousGentleSettings.width;
+          setFocusMode(previousGentleSettings.focusMode);
+          applyTheme({ applyPreset: false });
+          updateSettings();
+        }
+
+        setStatus("已退出温柔模式。");
+      }
+
+      updateModeButtons();
+      render();
+    }
+
+    function handleRateInput() {
+      updateSettings();
+      if (!isReading) return;
+      if (isPaused) {
+        setStatus(`语速已改为 ${Number(rateInput.value).toFixed(2)}x，点继续后生效。`);
+        return;
+      }
+      window.clearTimeout(rateRestartTimer);
+      rateRestartTimer = window.setTimeout(restartAtCurrentWord, 180);
+    }
+
+    clipboardButton.addEventListener("click", readClipboard);
+    playButton.addEventListener("click", play);
+    pauseButton.addEventListener("click", () => {
+      if (isPaused) {
+        restartAtCurrentWord();
+      } else {
+        window.speechSynthesis.pause();
+        isPaused = true;
+        setStatus("已暂停。");
+        updatePlaybackButtons();
+      }
+    });
+    stopButton.addEventListener("click", stopReading);
+    flowButton.addEventListener("click", () => {
+      const nextIndex = (flowModes.indexOf(flowMode) + 1) % flowModes.length;
+      flowMode = flowModes[nextIndex];
+      flowButton.textContent = `信息流：${flowModeLabels[flowMode]}`;
+      flowButton.setAttribute("aria-pressed", String(flowMode !== "off"));
+      render();
+    });
+    bionicButton.addEventListener("click", () => {
+      const nextIndex = (bionicModes.indexOf(bionicMode) + 1) % bionicModes.length;
+      bionicMode = bionicModes[nextIndex];
+      bionicButton.textContent = `Bionic：${bionicModeLabels[bionicMode]}`;
+      bionicButton.setAttribute("aria-pressed", String(bionicMode !== "off"));
+      render();
+    });
+    intensityButton.addEventListener("click", () => {
+      const nextIndex = (annotationIntensities.indexOf(annotationIntensity) + 1) % annotationIntensities.length;
+      annotationIntensity = annotationIntensities[nextIndex];
+      intensityButton.textContent = `标注：${annotationIntensityLabels[annotationIntensity]}`;
+      render();
+    });
+    focusButton.addEventListener("click", () => {
+      setFocusMode(!focusMode);
+    });
+    gentleButton.addEventListener("click", () => setGentleMode(!gentleMode));
+    themeButton.addEventListener("click", () => {
+      const nextIndex = (themes.indexOf(currentTheme) + 1) % themes.length;
+      currentTheme = themes[nextIndex];
+      applyTheme();
+    });
+    notesButton.addEventListener("click", renderNotes);
+    copyNotesButton.addEventListener("click", copyNotesDraft);
+    sourceText.addEventListener("input", rebuildTokens);
+    rateInput.addEventListener("input", handleRateInput);
+    [fontInput, lineInput, widthInput].forEach(input => input.addEventListener("input", updateSettings));
+    window.addEventListener("beforeunload", () => window.speechSynthesis.cancel());
+
+    updateSettings();
+    applyTheme();
+    updateModeButtons();
+    updatePlaybackButtons();
+  </script>
+</body>
+</html>
