@@ -103,8 +103,8 @@ It is not a medical tool and does not replace professional support. It is simply
 可以参考：  
 You can use:
 
-- [给朋友看的说明](./给朋友看的说明.md)
-- [分享文案](./分享文案.md)
+- [Friend Guide / 给朋友看的说明](./Friend-Guide_给朋友看的说明.md)
+- [Share Copy / 分享文案](./Share-Copy_分享文案.md)
 
 ## 路线图 / Roadmap
 
