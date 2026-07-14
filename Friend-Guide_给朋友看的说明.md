@@ -9,7 +9,20 @@ It can enlarge copied text, read it aloud, and highlight the current word. You c
 它不会要求登录，不会上传你的文字，也不需要 AI。  
 It does not ask you to log in, does not upload your text, and does not require AI.
 
-## 怎么打开 / How To Open
+## 最简单的打开方式 / Easiest Way To Start
+
+直接打开在线版：  
+Open the online version:
+
+[https://sheahe-alex.github.io/slowglow-reader/](https://sheahe-alex.github.io/slowglow-reader/)
+
+打开后，把文字粘贴进去即可。  
+After it opens, paste text into the reader.
+
+如果在线版打不开，或者所在网络访问 GitHub Pages 不稳定，再用下面的本地方式。  
+If the online version does not open, or if GitHub Pages is unstable on your network, use the local option below.
+
+## 本地打开 / Open Locally
 
 Windows 和 Mac 都可以使用核心阅读器，只需要现代浏览器。  
 The core reader works on both Windows and Mac in a modern browser.

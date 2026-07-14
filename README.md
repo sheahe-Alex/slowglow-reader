@@ -5,6 +5,19 @@ A gentle local read-aloud reader that does not require login or upload your text
 
 Slowglow Reader is for people who want reading to feel safer, softer, and easier to return to.
 
+## 直接使用 / Start Here
+
+最简单的使用方式是直接打开在线版：  
+The easiest way to use Slowglow Reader is to open the online version:
+
+[https://sheahe-alex.github.io/slowglow-reader/](https://sheahe-alex.github.io/slowglow-reader/)
+
+不需要安装，不需要登录。打开网页后，把文字粘贴进去即可。  
+No installation or login is required. Open the page and paste text into the reader.
+
+如果在线版打不开，或者所在网络访问 GitHub Pages 不稳定，可以下载这个仓库后本地打开 `index.html`。  
+If the online version does not open, or if GitHub Pages is unstable on your network, download this repository and open `index.html` locally.
+
 ## 为什么做 / Why
 
 慢光阅读不是为了催人读得更快，也不是为了证明谁的专注力够好。
@@ -37,7 +50,7 @@ The core belief:
 - 本地关键词和关键句候选，帮助做笔记起步 / Local keyword and key-sentence suggestions for note-taking
 - 根据浏览器语言自动显示中文或英文界面，也可以手动切换 / Automatically uses Chinese or English based on browser language, with manual switching available
 
-## 运行方式 / How To Run
+## 本地运行 / Run Locally
 
 核心阅读器可以在 Windows 和 Mac 的现代浏览器里使用。  
 The core reader works in modern browsers on both Windows and Mac.
