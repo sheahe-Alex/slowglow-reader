@@ -87,6 +87,7 @@ The core belief:
 - 可选加粗引导，帮助眼睛更容易落回文字 / Optional bold guidance to make it easier for the eyes to return to the text
 - 可选结构提示，轻量标出连接词和少量逻辑信号 / Optional structure hints for connectors and light logic signals
 - 重点回看：本地关键词和关键句候选，帮助第二遍、第 N 遍复习和做笔记 / Review anchors: local keyword and key-sentence suggestions for second-pass review, later review, and note-taking
+- 做笔记提醒：把重点改写成自己的话，再写回 PDF、纸书或笔记本 / Note-taking reminder: rewrite key points in your own words before putting them back into a PDF, printed text, or notebook
 - 根据浏览器语言自动显示中文或英文界面，也可以手动切换 / Automatically uses Chinese or English based on browser language, with manual switching available
 
 ## 本地运行 / Run Locally

@@ -817,6 +817,8 @@
         generateNotes: "生成候选",
         copyNotes: "复制笔记草稿",
         notesIntro: "这里会用本地规则提取关键词和关键句，帮你第二遍、第 N 遍回到重点。它不是 AI 总结，也不会联网。",
+        noteReminderTitle: "做笔记提醒",
+        noteReminder: "把标记句和关键句改写成自己的话，再写到原 PDF、纸书或笔记本上。尽量记录“我理解到什么”，不要整句照抄。",
         pasteFirst: "先粘贴或读取一段文字。",
         keywordsTitle: "关键词候选",
         keySentencesTitle: "关键句候选",
@@ -827,6 +829,7 @@
         draftKeywords: "关键词：",
         draftKeySentences: "关键句：",
         draftMarked: "我标记的句子：",
+        draftReminder: "用自己的话写：",
         notesCopied: "笔记草稿已复制。",
         sentenceMarked: "已标记这一句，稍后可以在重点回看里找到。",
         sentenceAlreadyMarked: "这一句已经标记过了。",
@@ -907,6 +910,8 @@
         generateNotes: "Generate Suggestions",
         copyNotes: "Copy Note Draft",
         notesIntro: "Local rules will extract keyword and key-sentence candidates to help you return to the main points on a second or later pass. This is not an AI summary and does not go online.",
+        noteReminderTitle: "Note-taking reminder",
+        noteReminder: "Rewrite marked and key sentences in your own words, then put them into the original PDF, printed text, or notebook. Try to record what you understand, not copy whole sentences.",
         pasteFirst: "Paste or read some text first.",
         keywordsTitle: "Keyword Candidates",
         keySentencesTitle: "Key Sentence Candidates",
@@ -917,6 +922,7 @@
         draftKeywords: "Keywords:",
         draftKeySentences: "Key sentences:",
         draftMarked: "Sentences I marked:",
+        draftReminder: "Write in my own words:",
         notesCopied: "Note draft copied.",
         sentenceMarked: "Sentence marked. You can find it in Review Anchors.",
         sentenceAlreadyMarked: "This sentence is already marked.",
@@ -1309,6 +1315,10 @@
       });
       notesOutput.innerHTML = `
         <section class="note-card">
+          <h2>${escapeHTML(t("noteReminderTitle"))}</h2>
+          <p>${escapeHTML(t("noteReminder"))}</p>
+        </section>
+        <section class="note-card">
           <h2>${escapeHTML(t("markedTitle"))}</h2>
           <ol class="key-sentence-list">
             ${marked.map(sentence => `<li>${escapeHTML(sentence)}</li>`).join("") || `<li>${escapeHTML(t("none"))}</li>`}
@@ -1341,6 +1351,9 @@
 
       const { keywords, keySentences, marked } = buildNotesDraft(text);
       const draft = [
+        t("draftReminder"),
+        `- ${t("noteReminder")}`,
+        "",
         t("draftMarked"),
         marked.map(sentence => `- ${sentence}`).join("\n") || `- ${t("none")}`,
         "",
