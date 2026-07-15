@@ -364,6 +364,13 @@
       line-height: 1.5;
     }
 
+    .text-meter {
+      margin-top: 4px;
+      color: color-mix(in srgb, var(--muted) 88%, var(--ink));
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
     .reader-panel {
       overflow: auto;
       padding: clamp(22px, 4vw, 56px);
@@ -855,6 +862,7 @@
         <textarea id="sourceText" placeholder="把想读的文字粘贴到这里。"></textarea>
         <div>
           <div class="status" id="status">粘贴一段想读的文字。</div>
+          <div class="text-meter" id="textMeter">当前：0 字符。建议长文分段阅读。</div>
           <div class="hint">也可以点“读取剪贴板”。如果失败，手动粘贴就好。</div>
         </div>
       </section>
@@ -916,6 +924,7 @@
     const lineValue = document.querySelector("#lineValue");
     const widthValue = document.querySelector("#widthValue");
     const status = document.querySelector("#status");
+    const textMeter = document.querySelector("#textMeter");
 
     let tokens = [];
     let activeIndex = -1;
@@ -972,6 +981,8 @@
         placeholder: "把想读的文字粘贴到这里。",
         ready: "粘贴一段想读的文字。",
         hint: "也可以点“读取剪贴板”。如果失败，手动粘贴就好。",
+        meterEmpty: "当前：0 字符。建议长文分段阅读。",
+        meterStats: ({ chars, words }) => `当前：${chars} 字符 / 约 ${words} 词或中文词组。建议每次英文 1,000–3,000 词，中文 2,000–6,000 字；更长也可以分段。`,
         progress: ({ current, total }) => `第 ${current} 段 / 共 ${total} 段`,
         comfortDefault: "只看这一句就好。其他文字会轻轻退后。",
         guideDefault: "这一句会显示在这里。",
@@ -1073,6 +1084,8 @@
         placeholder: "Paste something you want to read here.",
         ready: "Paste something you want to read.",
         hint: "You can also click Read Clipboard. If it fails, manual paste is fine.",
+        meterEmpty: "Current: 0 characters. For long texts, smaller passages are easier.",
+        meterStats: ({ chars, words }) => `Current: ${chars} characters / about ${words} words or chunks. Suggested: 1,000–3,000 English words, or 2,000–6,000 Chinese characters per pass.`,
         progress: ({ current, total }) => `Paragraph ${current} / ${total}`,
         comfortDefault: "Just stay with this sentence. The rest can gently fade back.",
         guideDefault: "This sentence will appear here.",
@@ -1215,6 +1228,18 @@
       status.textContent = message;
     }
 
+    function updateTextMeter() {
+      const text = sourceText.value.trim();
+      if (!text) {
+        textMeter.textContent = t("meterEmpty");
+        return;
+      }
+      textMeter.textContent = t("meterStats", {
+        chars: text.length.toLocaleString(),
+        words: roughWordCount(text).toLocaleString()
+      });
+    }
+
     function setLabelText(input, text) {
       if (input?.parentElement?.childNodes?.[0]) {
         input.parentElement.childNodes[0].nodeValue = text;
@@ -1234,6 +1259,7 @@
       document.querySelector(".panel-title").textContent = t("textTitle");
       sourceText.placeholder = t("placeholder");
       document.querySelector(".hint").textContent = t("hint");
+      updateTextMeter();
       gentleHint.textContent = t("gentleHint");
       comfortNote.textContent = t("comfortDefault");
       gentleGuide.textContent = t("guideDefault");
@@ -1885,6 +1911,7 @@
       tokens = tokenize(sourceText.value);
       activeIndex = -1;
       markedSentences = [];
+      updateTextMeter();
       render();
       if (notesPanel.open) renderNotes();
       if (tokens.length) {
