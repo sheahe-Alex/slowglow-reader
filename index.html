@@ -285,7 +285,7 @@
       display: inline;
       padding: 0 0.03em;
       border-radius: 4px;
-      transition: background-color 120ms ease, color 120ms ease, opacity 140ms ease, box-shadow 140ms ease;
+      transition: background-color 180ms ease, color 180ms ease, opacity 260ms ease, box-shadow 220ms ease, text-decoration-color 180ms ease;
     }
 
     .token strong {
@@ -305,6 +305,7 @@
       text-decoration-color: color-mix(in srgb, var(--highlight-ink) 55%, transparent);
       text-decoration-thickness: 0.09em;
       text-underline-offset: 0.2em;
+      animation: currentWordAppear 260ms ease-out;
     }
 
     .sentence-focus {
@@ -318,6 +319,7 @@
       background: color-mix(in srgb, var(--comfort-bg) 78%, transparent);
       box-shadow: 0 0 0 0.18em color-mix(in srgb, var(--comfort-bg) 72%, transparent);
       border-bottom-color: var(--comfort-line);
+      animation: sentenceAppear 360ms ease-out;
     }
 
     body.gentle-mode .token.gentle-read {
@@ -334,6 +336,28 @@
 
     body.gentle-mode .paragraph.gentle-current {
       opacity: 1;
+    }
+
+    @keyframes currentWordAppear {
+      from {
+        background: color-mix(in srgb, var(--highlight) 35%, transparent);
+        box-shadow: 0 0 0 0.02em color-mix(in srgb, var(--highlight) 50%, transparent);
+      }
+      to {
+        background: var(--highlight);
+        box-shadow: 0 0 0 0.14em var(--highlight), 0 0.18em 0.7em rgba(16, 24, 40, 0.08);
+      }
+    }
+
+    @keyframes sentenceAppear {
+      from {
+        background: transparent;
+        box-shadow: 0 0 0 0 transparent;
+      }
+      to {
+        background: color-mix(in srgb, var(--comfort-bg) 78%, transparent);
+        box-shadow: 0 0 0 0.18em color-mix(in srgb, var(--comfort-bg) 72%, transparent);
+      }
     }
 
     .token.flow-link {
@@ -644,7 +668,7 @@
         <button class="button" id="clipboardButton" type="button">读取剪贴板</button>
         <button class="button primary" id="playButton" type="button">开始阅读</button>
         <button class="button utility" id="voiceButton" type="button" aria-pressed="true">声音：开</button>
-        <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">舒缓阅读</button>
+        <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读</button>
         <button class="button utility" id="menuButton" type="button" aria-expanded="true">收起设置</button>
         <button class="button advanced-control" id="pauseButton" type="button" disabled>暂停</button>
         <button class="button advanced-control" id="stopButton" type="button">停止</button>
@@ -675,7 +699,7 @@
       <section class="reader-panel" id="readerPanel">
         <div class="progress-pill" id="progressPill">第 1 段 / 共 1 段</div>
         <div class="comfort-note" id="comfortNote">读一点也算。走神了也没关系，从高亮处回来就好。</div>
-        <div class="gentle-guide" id="gentleGuide">当前句会显示在这里。</div>
+        <div class="gentle-guide" id="gentleGuide">这一句会显示在这里。</div>
         <div class="reader" id="reader">
           <div class="empty-state">把文字放进左侧，然后开始阅读。这里会用大字号显示文本，并高亮当前读到的位置。</div>
         </div>
@@ -745,7 +769,7 @@
     let silentTimer = null;
     let rateRestartTimer = null;
     let voiceEnabled = localStorage.getItem("slowglow-voice-enabled") !== "false";
-    let menuCollapsed = window.matchMedia("(max-width: 900px)").matches;
+    let menuCollapsed = true;
     let uiLanguage = localStorage.getItem("slowglow-ui-language") || (navigator.language?.toLowerCase().startsWith("zh") ? "zh" : "en");
 
     const copy = {
@@ -762,8 +786,8 @@
         flowPrefix: "结构提示",
         bionicPrefix: "加粗引导",
         intensityPrefix: "辅助强度",
-        gentle: "舒缓阅读",
-        exitGentle: "退出舒缓",
+        gentle: "逐句伴读",
+        exitGentle: "退出逐句",
         languageButton: "中文 / English",
         rate: "语速 ",
         font: "字号 ",
@@ -775,8 +799,8 @@
         ready: "准备好了。",
         hint: "手机上可以直接点文本框粘贴。若“读取剪贴板”失败，手动粘贴即可。",
         progress: ({ current, total }) => `第 ${current} 段 / 共 ${total} 段`,
-        comfortDefault: "读一点也算。走神了也没关系，从高亮处回来就好。",
-        guideDefault: "当前句会显示在这里。",
+        comfortDefault: "只看这一句就好。其他文字会轻轻退后。",
+        guideDefault: "这一句会显示在这里。",
         empty: "把文字放进左侧，然后开始阅读。这里会用大字号显示文本，并高亮当前读到的位置。",
         notesSummary: "笔记辅助：关键词 / 关键句",
         generateNotes: "生成候选",
@@ -806,11 +830,11 @@
         clipboardLoaded: "已读取剪贴板。按开始阅读开始。",
         clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
         externalLoaded: "已接收外部文字。按开始阅读开始。",
-        gentleOn: "舒缓阅读已开启。当前句会被托出来，其他文字会轻轻退后。",
-        gentleOff: "已退出舒缓阅读。",
+        gentleOn: "逐句伴读已开启。当前句会浮现出来，其他文字会轻轻退后。",
+        gentleOff: "已退出逐句伴读。",
         rateAfterResume: ({ rate }) => `语速已改为 ${rate}x，点继续后生效。`,
         paused: "已暂停。",
-        currentSentence: ({ current, total }) => `当前句 ${current} / ${total}`,
+        currentSentence: ({ current, total }) => `这一句 ${current} / ${total}`,
         flowLabels: { auto: "自动", en: "英文结构", zh: "中文结构", off: "关闭" },
         bionicLabels: { auto: "自动", on: "开启", off: "关闭" },
         intensityLabels: { off: "无", light: "轻", standard: "标准" },
@@ -826,11 +850,11 @@
           new: "新信息/句末重点"
         },
         comfortMessages: [
-          "读一点也算。走神了也没关系，从高亮处回来就好。",
-          "不用一次读完。今天能靠近文本一点点，就已经很好。",
-          "这不是考试。你可以慢慢读，也可以只听一段。",
-          "如果脑子开始乱，先跟着当前高亮走一小步。",
-          "卡住不是失败，只是这里需要更舒缓的速度。"
+          "只看这一句就好。其他文字会轻轻退后。",
+          "不用一次读完。先跟着眼前这一句走。",
+          "这不是考试。你可以慢慢读，也可以只听一小段。",
+          "如果脑子开始乱，回到这一句就好。",
+          "卡住不是失败，只是这里需要更慢一点、更轻一点。"
         ]
       },
       en: {
@@ -846,8 +870,8 @@
         flowPrefix: "Structure Hints",
         bionicPrefix: "Bold Guide",
         intensityPrefix: "Support Level",
-        gentle: "Gentle Reading",
-        exitGentle: "Exit Gentle Reading",
+        gentle: "Sentence Guide",
+        exitGentle: "Exit Guide",
         languageButton: "English / 中文",
         rate: "Speed ",
         font: "Font ",
@@ -859,8 +883,8 @@
         ready: "Ready.",
         hint: "On phones, tap the text box and paste directly. If Read Clipboard fails, manual paste still works.",
         progress: ({ current, total }) => `Paragraph ${current} / ${total}`,
-        comfortDefault: "Reading a little counts. If your attention drifts, come back to the highlight.",
-        guideDefault: "The current sentence will appear here.",
+        comfortDefault: "Just stay with this sentence. The rest can gently fade back.",
+        guideDefault: "This sentence will appear here.",
         empty: "Put text on the left, then start reading. This area will show large text and highlight the current reading position.",
         notesSummary: "Note helper: keywords / key sentences",
         generateNotes: "Generate Suggestions",
@@ -890,11 +914,11 @@
         clipboardLoaded: "Clipboard loaded. Click Start Reading.",
         clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
         externalLoaded: "Text received. Click Start Reading.",
-        gentleOn: "Gentle Reading is on. The current sentence is lifted forward, and surrounding text fades back.",
-        gentleOff: "Gentle Reading is off.",
+        gentleOn: "Sentence Guide is on. The current sentence will appear while surrounding text gently fades back.",
+        gentleOff: "Sentence Guide is off.",
         rateAfterResume: ({ rate }) => `Speed changed to ${rate}x. It will apply when you resume.`,
         paused: "Paused.",
-        currentSentence: ({ current, total }) => `Current sentence ${current} / ${total}`,
+        currentSentence: ({ current, total }) => `This sentence ${current} / ${total}`,
         flowLabels: { auto: "Auto", en: "English", zh: "Chinese", off: "Off" },
         bionicLabels: { auto: "Auto", on: "On", off: "Off" },
         intensityLabels: { off: "None", light: "Light", standard: "Standard" },
@@ -910,11 +934,11 @@
           new: "new info / sentence-end focus"
         },
         comfortMessages: [
-          "Reading a little counts. If your attention drifts, come back to the highlight.",
-          "You do not have to finish everything at once. Getting close to the text already matters.",
-          "This is not a test. You can read slowly, or just listen to one passage.",
-          "If your mind starts to scatter, follow the current highlight for one small step.",
-          "Getting stuck is not failure. This part may simply need a gentler pace."
+          "Just stay with this sentence. The rest can gently fade back.",
+          "You do not have to finish everything at once. Follow this sentence first.",
+          "This is not a test. You can read slowly, or just listen to one small passage.",
+          "If your mind starts to scatter, come back to this sentence.",
+          "Getting stuck is not failure. This part may simply need a slower, lighter pace."
         ]
       }
     };

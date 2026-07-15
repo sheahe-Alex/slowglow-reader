@@ -6,8 +6,8 @@ A low-friction reading support tool for long-form text, study materials, and ser
 适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
 For articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
 
-它不是速读工具，也不是翻译器。它通过可开关声音的导读、当前词高亮、当前句托出、低干扰排版和轻量结构提示，帮助你更容易开始、继续，并在走神后回到文本。  
-It is not a speed-reading tool or a translator. It uses optional voice, guided highlighting, sentence focus, low-distraction layout, and light structure hints to help you start, continue, and return to the text after drifting away.
+它不是速读工具，也不是翻译器。它的核心特色是“逐句伴读”：当前句会浮现出来，其他文字轻轻退后，帮助你不用一次面对整屏文字。  
+It is not a speed-reading tool or a translator. Its core feature is Sentence Guide: the current sentence appears while surrounding text gently fades back, so you do not have to face the whole page at once.
 
 ## 直接使用 / Start Here
 
@@ -75,7 +75,7 @@ The core belief:
 - 当前词高亮 / Current-word highlight
 - 阅读中调整速度 / Adjust reading speed while it is running
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
-- 舒缓阅读：隐藏干扰，把当前句托出来，让已读内容和非当前句轻轻退后 / Gentle reading: hides distractions, lifts the current sentence forward, and lets read text and surrounding text fade back
+- 逐句伴读：当前句浮现出来，其他文字轻轻退后，减少一次面对整屏文字的压力 / Sentence Guide: the current sentence appears while surrounding text gently fades back, reducing the pressure of facing the whole page at once
 - 可选加粗引导，帮助眼睛更容易落回文字 / Optional bold guidance to make it easier for the eyes to return to the text
 - 可选结构提示，轻量标出连接词和少量逻辑信号 / Optional structure hints for connectors and light logic signals
 - 本地关键词和关键句候选，帮助做笔记起步 / Local keyword and key-sentence suggestions for note-taking
@@ -119,8 +119,8 @@ If macOS blocks it, right-click the file, choose "Open", and confirm once more.
 5. 点 `开始阅读`。  
    Click `Start Reading`.
 
-状态不好、文字太压迫时，可以点 `舒缓阅读`。  
-When the text feels overwhelming, try `舒缓阅读` / Gentle Reading.
+状态不好、文字太压迫时，可以点 `逐句伴读`。  
+When the text feels overwhelming, try `逐句伴读` / Sentence Guide.
 
 ## 隐私 / Privacy
 
@@ -163,7 +163,7 @@ You can use:
 - 更正式的跨平台网页版 / A more polished cross-platform web version
 - 更稳定的大段文本导读 / More stable long-text guided reading
 - 可选的 PDF/OCR 辅助 / Optional PDF/OCR support
-- 更细腻的舒缓阅读调节 / More nuanced Gentle Reading controls
+- 更细腻的逐句伴读调节 / More nuanced Sentence Guide controls
 - 多语言阅读体验优化 / Better multilingual reading experience
 
 ## License
