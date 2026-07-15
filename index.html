@@ -1023,7 +1023,7 @@
 
     const flowModes = ["auto", "en", "zh", "off"];
 
-    const bionicModes = ["auto", "on", "off"];
+    const bionicModes = ["off", "auto", "on"];
 
     const annotationIntensities = ["off", "light", "standard"];
 
@@ -1626,9 +1626,10 @@
     }
 
     function shouldUseBionic(word) {
+      if (!/[A-Za-z0-9]/.test(word) || /[\u3400-\u9fff]/.test(word)) return false;
       if (bionicMode === "off") return false;
       if (bionicMode === "on") return true;
-      return !/[\u3400-\u9fff]/.test(word);
+      return true;
     }
 
     function tokenHTML(word) {
