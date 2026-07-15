@@ -87,7 +87,7 @@ The core belief:
 - 逐句伴读：当前句浮现出来，其他文字轻轻退后，减少一次面对整屏文字的压力 / Sentence Guide: the current sentence appears while surrounding text gently fades back, reducing the pressure of facing the whole page at once
 - 标记这一句：一键留下重点判断，再点一次撤销 / Mark Sentence: keep a trace of your judgment, click again to unmark
 - 可选加粗引导，帮助眼睛更容易落回文字 / Optional bold guidance to make it easier for the eyes to return to the text
-- 设置里可开启结构提示：英文偏信息流，中文偏逻辑信号和概念复现 / Optional structure hints in Settings: information flow for English, logic signals and repeated concepts for Chinese
+- 设置里可开启结构提示和结构强度：英文偏信息流，中文偏逻辑信号和概念复现 / Optional structure hints and hint strength in Settings: information flow for English, logic signals and repeated concepts for Chinese
 - 重点回看：本地关键词和关键句候选，帮助第二遍、第 N 遍复习和做笔记 / Review anchors: local keyword and key-sentence suggestions for second-pass review, later review, and note-taking
 - 笔记提示：用自己的话记下重点 / Note cue: put key points in your own words
 - 根据浏览器语言自动显示中文或英文界面，也可以手动切换 / Automatically uses Chinese or English based on browser language, with manual switching available

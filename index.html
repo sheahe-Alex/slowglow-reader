@@ -718,7 +718,7 @@
         <button class="button utility" id="menuButton" type="button" aria-expanded="false">设置</button>
         <button class="button advanced-control" id="flowButton" type="button" aria-pressed="false">结构提示：关闭</button>
         <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="true">加粗引导：自动</button>
-        <button class="button advanced-control" id="intensityButton" type="button">辅助强度：轻</button>
+        <button class="button advanced-control" id="intensityButton" type="button" hidden>结构强度：轻</button>
         <button class="button advanced-control" id="languageButton" type="button">中文 / English</button>
       </div>
       <div class="toolbar-row settings-row">
@@ -830,7 +830,7 @@
         stop: "停止导读",
         flowPrefix: "结构提示",
         bionicPrefix: "加粗引导",
-        intensityPrefix: "辅助强度",
+        intensityPrefix: "结构强度",
         gentle: "逐句伴读",
         exitGentle: "退出逐句",
         markSentence: "标记这一句",
@@ -926,7 +926,7 @@
         stop: "Stop Guide",
         flowPrefix: "Structure Hints",
         bionicPrefix: "Bold Guide",
-        intensityPrefix: "Support Level",
+        intensityPrefix: "Hint Strength",
         gentle: "Sentence Guide",
         exitGentle: "Exit Guide",
         markSentence: "Mark Sentence",
@@ -2017,6 +2017,7 @@
       bionicButton.textContent = `${t("bionicPrefix")}：${currentCopyGroup("bionicLabels")[bionicMode]}`;
       bionicButton.setAttribute("aria-pressed", String(bionicMode !== "off"));
       intensityButton.textContent = `${t("intensityPrefix")}：${currentCopyGroup("intensityLabels")[annotationIntensity]}`;
+      intensityButton.hidden = flowMode === "off";
       gentleButton.textContent = gentleMode ? t("exitGentle") : t("gentle");
       gentleButton.setAttribute("aria-pressed", String(gentleMode));
     }
