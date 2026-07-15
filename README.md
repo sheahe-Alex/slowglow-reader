@@ -25,6 +25,31 @@ On phones, if `Read Clipboard` does not work, tap the text box and paste manuall
 如果在线版打不开，或者所在网络访问 GitHub Pages 不稳定，可以下载这个仓库后本地打开 `index.html`。  
 If the online version does not open, or if GitHub Pages is unstable on your network, download this repository and open `index.html` locally.
 
+## 更方便取用 / Easier Access
+
+在线版仍然是主入口。下面这些只是让它更容易被随手打开。  
+The online version is still the main entry point. The options below simply make it easier to reach.
+
+### 添加到桌面或主屏幕 / Add To Desktop Or Home Screen
+
+伴读 Reader 支持作为网页应用安装。  
+Bandu Reader can be installed as a web app.
+
+- 在 Chrome 或 Edge：打开在线版后，点地址栏右侧的安装图标，或在菜单里选择“安装应用”。  
+  In Chrome or Edge: open the online version, then use the install icon near the address bar or choose "Install app" from the menu.
+- 在手机浏览器：打开在线版后，使用浏览器菜单里的“添加到主屏幕”。  
+  On mobile browsers: open the online version, then choose "Add to Home Screen" from the browser menu.
+
+### 网页选中文字后一键打开 / Send Selected Text From A Webpage
+
+如果你经常在网页里读文章，可以使用书签按钮：  
+If you often read in webpages, you can use the bookmarklet:
+
+- [Bookmarklet / 书签按钮](./Bookmarklet_书签按钮.md)
+
+它不是浏览器插件，不需要安装商店扩展。选中文字后点书签，就会打开在线版并带入文字。  
+It is not a browser extension and does not require an extension store. Select text, click the bookmark, and it opens the online reader with the text.
+
 ## 为什么做 / Why
 
 伴读 Reader 不是为了催人读得更快，也不是为了证明谁的专注力够好。
@@ -131,6 +156,7 @@ You can use:
 
 - [Friend Guide / 给朋友看的说明](./Friend-Guide_给朋友看的说明.md)
 - [Share Copy / 分享文案](./Share-Copy_分享文案.md)
+- [Bookmarklet / 书签按钮](./Bookmarklet_书签按钮.md)
 
 ## 路线图 / Roadmap
 

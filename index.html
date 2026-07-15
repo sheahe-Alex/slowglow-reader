@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>伴读 Reader</title>
+  <meta name="theme-color" content="#0b7a75">
+  <meta name="description" content="一个面向长文、学习材料和严肃内容的低阻力阅读辅助工具。">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <style>
     :root {
       color-scheme: light;
@@ -801,6 +805,7 @@
         clipboardEmpty: "剪贴板里没有文字。",
         clipboardLoaded: "已读取剪贴板。按开始阅读开始。",
         clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
+        externalLoaded: "已接收外部文字。按开始阅读开始。",
         gentleOn: "舒缓阅读已开启。当前句会被托出来，其他文字会轻轻退后。",
         gentleOff: "已退出舒缓阅读。",
         rateAfterResume: ({ rate }) => `语速已改为 ${rate}x，点继续后生效。`,
@@ -884,6 +889,7 @@
         clipboardEmpty: "There is no text in the clipboard.",
         clipboardLoaded: "Clipboard loaded. Click Start Reading.",
         clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
+        externalLoaded: "Text received. Click Start Reading.",
         gentleOn: "Gentle Reading is on. The current sentence is lifted forward, and surrounding text fades back.",
         gentleOff: "Gentle Reading is off.",
         rateAfterResume: ({ rate }) => `Speed changed to ${rate}x. It will apply when you resume.`,
@@ -1730,6 +1736,37 @@
       }
     }
 
+    function acceptExternalText(text) {
+      const cleanText = String(text || "").trim();
+      if (!cleanText) return;
+      stopReading();
+      sourceText.value = cleanText;
+      rebuildTokens();
+      setStatus(t("externalLoaded"));
+      sourceText.focus();
+    }
+
+    function readTextFromURL() {
+      const queryText = new URLSearchParams(window.location.search).get("text");
+      const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
+      const hashText = new URLSearchParams(hash).get("text");
+      return queryText || hashText || "";
+    }
+
+    function setupExternalTextEntry() {
+      const textFromURL = readTextFromURL();
+      if (textFromURL) {
+        acceptExternalText(textFromURL);
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+
+      window.addEventListener("message", event => {
+        const data = event.data;
+        if (!data || data.type !== "bandu-reader-text") return;
+        acceptExternalText(data.text);
+      });
+    }
+
     function updateSettings() {
       document.documentElement.style.setProperty("--font-size", `${fontInput.value}px`);
       document.documentElement.style.setProperty("--line-height", lineInput.value);
@@ -1910,6 +1947,11 @@
 
     updateSettings();
     applyLanguage({ resetStatus: true });
+    setupExternalTextEntry();
+
+    if ("serviceWorker" in navigator && window.location.protocol.startsWith("http")) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
   </script>
 </body>
 </html>

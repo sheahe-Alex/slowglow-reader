@@ -28,6 +28,16 @@ On phones, if `Read Clipboard` does not work, tap the text box and paste manuall
 如果在线版打不开，或者所在网络访问 GitHub Pages 不稳定，再用下面的本地方式。  
 If the online version does not open, or if GitHub Pages is unstable on your network, use the local option below.
 
+## 更方便取用 / Easier Access
+
+如果经常使用，可以把在线版添加到桌面或手机主屏幕。  
+If you use it often, you can add the online version to your desktop or phone home screen.
+
+如果经常在网页里读文章，可以看这个书签按钮说明：  
+If you often read in webpages, you can use the bookmarklet guide:
+
+[Bookmarklet / 书签按钮](./Bookmarklet_书签按钮.md)
+
 ## 本地打开 / Open Locally
 
 Windows 和 Mac 都可以使用核心阅读器，只需要现代浏览器。  
