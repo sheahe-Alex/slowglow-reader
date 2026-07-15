@@ -151,6 +151,19 @@
       gap: 6px;
     }
 
+    .guide-toggle-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .guide-caption {
+      max-width: 12rem;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
     .brand {
       font-weight: 800;
       font-size: 22px;
@@ -185,6 +198,12 @@
       background: var(--comfort-bg);
       color: var(--ink);
       font-weight: 700;
+    }
+
+    .button.comfort[aria-pressed="true"] {
+      border-color: color-mix(in srgb, var(--accent) 56%, var(--comfort-line));
+      background: color-mix(in srgb, var(--comfort-bg) 48%, var(--accent));
+      color: var(--accent-ink);
     }
 
     .button.utility {
@@ -728,6 +747,14 @@
         flex: 1 1 100%;
       }
 
+      .guide-toggle-wrap {
+        flex: 1 1 100%;
+      }
+
+      .guide-caption {
+        max-width: none;
+      }
+
       .button {
         min-height: 40px;
         padding: 0 10px;
@@ -790,7 +817,10 @@
           <button class="button utility context-action" id="stopButton" type="button" disabled>停止</button>
         </div>
         <div class="action-group support-actions">
-          <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读</button>
+          <span class="guide-toggle-wrap">
+            <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读：关</button>
+            <span class="guide-caption" id="gentleHint">当前句浮现，其他文字退后。</span>
+          </span>
           <button class="button utility" id="voiceButton" type="button" aria-pressed="true">声音：开</button>
           <button class="button utility" id="menuButton" type="button" aria-expanded="false">设置</button>
         </div>
@@ -861,6 +891,7 @@
     const bionicButton = document.querySelector("#bionicButton");
     const intensityButton = document.querySelector("#intensityButton");
     const gentleButton = document.querySelector("#gentleButton");
+    const gentleHint = document.querySelector("#gentleHint");
     const languageButton = document.querySelector("#languageButton");
     const themeButton = document.querySelector("#themeButton");
     const progressPill = document.querySelector("#progressPill");
@@ -914,8 +945,9 @@
         flowPrefix: "结构提示",
         bionicPrefix: "英文词首加粗",
         intensityPrefix: "结构强度",
-        gentle: "逐句伴读",
-        exitGentle: "退出逐句",
+        gentle: "逐句伴读：关",
+        exitGentle: "逐句伴读：开",
+        gentleHint: "当前句浮现，其他文字退后。",
         markSentence: "标记这一句",
         unmarkSentence: "取消标记",
         previousSentence: "上一句",
@@ -1012,8 +1044,9 @@
         flowPrefix: "Structure Hints",
         bionicPrefix: "Bold Word Starts",
         intensityPrefix: "Hint Strength",
-        gentle: "Sentence Guide",
-        exitGentle: "Exit Guide",
+        gentle: "Sentence Guide: Off",
+        exitGentle: "Sentence Guide: On",
+        gentleHint: "Current sentence comes forward; the rest softens.",
         markSentence: "Mark Sentence",
         unmarkSentence: "Unmark",
         previousSentence: "Previous",
@@ -1188,6 +1221,7 @@
       document.querySelector(".panel-title").textContent = t("textTitle");
       sourceText.placeholder = t("placeholder");
       document.querySelector(".hint").textContent = t("hint");
+      gentleHint.textContent = t("gentleHint");
       comfortNote.textContent = t("comfortDefault");
       gentleGuide.textContent = t("guideDefault");
       notesPanel.querySelector("summary").textContent = t("notesSummary");
@@ -2145,6 +2179,7 @@
       intensityButton.title = t("cycleHint");
       intensityButton.hidden = flowMode === "off";
       gentleButton.textContent = gentleMode ? t("exitGentle") : t("gentle");
+      gentleButton.title = t("gentleHint");
       gentleButton.setAttribute("aria-pressed", String(gentleMode));
     }
 
