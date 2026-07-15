@@ -125,8 +125,8 @@ If macOS blocks it, right-click the file, choose "Open", and confirm once more.
    Press `Command C` to copy.
 3. 回到伴读 Reader。  
    Return to Reader.
-4. 点 `读取剪贴板`，或直接粘贴到左侧文本框。  
-   Click `读取剪贴板`, or paste directly into the text box on the left.
+4. 点 `读取剪贴板`，或直接粘贴到 `粘贴文字` 区域。  
+   Click `Read Clipboard`, or paste directly into the `Paste Text` area.
 5. 点 `从头阅读`。  
    Click `Read From Top`.
 
