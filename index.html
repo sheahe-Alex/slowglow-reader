@@ -184,6 +184,14 @@
       accent-color: var(--accent);
     }
 
+    .mode-row {
+      padding-top: 0;
+    }
+
+    .settings-row {
+      padding-top: 2px;
+    }
+
     .reader-shell {
       display: grid;
       grid-template-columns: minmax(280px, 380px) 1fr;
@@ -241,6 +249,7 @@
     }
 
     .toolbar.collapsed .advanced-control,
+    .toolbar.collapsed .mode-row,
     .toolbar.collapsed .settings-row {
       display: none;
     }
@@ -716,6 +725,8 @@
         <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">只看当前句</button>
         <button class="button utility context-action" id="markButton" type="button" disabled>标记这一句</button>
         <button class="button utility" id="menuButton" type="button" aria-expanded="false">设置</button>
+      </div>
+      <div class="toolbar-row mode-row">
         <button class="button advanced-control" id="flowButton" type="button" aria-pressed="false">结构提示：关闭</button>
         <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="false">英文词首加粗：关闭</button>
         <button class="button advanced-control" id="intensityButton" type="button" hidden>结构强度：轻</button>
@@ -1039,6 +1050,8 @@
       open: { font: 40, line: 1.95, width: 860 },
       night: { font: 38, line: 1.8, width: 940 }
     };
+
+    const preferenceKey = "slowglow-reading-preferences";
 
     const connectorGroups = [
       { label: "转折", words: ["however", "but", "yet", "although", "though", "nevertheless", "nonetheless", "whereas", "while", "despite", "instead", "rather"] },
@@ -1999,7 +2012,32 @@
       });
     }
 
-    function updateSettings() {
+    function loadReadingPreferences() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(preferenceKey) || "{}");
+        if (saved.rate) rateInput.value = saved.rate;
+        if (saved.font) fontInput.value = saved.font;
+        if (saved.line) lineInput.value = saved.line;
+        if (saved.width) widthInput.value = saved.width;
+        if (saved.theme && themes.includes(saved.theme)) currentTheme = saved.theme;
+      } catch {
+      }
+    }
+
+    function saveReadingPreferences() {
+      try {
+        localStorage.setItem(preferenceKey, JSON.stringify({
+          rate: rateInput.value,
+          font: fontInput.value,
+          line: lineInput.value,
+          width: widthInput.value,
+          theme: currentTheme
+        }));
+      } catch {
+      }
+    }
+
+    function updateSettings({ save = true } = {}) {
       document.documentElement.style.setProperty("--font-size", `${fontInput.value}px`);
       document.documentElement.style.setProperty("--line-height", lineInput.value);
       document.documentElement.style.setProperty("--max-width", `${widthInput.value}px`);
@@ -2007,19 +2045,21 @@
       fontValue.textContent = `${fontInput.value}px`;
       lineValue.textContent = Number(lineInput.value).toFixed(2);
       widthValue.textContent = `${widthInput.value}px`;
+      if (save) saveReadingPreferences();
     }
 
-    function applyTheme({ applyPreset = true } = {}) {
+    function applyTheme({ applyPreset = true, save = true } = {}) {
       document.body.dataset.theme = currentTheme;
       const preset = themePresets[currentTheme];
       if (applyPreset && preset) {
         fontInput.value = preset.font;
         lineInput.value = preset.line;
         widthInput.value = preset.width;
-        updateSettings();
+        updateSettings({ save });
       }
       themeButton.textContent = `${t("themePrefix")}：${currentCopyGroup("themeLabels")[currentTheme]}`;
       themeButton.title = t("cycleHint");
+      if (save) saveReadingPreferences();
     }
 
     function updateModeButtons() {
@@ -2067,11 +2107,11 @@
         currentTheme = "open";
         rateInput.value = "0.95";
         setFocusMode(true);
-        applyTheme();
+        applyTheme({ save: false });
         fontInput.value = "42";
         lineInput.value = "2.05";
         widthInput.value = "780";
-        updateSettings();
+        updateSettings({ save: false });
         comfortNote.textContent = randomComfortMessage();
         setStatus(t("gentleOn"));
       } else if (!value && gentleMode) {
@@ -2088,8 +2128,8 @@
           lineInput.value = previousGentleSettings.line;
           widthInput.value = previousGentleSettings.width;
           setFocusMode(false);
-          applyTheme({ applyPreset: false });
-          updateSettings();
+          applyTheme({ applyPreset: false, save: false });
+          updateSettings({ save: false });
         }
 
         setStatus(t("gentleOff"));
@@ -2192,7 +2232,8 @@
       window.speechSynthesis.cancel();
     });
 
-    updateSettings();
+    loadReadingPreferences();
+    updateSettings({ save: false });
     applyLanguage({ resetStatus: true });
     setupExternalTextEntry();
 
