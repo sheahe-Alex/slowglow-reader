@@ -103,6 +103,10 @@
       --comfort-line: rgba(85, 184, 173, 0.3);
     }
 
+    body[data-theme="night"] .input-panel {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    }
+
     button, textarea, input, select {
       font: inherit;
     }
@@ -209,10 +213,11 @@
 
     .reader-shell {
       display: grid;
-      grid-template-columns: minmax(280px, 380px) 1fr;
-      gap: 18px;
-      padding: 18px;
+      grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+      gap: clamp(14px, 2vw, 24px);
+      padding: clamp(14px, 2vw, 24px);
       min-height: 0;
+      align-items: start;
     }
 
     body.focus-mode .toolbar {
@@ -279,9 +284,11 @@
 
     .input-panel {
       display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 10px;
-      padding: 14px;
+      grid-template-rows: auto auto auto;
+      gap: 9px;
+      padding: 13px;
+      align-self: start;
+      box-shadow: 0 12px 32px rgba(45, 39, 28, 0.035);
     }
 
     .panel-title {
@@ -293,7 +300,8 @@
 
     textarea {
       width: 100%;
-      min-height: 320px;
+      min-height: 220px;
+      max-height: 42vh;
       resize: vertical;
       border: 1px solid var(--hairline);
       border-radius: 10px;
@@ -312,6 +320,7 @@
     .reader-panel {
       overflow: auto;
       padding: clamp(22px, 4vw, 56px);
+      min-height: calc(100vh - 132px);
     }
 
     .reader {
@@ -707,7 +716,8 @@
       }
 
       textarea {
-        min-height: 42vh;
+        min-height: 34vh;
+        max-height: none;
         font-size: 18px;
       }
 
@@ -719,6 +729,7 @@
 
       .reader-panel {
         padding: 16px 10px;
+        min-height: 54vh;
       }
 
       .notes-output {
