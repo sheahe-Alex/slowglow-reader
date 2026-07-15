@@ -127,8 +127,8 @@ If macOS blocks it, right-click the file, choose "Open", and confirm once more.
    Return to Reader.
 4. 点 `读取剪贴板`，或直接粘贴到左侧文本框。  
    Click `读取剪贴板`, or paste directly into the text box on the left.
-5. 点 `开始阅读`。  
-   Click `Start Reading`.
+5. 点 `从头阅读`。  
+   Click `Read From Top`.
 
 状态不好、文字太压迫时，可以点 `逐句伴读`。  
 When the text feels overwhelming, try `逐句伴读` / Sentence Guide.

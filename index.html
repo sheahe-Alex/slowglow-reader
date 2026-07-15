@@ -166,6 +166,10 @@
       cursor: not-allowed;
     }
 
+    .button.context-action:disabled {
+      display: none;
+    }
+
     .control {
       display: inline-flex;
       align-items: center;
@@ -704,14 +708,14 @@
       <div class="toolbar-row">
         <div class="brand">伴读 <span style="font-weight: 600; color: var(--muted);">Reader</span></div>
         <button class="button" id="clipboardButton" type="button">读取剪贴板</button>
-        <button class="button primary" id="playButton" type="button">开始阅读</button>
-        <button class="button utility" id="pauseButton" type="button" disabled>暂停</button>
-        <button class="button utility" id="stopButton" type="button">停止导读</button>
+        <button class="button primary" id="playButton" type="button">从头阅读</button>
+        <button class="button utility context-action" id="pauseButton" type="button" disabled>暂停</button>
+        <button class="button utility context-action" id="stopButton" type="button" disabled>停止导读</button>
         <button class="button utility" id="voiceButton" type="button" aria-pressed="true">声音：开</button>
-        <button class="button utility" id="previousButton" type="button" disabled>上一句</button>
+        <button class="button utility context-action" id="previousButton" type="button" disabled>上一句</button>
         <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读</button>
-        <button class="button utility" id="markButton" type="button" disabled>标记这一句</button>
-        <button class="button utility" id="menuButton" type="button" aria-expanded="true">收起设置</button>
+        <button class="button utility context-action" id="markButton" type="button" disabled>标记这一句</button>
+        <button class="button utility" id="menuButton" type="button" aria-expanded="false">设置</button>
         <button class="button advanced-control" id="flowButton" type="button" aria-pressed="true">结构提示：自动</button>
         <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="true">加粗引导：自动</button>
         <button class="button advanced-control" id="intensityButton" type="button">辅助强度：轻</button>
@@ -741,7 +745,7 @@
         <div class="comfort-note" id="comfortNote">读一点也算。走神了也没关系，从高亮处回来就好。</div>
         <div class="gentle-guide" id="gentleGuide">这一句会显示在这里。</div>
         <div class="reader" id="reader">
-          <div class="empty-state">把文字放进左侧，然后开始阅读。这里会用大字号显示文本，并高亮当前读到的位置。</div>
+          <div class="empty-state">把文字放进左侧，然后点“从头阅读”。这里会用大字号显示文本，并高亮当前读到的位置。</div>
         </div>
       </section>
 
@@ -816,11 +820,11 @@
     const copy = {
       zh: {
         clipboard: "读取剪贴板",
-        play: "开始阅读",
+        play: "从头阅读",
         voiceOn: "声音：开",
         voiceOff: "声音：关",
-        showMenu: "更多设置",
-        hideMenu: "收起设置",
+        showMenu: "设置",
+        hideMenu: "收起",
         pause: "暂停",
         resume: "继续",
         stop: "停止导读",
@@ -845,7 +849,7 @@
         progress: ({ current, total }) => `第 ${current} 段 / 共 ${total} 段`,
         comfortDefault: "只看这一句就好。其他文字会轻轻退后。",
         guideDefault: "这一句会显示在这里。",
-        empty: "把文字放进左侧，然后开始阅读。这里会用大字号显示文本，并高亮当前读到的位置。",
+        empty: "把文字放进左侧，然后点“从头阅读”。这里会用大字号显示文本，并高亮当前读到的位置。",
         notesSummary: "重点回看：关键词 / 关键句",
         copyNotes: "复制笔记草稿",
         notesIntro: "这里会用本地规则提取关键词和关键句，帮你第二遍、第 N 遍回到重点。它不是 AI 总结，也不会联网。",
@@ -865,7 +869,7 @@
         notesCopied: "笔记草稿已复制。",
         sentenceMarked: "已标记这一句，稍后可以在重点回看里找到。",
         sentenceUnmarked: "已取消这一句的标记。",
-        noSentenceToMark: "开始阅读后，可以标记当前句。",
+        noSentenceToMark: "开始导读后，可以标记当前句。",
         noPreviousSentence: "已经是第一句了。",
         previousSentenceReady: "已回到上一句。",
         copyFailed: "复制失败，可以手动选中笔记内容复制。",
@@ -874,15 +878,15 @@
         stopped: "已停止自动导读。可以自由浏览标注后的文本。",
         reading: ({ token }) => `正在读：${token}`,
         finished: "读完了。你可以复制下一段，再点读取剪贴板。",
-        interrupted: ({ seconds }) => `阅读中断了，已进行 ${seconds} 秒。可以再按开始阅读重试。`,
-        started: ({ rate }) => `开始阅读。速度 ${rate}x`,
+        interrupted: ({ seconds }) => `阅读中断了，已进行 ${seconds} 秒。可以再按从头阅读重试。`,
+        started: ({ rate }) => `从头阅读。速度 ${rate}x`,
         voiceEnabled: "声音已开启。会朗读并高亮当前读到的位置。",
         voiceMuted: "声音已关闭。高亮会按速度继续推进。",
         rateChangedNow: ({ rate }) => `已切换到 ${rate}x，从当前位置继续。`,
         clipboardEmpty: "剪贴板里没有文字。",
-        clipboardLoaded: "已读取剪贴板。按开始阅读开始。",
+        clipboardLoaded: "已读取剪贴板。按从头阅读开始。",
         clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
-        externalLoaded: "已接收外部文字。按开始阅读开始。",
+        externalLoaded: "已接收外部文字。按从头阅读开始。",
         gentleOn: "逐句伴读已开启。当前句会浮现出来，其他文字会轻轻退后。",
         gentleOff: "已退出逐句伴读。",
         rateAfterResume: ({ rate }) => `语速已改为 ${rate}x，点继续后生效。`,
@@ -912,11 +916,11 @@
       },
       en: {
         clipboard: "Read Clipboard",
-        play: "Start Reading",
+        play: "Read From Top",
         voiceOn: "Voice: On",
         voiceOff: "Voice: Off",
-        showMenu: "More Settings",
-        hideMenu: "Hide Settings",
+        showMenu: "Settings",
+        hideMenu: "Hide",
         pause: "Pause",
         resume: "Resume",
         stop: "Stop Guide",
@@ -941,7 +945,7 @@
         progress: ({ current, total }) => `Paragraph ${current} / ${total}`,
         comfortDefault: "Just stay with this sentence. The rest can gently fade back.",
         guideDefault: "This sentence will appear here.",
-        empty: "Put text on the left, then start reading. This area will show large text and highlight the current reading position.",
+        empty: "Put text on the left, then click Read From Top. This area will show large text and highlight the current reading position.",
         notesSummary: "Review anchors: keywords / key sentences",
         copyNotes: "Copy Note Draft",
         notesIntro: "Local rules will extract keyword and key-sentence candidates to help you return to the main points on a second or later pass. This is not an AI summary and does not go online.",
@@ -970,15 +974,15 @@
         stopped: "Guided reading stopped. You can now browse the marked text freely.",
         reading: ({ token }) => `Reading: ${token}`,
         finished: "Finished. You can copy the next passage, then click Read Clipboard.",
-        interrupted: ({ seconds }) => `Reading was interrupted after ${seconds} seconds. You can try Start Reading again.`,
-        started: ({ rate }) => `Started reading at ${rate}x.`,
+        interrupted: ({ seconds }) => `Reading was interrupted after ${seconds} seconds. You can try Read From Top again.`,
+        started: ({ rate }) => `Reading from top at ${rate}x.`,
         voiceEnabled: "Voice is on. It will read aloud and highlight the current position.",
         voiceMuted: "Voice is off. Highlighting will keep moving at the selected speed.",
         rateChangedNow: ({ rate }) => `Switched to ${rate}x and continued from the current position.`,
         clipboardEmpty: "There is no text in the clipboard.",
-        clipboardLoaded: "Clipboard loaded. Click Start Reading.",
+        clipboardLoaded: "Clipboard loaded. Click Read From Top.",
         clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
-        externalLoaded: "Text received. Click Start Reading.",
+        externalLoaded: "Text received. Click Read From Top.",
         gentleOn: "Sentence Guide is on. The current sentence will appear while surrounding text gently fades back.",
         gentleOff: "Sentence Guide is off.",
         rateAfterResume: ({ rate }) => `Speed changed to ${rate}x. It will apply when you resume.`,
@@ -1134,6 +1138,7 @@
     function updatePlaybackButtons() {
       pauseButton.disabled = !isReading;
       pauseButton.textContent = isPaused ? t("resume") : t("pause");
+      stopButton.disabled = !isReading;
       updateMarkButton();
       updatePreviousButton();
     }
