@@ -878,14 +878,15 @@
         noText: "还没有文本。",
         stopped: "已停止自动导读。可以自由浏览标注后的文本。",
         reading: ({ token }) => `正在读：${token}`,
-        finished: "读完了。你可以复制下一段，再点读取剪贴板。",
+        finished: "读完了。下一段也可以直接放进来。",
         interrupted: ({ seconds }) => `阅读中断了，已进行 ${seconds} 秒。可以再按从头阅读重试。`,
         started: ({ rate }) => `从头阅读。速度 ${rate}x`,
         voiceEnabled: "朗读已开启。会朗读并高亮当前读到的位置。",
         voiceMuted: "朗读已关闭。高亮会按速度继续推进。",
         rateChangedNow: ({ rate }) => `已切换到 ${rate}x，从当前位置继续。`,
         clipboardEmpty: "剪贴板里没有文字。",
-        clipboardLoaded: "文字已放好。可以从头阅读。",
+        clipboardLoaded: "新文字已放好。可以从头阅读。",
+        clipboardUnchanged: "剪贴板内容没有变化。",
         clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
         externalLoaded: "文字已放好。可以从头阅读。",
         gentleOn: "已开启只看当前句。当前句会浮现出来，其他文字会轻轻退后。",
@@ -975,14 +976,15 @@
         noText: "No text yet.",
         stopped: "Guided reading stopped. You can now browse the marked text freely.",
         reading: ({ token }) => `Reading: ${token}`,
-        finished: "Finished. You can copy the next passage, then click Read Clipboard.",
+        finished: "Finished. You can place the next passage here too.",
         interrupted: ({ seconds }) => `Reading was interrupted after ${seconds} seconds. You can try Read From Top again.`,
         started: ({ rate }) => `Reading from top at ${rate}x.`,
         voiceEnabled: "Read aloud is on. It will speak and highlight the current position.",
         voiceMuted: "Read aloud is off. Highlighting will keep moving at the selected speed.",
         rateChangedNow: ({ rate }) => `Switched to ${rate}x and continued from the current position.`,
         clipboardEmpty: "There is no text in the clipboard.",
-        clipboardLoaded: "Text is ready. Click Read From Top.",
+        clipboardLoaded: "New text is ready. Click Read From Top.",
+        clipboardUnchanged: "Clipboard text has not changed.",
         clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
         externalLoaded: "Text is ready. Click Read From Top.",
         gentleOn: "Current Sentence is on. The current sentence will appear while surrounding text gently fades back.",
@@ -1949,6 +1951,10 @@
         const text = await navigator.clipboard.readText();
         if (!text.trim()) {
           setStatus(t("clipboardEmpty"));
+          return;
+        }
+        if (text.trim() === sourceText.value.trim()) {
+          setStatus(t("clipboardUnchanged"));
           return;
         }
         sourceText.value = text;
