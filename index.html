@@ -713,7 +713,7 @@
         <button class="button utility context-action" id="stopButton" type="button" disabled>停止导读</button>
         <button class="button utility" id="voiceButton" type="button" aria-pressed="true">朗读：开</button>
         <button class="button utility context-action" id="previousButton" type="button" disabled>上一句</button>
-        <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读</button>
+        <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">只看当前句</button>
         <button class="button utility context-action" id="markButton" type="button" disabled>标记这一句</button>
         <button class="button utility" id="menuButton" type="button" aria-expanded="false">设置</button>
         <button class="button advanced-control" id="flowButton" type="button" aria-pressed="false">结构提示：关闭</button>
@@ -831,8 +831,8 @@
         flowPrefix: "结构提示",
         bionicPrefix: "英文词首加粗",
         intensityPrefix: "结构强度",
-        gentle: "逐句伴读",
-        exitGentle: "退出逐句",
+        gentle: "只看当前句",
+        exitGentle: "退出当前句",
         markSentence: "标记这一句",
         unmarkSentence: "取消标记",
         previousSentence: "上一句",
@@ -887,8 +887,8 @@
         clipboardLoaded: "已读取剪贴板。按从头阅读开始。",
         clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
         externalLoaded: "已接收外部文字。按从头阅读开始。",
-        gentleOn: "逐句伴读已开启。当前句会浮现出来，其他文字会轻轻退后。",
-        gentleOff: "已退出逐句伴读。",
+        gentleOn: "已开启只看当前句。当前句会浮现出来，其他文字会轻轻退后。",
+        gentleOff: "已退出只看当前句。",
         rateAfterResume: ({ rate }) => `语速已改为 ${rate}x，点继续后生效。`,
         paused: "已暂停。",
         currentSentence: ({ current, total }) => `这一句 ${current} / ${total}`,
@@ -927,8 +927,8 @@
         flowPrefix: "Structure Hints",
         bionicPrefix: "Bold Word Starts",
         intensityPrefix: "Hint Strength",
-        gentle: "Sentence Guide",
-        exitGentle: "Exit Guide",
+        gentle: "Current Sentence",
+        exitGentle: "Exit Current",
         markSentence: "Mark Sentence",
         unmarkSentence: "Unmark",
         previousSentence: "Previous",
@@ -983,8 +983,8 @@
         clipboardLoaded: "Clipboard loaded. Click Read From Top.",
         clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
         externalLoaded: "Text received. Click Read From Top.",
-        gentleOn: "Sentence Guide is on. The current sentence will appear while surrounding text gently fades back.",
-        gentleOff: "Sentence Guide is off.",
+        gentleOn: "Current Sentence is on. The current sentence will appear while surrounding text gently fades back.",
+        gentleOff: "Current Sentence is off.",
         rateAfterResume: ({ rate }) => `Speed changed to ${rate}x. It will apply when you resume.`,
         paused: "Paused.",
         currentSentence: ({ current, total }) => `This sentence ${current} / ${total}`,

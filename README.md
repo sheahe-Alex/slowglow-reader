@@ -6,8 +6,8 @@ A low-friction reading support tool that helps you enter, understand, and revisi
 适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
 For articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
 
-它不是速读工具，也不是翻译器。它先用“逐句伴读”帮你进入文本，再用关键词和关键句候选帮你第二遍、第 N 遍回到重点。  
-It is not a speed-reading tool or a translator. It first helps you enter the text with Sentence Guide, then helps you return to key points later with keyword and key-sentence candidates.
+它不是速读工具，也不是翻译器。它先用“只看当前句”帮你进入文本，再用关键词和关键句候选帮你第二遍、第 N 遍回到重点。  
+It is not a speed-reading tool or a translator. It first helps you enter the text with Current Sentence, then helps you return to key points later with keyword and key-sentence candidates.
 
 你可以把它当成一个简单流程：先读进去，再回来看懂，最后留下可复习的痕迹。  
 You can treat it as a simple flow: enter the text, come back to understand it, then leave traces you can review.
@@ -84,7 +84,7 @@ The core belief:
 - 停止导读：停止自动推进，收起粘贴框和设置，保留标注后自由浏览 / Stop Guide: stop auto-advance, hide input and settings, and browse the marked text freely
 - 阅读中调整速度 / Adjust reading speed while it is running
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
-- 逐句伴读：当前句浮现出来，其他文字轻轻退后，减少一次面对整屏文字的压力 / Sentence Guide: the current sentence appears while surrounding text gently fades back, reducing the pressure of facing the whole page at once
+- 只看当前句：当前句浮现出来，其他文字轻轻退后，减少一次面对整屏文字的压力 / Current Sentence: the current sentence appears while surrounding text gently fades back, reducing the pressure of facing the whole page at once
 - 标记这一句：一键留下重点判断，再点一次撤销 / Mark Sentence: keep a trace of your judgment, click again to unmark
 - 设置里可开启英文词首加粗，帮助眼睛更容易落回英文单词 / Optional Bold Word Starts in Settings to make it easier for the eyes to return to English words
 - 设置里可开启结构提示和结构强度：英文偏信息流，中文偏逻辑信号和概念复现 / Optional structure hints and hint strength in Settings: information flow for English, logic signals and repeated concepts for Chinese
@@ -130,8 +130,8 @@ If macOS blocks it, right-click the file, choose "Open", and confirm once more.
 5. 点 `从头阅读`。  
    Click `Read From Top`.
 
-状态不好、文字太压迫时，可以点 `逐句伴读`。  
-When the text feels overwhelming, try `逐句伴读` / Sentence Guide.
+状态不好、文字太压迫时，可以点 `只看当前句`。  
+When the text feels overwhelming, try `只看当前句` / Current Sentence.
 
 ## 隐私 / Privacy
 
@@ -175,7 +175,7 @@ You can use:
 - 更正式的跨平台网页版 / A more polished cross-platform web version
 - 更稳定的大段文本导读 / More stable long-text guided reading
 - 可选的 PDF/OCR 辅助 / Optional PDF/OCR support
-- 更细腻的逐句伴读调节 / More nuanced Sentence Guide controls
+- 更细腻的只看当前句调节 / More nuanced Current Sentence controls
 - 多语言阅读体验优化 / Better multilingual reading experience
 
 ## License
