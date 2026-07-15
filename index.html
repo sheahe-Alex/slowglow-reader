@@ -717,7 +717,7 @@
         <button class="button utility context-action" id="markButton" type="button" disabled>标记这一句</button>
         <button class="button utility" id="menuButton" type="button" aria-expanded="false">设置</button>
         <button class="button advanced-control" id="flowButton" type="button" aria-pressed="false">结构提示：关闭</button>
-        <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="true">加粗引导：自动</button>
+        <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="false">加粗引导：关闭</button>
         <button class="button advanced-control" id="intensityButton" type="button" hidden>结构强度：轻</button>
         <button class="button advanced-control" id="languageButton" type="button">中文 / English</button>
       </div>
@@ -801,7 +801,7 @@
     let utterance = null;
     let playStartedAt = 0;
     let flowMode = "off";
-    let bionicMode = "auto";
+    let bionicMode = "off";
     let annotationIntensity = "light";
     let currentTheme = "soft";
     let gentleMode = false;
@@ -2048,7 +2048,7 @@
         gentleMode = true;
         document.body.classList.add("gentle-mode");
         flowMode = "off";
-        bionicMode = "auto";
+        bionicMode = "off";
         annotationIntensity = "off";
         currentTheme = "open";
         rateInput.value = "0.95";
