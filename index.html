@@ -20,6 +20,8 @@
       --accent-ink: #ffffff;
       --highlight: #ffe66d;
       --highlight-ink: #101010;
+      --mark: #0f766e;
+      --mark-bg: rgba(15, 118, 110, 0.1);
       --flow-link: #1d70b8;
       --flow-old: #fff0a6;
       --flow-new: #147a4b;
@@ -85,6 +87,8 @@
       --accent-ink: #071412;
       --highlight: #f2c94c;
       --highlight-ink: #111318;
+      --mark: #7dd3c7;
+      --mark-bg: rgba(125, 211, 199, 0.14);
       --flow-old: rgba(242, 201, 76, 0.22);
       --flow-tag: rgba(242, 201, 76, 0.22);
       --sentence-bg: rgba(85, 184, 173, 0.09);
@@ -202,6 +206,24 @@
     body.focus-mode .reader-panel {
       border-color: transparent;
       padding-top: clamp(14px, 2vw, 28px);
+    }
+
+    body.browse-mode .toolbar {
+      box-shadow: 0 8px 24px rgba(16, 24, 40, 0.04);
+    }
+
+    body.browse-mode .toolbar-row.settings-row,
+    body.browse-mode .input-panel {
+      display: none;
+    }
+
+    body.browse-mode .reader-shell {
+      grid-template-columns: 1fr;
+      padding: 10px;
+    }
+
+    body.browse-mode .reader-panel {
+      min-height: calc(100vh - 86px);
     }
 
     body.gentle-mode .toolbar {
@@ -392,10 +414,19 @@
     }
 
     .token.marked-sentence {
+      background: var(--mark-bg);
+      box-shadow: 0 0 0 0.08em var(--mark-bg);
       text-decoration-line: underline;
-      text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
-      text-decoration-thickness: 0.09em;
+      text-decoration-color: color-mix(in srgb, var(--mark) 75%, transparent);
+      text-decoration-thickness: 0.1em;
       text-underline-offset: 0.22em;
+    }
+
+    .token.active.marked-sentence {
+      background: var(--highlight);
+      color: var(--highlight-ink);
+      box-shadow: 0 0 0 0.08em var(--highlight);
+      text-decoration-color: var(--mark);
     }
 
     .flow-label {
@@ -675,7 +706,7 @@
         <button class="button" id="clipboardButton" type="button">读取剪贴板</button>
         <button class="button primary" id="playButton" type="button">开始阅读</button>
         <button class="button utility" id="pauseButton" type="button" disabled>暂停</button>
-        <button class="button utility" id="stopButton" type="button">停止</button>
+        <button class="button utility" id="stopButton" type="button">停止导读</button>
         <button class="button utility" id="voiceButton" type="button" aria-pressed="true">声音：开</button>
         <button class="button utility" id="previousButton" type="button" disabled>上一句</button>
         <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读</button>
@@ -792,7 +823,7 @@
         hideMenu: "收起设置",
         pause: "暂停",
         resume: "继续",
-        stop: "停止",
+        stop: "停止导读",
         flowPrefix: "结构提示",
         bionicPrefix: "加粗引导",
         intensityPrefix: "辅助强度",
@@ -840,7 +871,7 @@
         copyFailed: "复制失败，可以手动选中笔记内容复制。",
         loaded: ({ tokens, chars }) => `已载入 ${tokens} 个词/片段，约 ${chars} 字符。`,
         noText: "还没有文本。",
-        stopped: "已停止。",
+        stopped: "已停止自动导读。可以自由浏览标注后的文本。",
         reading: ({ token }) => `正在读：${token}`,
         finished: "读完了。你可以复制下一段，再点读取剪贴板。",
         interrupted: ({ seconds }) => `阅读中断了，已进行 ${seconds} 秒。可以再按开始阅读重试。`,
@@ -888,7 +919,7 @@
         hideMenu: "Hide Settings",
         pause: "Pause",
         resume: "Resume",
-        stop: "Stop",
+        stop: "Stop Guide",
         flowPrefix: "Structure Hints",
         bionicPrefix: "Bold Guide",
         intensityPrefix: "Support Level",
@@ -936,7 +967,7 @@
         copyFailed: "Copy failed. You can manually select and copy the note content.",
         loaded: ({ tokens, chars }) => `Loaded ${tokens} words/chunks, about ${chars} characters.`,
         noText: "No text yet.",
-        stopped: "Stopped.",
+        stopped: "Guided reading stopped. You can now browse the marked text freely.",
         reading: ({ token }) => `Reading: ${token}`,
         finished: "Finished. You can copy the next passage, then click Read Clipboard.",
         interrupted: ({ seconds }) => `Reading was interrupted after ${seconds} seconds. You can try Start Reading again.`,
@@ -1090,6 +1121,14 @@
       document.querySelector(".toolbar").classList.toggle("collapsed", menuCollapsed);
       menuButton.textContent = menuCollapsed ? t("showMenu") : t("hideMenu");
       menuButton.setAttribute("aria-expanded", String(!menuCollapsed));
+    }
+
+    function setBrowseMode(enabled) {
+      document.body.classList.toggle("browse-mode", enabled);
+      if (enabled) {
+        menuCollapsed = true;
+        updateMenuButton();
+      }
     }
 
     function updatePlaybackButtons() {
@@ -1765,7 +1804,7 @@
       }, tokenDurationMs(tokens[activeIndex]));
     }
 
-    function stopReading() {
+    function stopReading({ browse = true } = {}) {
       playbackRunId += 1;
       clearSilentTimer();
       window.speechSynthesis.cancel();
@@ -1773,6 +1812,7 @@
       isReading = false;
       isPaused = false;
       activeIndex = -1;
+      setBrowseMode(browse && tokens.length > 0);
       render();
       updateProgress();
       updatePlaybackButtons();
@@ -1792,6 +1832,7 @@
       activeIndex = safeStartIndex;
       isReading = true;
       isPaused = false;
+      setBrowseMode(false);
       render();
       updatePlaybackButtons();
 
@@ -1844,6 +1885,7 @@
       isReading = true;
       isPaused = false;
       playStartedAt = Date.now();
+      setBrowseMode(false);
       render();
       updatePlaybackButtons();
       setStatus(t("started", { rate: Number(rateInput.value).toFixed(2) }));
@@ -1874,11 +1916,13 @@
       }
 
       tokens = tokenize(sourceText.value);
+      setBrowseMode(false);
       startFromToken(0);
     }
 
     async function readClipboard() {
       try {
+        setBrowseMode(false);
         const text = await navigator.clipboard.readText();
         if (!text.trim()) {
           setStatus(t("clipboardEmpty"));
@@ -1888,6 +1932,7 @@
         rebuildTokens();
         setStatus(t("clipboardLoaded"));
       } catch {
+        setBrowseMode(false);
         setStatus(t("clipboardFailed"));
         sourceText.focus();
       }
@@ -1896,7 +1941,8 @@
     function acceptExternalText(text) {
       const cleanText = String(text || "").trim();
       if (!cleanText) return;
-      stopReading();
+      stopReading({ browse: false });
+      setBrowseMode(false);
       sourceText.value = cleanText;
       rebuildTokens();
       setStatus(t("externalLoaded"));
@@ -2043,6 +2089,12 @@
       setStatus(voiceEnabled ? t("voiceEnabled") : t("voiceMuted"));
     });
     menuButton.addEventListener("click", () => {
+      if (document.body.classList.contains("browse-mode")) {
+        setBrowseMode(false);
+        menuCollapsed = false;
+        updateMenuButton();
+        return;
+      }
       menuCollapsed = !menuCollapsed;
       updateMenuButton();
     });

@@ -81,6 +81,7 @@ The core belief:
 - 可开关声音：有声朗读或静音高亮导读 / Optional voice: read aloud or silent guided highlighting
 - 当前词高亮 / Current-word highlight
 - 上一句：阅读中可以退回上一句 / Previous sentence: step back while reading
+- 停止导读：停止自动推进，收起粘贴框和设置，保留标注后自由浏览 / Stop Guide: stop auto-advance, hide input and settings, and browse the marked text freely
 - 阅读中调整速度 / Adjust reading speed while it is running
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
 - 逐句伴读：当前句浮现出来，其他文字轻轻退后，减少一次面对整屏文字的压力 / Sentence Guide: the current sentence appears while surrounding text gently fades back, reducing the pressure of facing the whole page at once
