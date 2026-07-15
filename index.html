@@ -711,12 +711,12 @@
         <button class="button primary" id="playButton" type="button">从头阅读</button>
         <button class="button utility context-action" id="pauseButton" type="button" disabled>暂停</button>
         <button class="button utility context-action" id="stopButton" type="button" disabled>停止导读</button>
-        <button class="button utility" id="voiceButton" type="button" aria-pressed="true">声音：开</button>
+        <button class="button utility" id="voiceButton" type="button" aria-pressed="true">朗读：开</button>
         <button class="button utility context-action" id="previousButton" type="button" disabled>上一句</button>
         <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读</button>
         <button class="button utility context-action" id="markButton" type="button" disabled>标记这一句</button>
         <button class="button utility" id="menuButton" type="button" aria-expanded="false">设置</button>
-        <button class="button advanced-control" id="flowButton" type="button" aria-pressed="true">结构提示：自动</button>
+        <button class="button advanced-control" id="flowButton" type="button" aria-pressed="false">结构提示：关闭</button>
         <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="true">加粗引导：自动</button>
         <button class="button advanced-control" id="intensityButton" type="button">辅助强度：轻</button>
         <button class="button advanced-control" id="languageButton" type="button">中文 / English</button>
@@ -800,7 +800,7 @@
     let activeIndex = -1;
     let utterance = null;
     let playStartedAt = 0;
-    let flowMode = "auto";
+    let flowMode = "off";
     let bionicMode = "auto";
     let annotationIntensity = "light";
     let currentTheme = "soft";
@@ -821,8 +821,8 @@
       zh: {
         clipboard: "读取剪贴板",
         play: "从头阅读",
-        voiceOn: "声音：开",
-        voiceOff: "声音：关",
+        voiceOn: "朗读：开",
+        voiceOff: "朗读：关",
         showMenu: "设置",
         hideMenu: "收起",
         pause: "暂停",
@@ -880,8 +880,8 @@
         finished: "读完了。你可以复制下一段，再点读取剪贴板。",
         interrupted: ({ seconds }) => `阅读中断了，已进行 ${seconds} 秒。可以再按从头阅读重试。`,
         started: ({ rate }) => `从头阅读。速度 ${rate}x`,
-        voiceEnabled: "声音已开启。会朗读并高亮当前读到的位置。",
-        voiceMuted: "声音已关闭。高亮会按速度继续推进。",
+        voiceEnabled: "朗读已开启。会朗读并高亮当前读到的位置。",
+        voiceMuted: "朗读已关闭。高亮会按速度继续推进。",
         rateChangedNow: ({ rate }) => `已切换到 ${rate}x，从当前位置继续。`,
         clipboardEmpty: "剪贴板里没有文字。",
         clipboardLoaded: "已读取剪贴板。按从头阅读开始。",
@@ -917,8 +917,8 @@
       en: {
         clipboard: "Read Clipboard",
         play: "Read From Top",
-        voiceOn: "Voice: On",
-        voiceOff: "Voice: Off",
+        voiceOn: "Read Aloud: On",
+        voiceOff: "Read Aloud: Off",
         showMenu: "Settings",
         hideMenu: "Hide",
         pause: "Pause",
@@ -976,8 +976,8 @@
         finished: "Finished. You can copy the next passage, then click Read Clipboard.",
         interrupted: ({ seconds }) => `Reading was interrupted after ${seconds} seconds. You can try Read From Top again.`,
         started: ({ rate }) => `Reading from top at ${rate}x.`,
-        voiceEnabled: "Voice is on. It will read aloud and highlight the current position.",
-        voiceMuted: "Voice is off. Highlighting will keep moving at the selected speed.",
+        voiceEnabled: "Read aloud is on. It will speak and highlight the current position.",
+        voiceMuted: "Read aloud is off. Highlighting will keep moving at the selected speed.",
         rateChangedNow: ({ rate }) => `Switched to ${rate}x and continued from the current position.`,
         clipboardEmpty: "There is no text in the clipboard.",
         clipboardLoaded: "Clipboard loaded. Click Read From Top.",

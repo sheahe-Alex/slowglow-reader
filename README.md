@@ -78,7 +78,7 @@ The core belief:
 
 - 粘贴或读取剪贴板文字 / Paste or read text from the clipboard
 - 大字号阅读区 / Large reading view
-- 可开关声音：有声朗读或静音高亮导读 / Optional voice: read aloud or silent guided highlighting
+- 可开关朗读：有声朗读或静音高亮导读 / Optional read-aloud: spoken reading or silent guided highlighting
 - 当前词高亮 / Current-word highlight
 - 上一句：阅读中可以退回上一句 / Previous sentence: step back while reading
 - 停止导读：停止自动推进，收起粘贴框和设置，保留标注后自由浏览 / Stop Guide: stop auto-advance, hide input and settings, and browse the marked text freely
@@ -87,7 +87,7 @@ The core belief:
 - 逐句伴读：当前句浮现出来，其他文字轻轻退后，减少一次面对整屏文字的压力 / Sentence Guide: the current sentence appears while surrounding text gently fades back, reducing the pressure of facing the whole page at once
 - 标记这一句：一键留下重点判断，再点一次撤销 / Mark Sentence: keep a trace of your judgment, click again to unmark
 - 可选加粗引导，帮助眼睛更容易落回文字 / Optional bold guidance to make it easier for the eyes to return to the text
-- 可选结构提示：英文偏信息流，中文偏逻辑信号和概念复现 / Optional structure hints: information flow for English, logic signals and repeated concepts for Chinese
+- 设置里可开启结构提示：英文偏信息流，中文偏逻辑信号和概念复现 / Optional structure hints in Settings: information flow for English, logic signals and repeated concepts for Chinese
 - 重点回看：本地关键词和关键句候选，帮助第二遍、第 N 遍复习和做笔记 / Review anchors: local keyword and key-sentence suggestions for second-pass review, later review, and note-taking
 - 笔记提示：用自己的话记下重点 / Note cue: put key points in your own words
 - 根据浏览器语言自动显示中文或英文界面，也可以手动切换 / Automatically uses Chinese or English based on browser language, with manual switching available
@@ -143,8 +143,8 @@ The current version is a local web tool.
 - 不上传你的文字 / Your text is not uploaded
 - 不使用在线 AI / No online AI is used
 
-如果打开声音，朗读会使用浏览器和系统提供的语音能力。关闭声音时，高亮仍会继续推进。  
-If voice is on, read-aloud uses your browser and system speech features. If voice is off, the highlight still keeps moving.
+如果打开朗读，会使用浏览器和系统提供的语音能力。关闭朗读时，高亮仍会继续推进。  
+If read-aloud is on, it uses your browser and system speech features. If read-aloud is off, the highlight still keeps moving.
 
 ## 适合谁 / Who It May Help
 
