@@ -674,12 +674,13 @@
         <div class="brand">伴读 <span style="font-weight: 600; color: var(--muted);">Reader</span></div>
         <button class="button" id="clipboardButton" type="button">读取剪贴板</button>
         <button class="button primary" id="playButton" type="button">开始阅读</button>
+        <button class="button utility" id="pauseButton" type="button" disabled>暂停</button>
+        <button class="button utility" id="stopButton" type="button">停止</button>
         <button class="button utility" id="voiceButton" type="button" aria-pressed="true">声音：开</button>
+        <button class="button utility" id="previousButton" type="button" disabled>上一句</button>
         <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读</button>
         <button class="button utility" id="markButton" type="button" disabled>标记这一句</button>
         <button class="button utility" id="menuButton" type="button" aria-expanded="true">收起设置</button>
-        <button class="button advanced-control" id="pauseButton" type="button" disabled>暂停</button>
-        <button class="button advanced-control" id="stopButton" type="button">停止</button>
         <button class="button advanced-control" id="flowButton" type="button" aria-pressed="true">结构提示：自动</button>
         <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="true">加粗引导：自动</button>
         <button class="button advanced-control" id="intensityButton" type="button">辅助强度：轻</button>
@@ -716,7 +717,6 @@
       <details class="notes-panel" id="notesPanel">
         <summary>重点回看：关键词 / 关键句</summary>
         <div class="notes-tools">
-          <button class="button" id="notesButton" type="button">生成候选</button>
           <button class="button" id="copyNotesButton" type="button">复制笔记草稿</button>
         </div>
         <div class="notes-output" id="notesOutput">
@@ -736,6 +736,7 @@
     const voiceButton = document.querySelector("#voiceButton");
     const menuButton = document.querySelector("#menuButton");
     const markButton = document.querySelector("#markButton");
+    const previousButton = document.querySelector("#previousButton");
     const pauseButton = document.querySelector("#pauseButton");
     const stopButton = document.querySelector("#stopButton");
     const flowButton = document.querySelector("#flowButton");
@@ -748,7 +749,6 @@
     const comfortNote = document.querySelector("#comfortNote");
     const gentleGuide = document.querySelector("#gentleGuide");
     const notesPanel = document.querySelector("#notesPanel");
-    const notesButton = document.querySelector("#notesButton");
     const copyNotesButton = document.querySelector("#copyNotesButton");
     const notesOutput = document.querySelector("#notesOutput");
     const rateInput = document.querySelector("#rateInput");
@@ -799,6 +799,8 @@
         gentle: "逐句伴读",
         exitGentle: "退出逐句",
         markSentence: "标记这一句",
+        unmarkSentence: "取消标记",
+        previousSentence: "上一句",
         languageButton: "中文 / English",
         rate: "语速 ",
         font: "字号 ",
@@ -814,11 +816,10 @@
         guideDefault: "这一句会显示在这里。",
         empty: "把文字放进左侧，然后开始阅读。这里会用大字号显示文本，并高亮当前读到的位置。",
         notesSummary: "重点回看：关键词 / 关键句",
-        generateNotes: "生成候选",
         copyNotes: "复制笔记草稿",
         notesIntro: "这里会用本地规则提取关键词和关键句，帮你第二遍、第 N 遍回到重点。它不是 AI 总结，也不会联网。",
         noteReminderTitle: "笔记提示",
-        noteReminder: "用自己的话记下重点，可写到 PDF、纸书或笔记本上。",
+        noteReminder: "用自己的话记下重点。",
         pasteFirst: "先粘贴或读取一段文字。",
         keywordsTitle: "关键词候选",
         keySentencesTitle: "关键句候选",
@@ -832,8 +833,10 @@
         draftReminder: "用自己的话记下：",
         notesCopied: "笔记草稿已复制。",
         sentenceMarked: "已标记这一句，稍后可以在重点回看里找到。",
-        sentenceAlreadyMarked: "这一句已经标记过了。",
+        sentenceUnmarked: "已取消这一句的标记。",
         noSentenceToMark: "开始阅读后，可以标记当前句。",
+        noPreviousSentence: "已经是第一句了。",
+        previousSentenceReady: "已回到上一句。",
         copyFailed: "复制失败，可以手动选中笔记内容复制。",
         loaded: ({ tokens, chars }) => `已载入 ${tokens} 个词/片段，约 ${chars} 字符。`,
         noText: "还没有文本。",
@@ -892,6 +895,8 @@
         gentle: "Sentence Guide",
         exitGentle: "Exit Guide",
         markSentence: "Mark Sentence",
+        unmarkSentence: "Unmark",
+        previousSentence: "Previous",
         languageButton: "English / 中文",
         rate: "Speed ",
         font: "Font ",
@@ -907,11 +912,10 @@
         guideDefault: "This sentence will appear here.",
         empty: "Put text on the left, then start reading. This area will show large text and highlight the current reading position.",
         notesSummary: "Review anchors: keywords / key sentences",
-        generateNotes: "Generate Suggestions",
         copyNotes: "Copy Note Draft",
         notesIntro: "Local rules will extract keyword and key-sentence candidates to help you return to the main points on a second or later pass. This is not an AI summary and does not go online.",
         noteReminderTitle: "Note cue",
-        noteReminder: "Put key points in your own words, then add them to your PDF, printout, or notebook.",
+        noteReminder: "Put key points in your own words.",
         pasteFirst: "Paste or read some text first.",
         keywordsTitle: "Keyword Candidates",
         keySentencesTitle: "Key Sentence Candidates",
@@ -925,8 +929,10 @@
         draftReminder: "In my own words:",
         notesCopied: "Note draft copied.",
         sentenceMarked: "Sentence marked. You can find it in Review Anchors.",
-        sentenceAlreadyMarked: "This sentence is already marked.",
+        sentenceUnmarked: "Sentence unmarked.",
         noSentenceToMark: "Start reading, then you can mark the current sentence.",
+        noPreviousSentence: "Already at the first sentence.",
+        previousSentenceReady: "Moved back to the previous sentence.",
         copyFailed: "Copy failed. You can manually select and copy the note content.",
         loaded: ({ tokens, chars }) => `Loaded ${tokens} words/chunks, about ${chars} characters.`,
         noText: "No text yet.",
@@ -1049,7 +1055,7 @@
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
       playButton.textContent = t("play");
-      markButton.textContent = t("markSentence");
+      previousButton.textContent = t("previousSentence");
       updateVoiceButton();
       updateMenuButton();
       stopButton.textContent = t("stop");
@@ -1060,7 +1066,6 @@
       comfortNote.textContent = t("comfortDefault");
       gentleGuide.textContent = t("guideDefault");
       notesPanel.querySelector("summary").textContent = t("notesSummary");
-      notesButton.textContent = t("generateNotes");
       copyNotesButton.textContent = t("copyNotes");
       setLabelText(rateInput, t("rate"));
       setLabelText(fontInput, t("font"));
@@ -1078,6 +1083,7 @@
       applyTheme({ applyPreset: false });
       updateProgress();
       updateMarkButton();
+      updatePreviousButton();
     }
 
     function updateMenuButton() {
@@ -1090,6 +1096,7 @@
       pauseButton.disabled = !isReading;
       pauseButton.textContent = isPaused ? t("resume") : t("pause");
       updateMarkButton();
+      updatePreviousButton();
     }
 
     function updateVoiceButton() {
@@ -1098,7 +1105,13 @@
     }
 
     function updateMarkButton() {
-      markButton.disabled = !sentenceRangeForToken(activeIndex);
+      const sentence = sentenceRangeForToken(activeIndex);
+      markButton.disabled = !sentence;
+      markButton.textContent = sentence && isSentenceMarked(sentence) ? t("unmarkSentence") : t("markSentence");
+    }
+
+    function updatePreviousButton() {
+      previousButton.disabled = previousSentenceTokenIndex() < 0;
     }
 
     function normalizeForSpeech(text) {
@@ -1179,6 +1192,14 @@
       const source = sourceText.value.trim();
       if (!source || index < 0 || !tokens[index]) return -1;
       return splitSentences(source).findIndex(sentence => tokens[index].start >= sentence.start && tokens[index].start < sentence.end);
+    }
+
+    function previousSentenceTokenIndex() {
+      const source = sourceText.value.trim();
+      const currentSentenceIndex = sentenceIndexForToken(activeIndex);
+      if (!source || currentSentenceIndex <= 0) return -1;
+      const previousSentence = splitSentences(source)[currentSentenceIndex - 1];
+      return previousSentence ? tokenIndexForChar(previousSentence.start) : -1;
     }
 
     function connectorLabelForSentence(sentenceText) {
@@ -1376,6 +1397,11 @@
       return markedSentences.some(sentence => token.start >= sentence.start && token.end <= sentence.end);
     }
 
+    function isSentenceMarked(sentence) {
+      const text = sentence.text.trim().replace(/\s+/g, " ");
+      return markedSentences.some(item => item.start === sentence.start && item.end === sentence.end && item.text === text);
+    }
+
     function markCurrentSentence() {
       const sentence = sentenceRangeForToken(activeIndex);
       if (!sentence) {
@@ -1384,9 +1410,11 @@
       }
 
       const text = sentence.text.trim().replace(/\s+/g, " ");
-      const alreadyMarked = markedSentences.some(item => item.start === sentence.start && item.end === sentence.end && item.text === text);
-      if (alreadyMarked) {
-        setStatus(t("sentenceAlreadyMarked"));
+      if (isSentenceMarked(sentence)) {
+        markedSentences = markedSentences.filter(item => !(item.start === sentence.start && item.end === sentence.end && item.text === text));
+        render();
+        if (notesPanel.open) renderNotes();
+        setStatus(t("sentenceUnmarked"));
         return;
       }
 
@@ -1394,6 +1422,28 @@
       render();
       if (notesPanel.open) renderNotes();
       setStatus(t("sentenceMarked"));
+    }
+
+    function goToPreviousSentence() {
+      const targetIndex = previousSentenceTokenIndex();
+      if (targetIndex < 0) {
+        setStatus(t("noPreviousSentence"));
+        return;
+      }
+
+      if (isReading && !isPaused) {
+        startFromToken(targetIndex);
+        return;
+      }
+
+      if (isReading && isPaused) playbackRunId += 1;
+      clearSilentTimer();
+      if (voiceEnabled) window.speechSynthesis.cancel();
+      utterance = null;
+      activeIndex = targetIndex;
+      render();
+      updatePlaybackButtons();
+      setStatus(t("previousSentenceReady"));
     }
 
     function annotateInformationFlow(sourceTokens, source) {
@@ -1541,6 +1591,8 @@
         reader.innerHTML = `<div class="empty-state">${escapeHTML(t("empty"))}</div>`;
         gentleGuide.classList.remove("visible");
         updateProgress();
+        updateMarkButton();
+        updatePreviousButton();
         return;
       }
 
@@ -1597,6 +1649,7 @@
 
       updateProgress();
       updateMarkButton();
+      updatePreviousButton();
     }
 
     function updateGentleGuide(sentenceFocus) {
@@ -1637,6 +1690,7 @@
       activeIndex = -1;
       markedSentences = [];
       render();
+      if (notesPanel.open) renderNotes();
       if (tokens.length) {
         setStatus(t("loaded", {
           tokens: tokens.length.toLocaleString(),
@@ -2007,6 +2061,7 @@
       }
     });
     stopButton.addEventListener("click", stopReading);
+    previousButton.addEventListener("click", goToPreviousSentence);
     flowButton.addEventListener("click", () => {
       const nextIndex = (flowModes.indexOf(flowMode) + 1) % flowModes.length;
       flowMode = flowModes[nextIndex];
@@ -2038,7 +2093,9 @@
       currentTheme = themes[nextIndex];
       applyTheme();
     });
-    notesButton.addEventListener("click", renderNotes);
+    notesPanel.addEventListener("toggle", () => {
+      if (notesPanel.open) renderNotes();
+    });
     copyNotesButton.addEventListener("click", copyNotesDraft);
     markButton.addEventListener("click", markCurrentSentence);
     sourceText.addEventListener("input", rebuildTokens);

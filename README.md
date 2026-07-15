@@ -80,10 +80,11 @@ The core belief:
 - 大字号阅读区 / Large reading view
 - 可开关声音：有声朗读或静音高亮导读 / Optional voice: read aloud or silent guided highlighting
 - 当前词高亮 / Current-word highlight
+- 上一句：阅读中可以退回上一句 / Previous sentence: step back while reading
 - 阅读中调整速度 / Adjust reading speed while it is running
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
 - 逐句伴读：当前句浮现出来，其他文字轻轻退后，减少一次面对整屏文字的压力 / Sentence Guide: the current sentence appears while surrounding text gently fades back, reducing the pressure of facing the whole page at once
-- 标记这一句：一键留下你自己的重点判断 / Mark Sentence: keep a trace of your own judgment with one click
+- 标记这一句：一键留下重点判断，再点一次撤销 / Mark Sentence: keep a trace of your judgment, click again to unmark
 - 可选加粗引导，帮助眼睛更容易落回文字 / Optional bold guidance to make it easier for the eyes to return to the text
 - 可选结构提示，轻量标出连接词和少量逻辑信号 / Optional structure hints for connectors and light logic signals
 - 重点回看：本地关键词和关键句候选，帮助第二遍、第 N 遍复习和做笔记 / Review anchors: local keyword and key-sentence suggestions for second-pass review, later review, and note-taking
