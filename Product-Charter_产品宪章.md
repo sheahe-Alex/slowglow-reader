@@ -116,22 +116,28 @@ It may later help people:
 1. **先降低进入阻力。**  
    Reduce the friction of starting first.
 
-2. **一次只让人面对一小步。**  
+2. **每个功能都必须证明自己值得增加的重量。**  
+   Every feature must earn its weight.
+
+   如果一个功能不能减少阻力、保留思考痕迹、支持返回，或帮助能力生长，它就不应该进入核心界面。默认选择应该是少一点、轻一点、晚一点出现。  
+   If a feature does not reduce friction, preserve traces of thinking, support returning, or help ability grow, it should not enter the core interface. The default should be fewer, lighter, and later.
+
+3. **一次只让人面对一小步。**  
    Let people face one small step at a time.
 
-3. **把复杂能力拆成可练习的动作。**  
+4. **把复杂能力拆成可练习的动作。**  
    Break complex abilities into actions that can be practiced.
 
-4. **保留人的思考痕迹。**  
+5. **保留人的思考痕迹。**  
    Preserve traces of the user's own thinking.
 
-5. **默认本地、低权限、少登录。**  
+6. **默认本地、低权限、少登录。**  
    Prefer local-first, low-permission, low-login experiences.
 
-6. **把回看设计成一等公民。**  
+7. **把回看设计成一等公民。**  
    Treat returning and reviewing as first-class needs.
 
-7. **温柔不是装饰，而是降低过载的结构。**  
+8. **温柔不是装饰，而是降低过载的结构。**  
    Gentleness is not decoration. It is a structure that reduces overload.
 
 ## 共同语言 / Shared Language

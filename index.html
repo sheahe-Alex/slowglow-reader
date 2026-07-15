@@ -391,6 +391,13 @@
       text-decoration-color: currentColor;
     }
 
+    .token.marked-sentence {
+      text-decoration-line: underline;
+      text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+      text-decoration-thickness: 0.09em;
+      text-underline-offset: 0.22em;
+    }
+
     .flow-label {
       display: inline-flex;
       align-items: center;
@@ -669,6 +676,7 @@
         <button class="button primary" id="playButton" type="button">开始阅读</button>
         <button class="button utility" id="voiceButton" type="button" aria-pressed="true">声音：开</button>
         <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读</button>
+        <button class="button utility" id="markButton" type="button" disabled>标记这一句</button>
         <button class="button utility" id="menuButton" type="button" aria-expanded="true">收起设置</button>
         <button class="button advanced-control" id="pauseButton" type="button" disabled>暂停</button>
         <button class="button advanced-control" id="stopButton" type="button">停止</button>
@@ -727,6 +735,7 @@
     const playButton = document.querySelector("#playButton");
     const voiceButton = document.querySelector("#voiceButton");
     const menuButton = document.querySelector("#menuButton");
+    const markButton = document.querySelector("#markButton");
     const pauseButton = document.querySelector("#pauseButton");
     const stopButton = document.querySelector("#stopButton");
     const flowButton = document.querySelector("#flowButton");
@@ -764,6 +773,7 @@
     let previousGentleSettings = null;
     let isReading = false;
     let isPaused = false;
+    let markedSentences = [];
     let playbackRunId = 0;
     let speechOffset = 0;
     let silentTimer = null;
@@ -788,6 +798,7 @@
         intensityPrefix: "辅助强度",
         gentle: "逐句伴读",
         exitGentle: "退出逐句",
+        markSentence: "标记这一句",
         languageButton: "中文 / English",
         rate: "语速 ",
         font: "字号 ",
@@ -809,12 +820,17 @@
         pasteFirst: "先粘贴或读取一段文字。",
         keywordsTitle: "关键词候选",
         keySentencesTitle: "关键句候选",
+        markedTitle: "我标记的句子",
         none: "暂无",
         noteMeta: ({ chars, words }) => `${chars} 字符，约 ${words} 词/中文词组`,
         notesDisclaimer: "本地规则提取，用来回看、起笔和搭逻辑，不等同于 AI 总结。",
         draftKeywords: "关键词：",
         draftKeySentences: "关键句：",
+        draftMarked: "我标记的句子：",
         notesCopied: "笔记草稿已复制。",
+        sentenceMarked: "已标记这一句，稍后可以在重点回看里找到。",
+        sentenceAlreadyMarked: "这一句已经标记过了。",
+        noSentenceToMark: "开始阅读后，可以标记当前句。",
         copyFailed: "复制失败，可以手动选中笔记内容复制。",
         loaded: ({ tokens, chars }) => `已载入 ${tokens} 个词/片段，约 ${chars} 字符。`,
         noText: "还没有文本。",
@@ -872,6 +888,7 @@
         intensityPrefix: "Support Level",
         gentle: "Sentence Guide",
         exitGentle: "Exit Guide",
+        markSentence: "Mark Sentence",
         languageButton: "English / 中文",
         rate: "Speed ",
         font: "Font ",
@@ -893,12 +910,17 @@
         pasteFirst: "Paste or read some text first.",
         keywordsTitle: "Keyword Candidates",
         keySentencesTitle: "Key Sentence Candidates",
+        markedTitle: "Sentences I Marked",
         none: "None yet",
         noteMeta: ({ chars, words }) => `${chars} characters, about ${words} words / Chinese chunks`,
         notesDisclaimer: "Extracted with local rules to help you review, start notes, and build structure. Not an AI summary.",
         draftKeywords: "Keywords:",
         draftKeySentences: "Key sentences:",
+        draftMarked: "Sentences I marked:",
         notesCopied: "Note draft copied.",
+        sentenceMarked: "Sentence marked. You can find it in Review Anchors.",
+        sentenceAlreadyMarked: "This sentence is already marked.",
+        noSentenceToMark: "Start reading, then you can mark the current sentence.",
         copyFailed: "Copy failed. You can manually select and copy the note content.",
         loaded: ({ tokens, chars }) => `Loaded ${tokens} words/chunks, about ${chars} characters.`,
         noText: "No text yet.",
@@ -1021,6 +1043,7 @@
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
       playButton.textContent = t("play");
+      markButton.textContent = t("markSentence");
       updateVoiceButton();
       updateMenuButton();
       stopButton.textContent = t("stop");
@@ -1048,6 +1071,7 @@
       updateModeButtons();
       applyTheme({ applyPreset: false });
       updateProgress();
+      updateMarkButton();
     }
 
     function updateMenuButton() {
@@ -1059,11 +1083,16 @@
     function updatePlaybackButtons() {
       pauseButton.disabled = !isReading;
       pauseButton.textContent = isPaused ? t("resume") : t("pause");
+      updateMarkButton();
     }
 
     function updateVoiceButton() {
       voiceButton.textContent = voiceEnabled ? t("voiceOn") : t("voiceOff");
       voiceButton.setAttribute("aria-pressed", String(voiceEnabled));
+    }
+
+    function updateMarkButton() {
+      markButton.disabled = !sentenceRangeForToken(activeIndex);
     }
 
     function normalizeForSpeech(text) {
@@ -1263,7 +1292,7 @@
     function buildNotesDraft(text) {
       const keywords = extractKeywords(text);
       const keySentences = extractKeySentences(text, keywords);
-      return { keywords, keySentences };
+      return { keywords, keySentences, marked: markedSentences.map(sentence => sentence.text) };
     }
 
     function renderNotes() {
@@ -1273,12 +1302,19 @@
         return;
       }
 
-      const { keywords, keySentences } = buildNotesDraft(text);
+      const { keywords, keySentences, marked } = buildNotesDraft(text);
       const meta = t("noteMeta", {
         chars: text.length.toLocaleString(),
         words: roughWordCount(text).toLocaleString()
       });
       notesOutput.innerHTML = `
+        <section class="note-card">
+          <h2>${escapeHTML(t("markedTitle"))}</h2>
+          <ol class="key-sentence-list">
+            ${marked.map(sentence => `<li>${escapeHTML(sentence)}</li>`).join("") || `<li>${escapeHTML(t("none"))}</li>`}
+          </ol>
+          <div class="note-meta">${escapeHTML(t("notesDisclaimer"))}</div>
+        </section>
         <section class="note-card">
           <h2>${escapeHTML(t("keywordsTitle"))}</h2>
           <ul class="keyword-list">
@@ -1303,8 +1339,11 @@
         return;
       }
 
-      const { keywords, keySentences } = buildNotesDraft(text);
+      const { keywords, keySentences, marked } = buildNotesDraft(text);
       const draft = [
+        t("draftMarked"),
+        marked.map(sentence => `- ${sentence}`).join("\n") || `- ${t("none")}`,
+        "",
         t("draftKeywords"),
         keywords.map(keyword => `- ${keyword}`).join("\n") || `- ${t("none")}`,
         "",
@@ -1318,6 +1357,30 @@
       } catch {
         setStatus(t("copyFailed"));
       }
+    }
+
+    function isTokenInMarkedSentence(token) {
+      return markedSentences.some(sentence => token.start >= sentence.start && token.end <= sentence.end);
+    }
+
+    function markCurrentSentence() {
+      const sentence = sentenceRangeForToken(activeIndex);
+      if (!sentence) {
+        setStatus(t("noSentenceToMark"));
+        return;
+      }
+
+      const text = sentence.text.trim().replace(/\s+/g, " ");
+      const alreadyMarked = markedSentences.some(item => item.start === sentence.start && item.end === sentence.end && item.text === text);
+      if (alreadyMarked) {
+        setStatus(t("sentenceAlreadyMarked"));
+        return;
+      }
+
+      markedSentences.push({ start: sentence.start, end: sentence.end, text });
+      render();
+      if (notesPanel.open) renderNotes();
+      setStatus(t("sentenceMarked"));
     }
 
     function annotateInformationFlow(sourceTokens, source) {
@@ -1478,12 +1541,13 @@
         const active = index === activeIndex ? " active" : "";
         const flowClass = currentFlowMode !== "off" && token.flow ? ` flow-${token.flow}` : "";
         const sentenceClass = sentenceFocus && token.start >= sentenceFocus.start && token.end <= sentenceFocus.end ? " sentence-focus" : "";
+        const markedClass = isTokenInMarkedSentence(token) ? " marked-sentence" : "";
         const gentleReadClass = gentleMode && activeIndex >= 0 && index < activeIndex ? " gentle-read" : "";
         const gentleOutsideClass = gentleMode && sentenceFocus && (token.start < sentenceFocus.start || token.end > sentenceFocus.end) ? " gentle-outside" : "";
         const label = currentFlowMode !== "off" && token.sentenceLabel ? `<span class="flow-label">${token.sentenceLabel}</span>` : "";
         const spacer = escapeHTML(source.slice(cursor, token.start));
         cursor = token.end;
-        return `${spacer}${label}<span class="token${active}${flowClass}${sentenceClass}${gentleReadClass}${gentleOutsideClass}" data-index="${index}">${tokenHTML(token.text)}</span>`;
+        return `${spacer}${label}<span class="token${active}${flowClass}${sentenceClass}${markedClass}${gentleReadClass}${gentleOutsideClass}" data-index="${index}">${tokenHTML(token.text)}</span>`;
       }).join("") + escapeHTML(source.slice(cursor));
 
       const legend = currentFlowMode === "off" || annotationIntensity === "off" ? "" : (
@@ -1519,6 +1583,7 @@
       }
 
       updateProgress();
+      updateMarkButton();
     }
 
     function updateGentleGuide(sentenceFocus) {
@@ -1557,6 +1622,7 @@
     function rebuildTokens() {
       tokens = tokenize(sourceText.value);
       activeIndex = -1;
+      markedSentences = [];
       render();
       if (tokens.length) {
         setStatus(t("loaded", {
@@ -1961,6 +2027,7 @@
     });
     notesButton.addEventListener("click", renderNotes);
     copyNotesButton.addEventListener("click", copyNotesDraft);
+    markButton.addEventListener("click", markCurrentSentence);
     sourceText.addEventListener("input", rebuildTokens);
     rateInput.addEventListener("input", handleRateInput);
     [fontInput, lineInput, widthInput].forEach(input => input.addEventListener("input", updateSettings));
