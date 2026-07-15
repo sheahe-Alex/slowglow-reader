@@ -700,22 +700,27 @@
       line-height: 1.45;
     }
 
-    body.gentle-mode .comfort-note {
+    .comfort-note.visible {
       display: block;
     }
 
     .gentle-guide {
       display: none;
+      position: sticky;
+      top: 0.35rem;
+      z-index: 3;
       max-width: var(--max-width);
       margin: 0 auto 1rem;
       padding: 0.75rem 0.85rem;
       border-left: 4px solid var(--comfort-line);
       border-radius: 8px;
-      background: color-mix(in srgb, var(--comfort-bg) 70%, transparent);
+      background: color-mix(in srgb, var(--panel) 78%, var(--comfort-bg));
       color: var(--ink);
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       font-size: 16px;
       line-height: 1.55;
+      box-shadow: 0 12px 28px rgba(16, 24, 40, 0.07);
+      backdrop-filter: blur(10px);
     }
 
     body.gentle-mode .gentle-guide.visible {
@@ -926,6 +931,7 @@
     let playbackRunId = 0;
     let speechOffset = 0;
     let silentTimer = null;
+    let comfortTimer = null;
     let rateRestartTimer = null;
     let voiceEnabled = localStorage.getItem("slowglow-voice-enabled") !== "false";
     let menuCollapsed = true;
@@ -1909,6 +1915,7 @@
       isReading = false;
       isPaused = false;
       activeIndex = -1;
+      hideComfortNote();
       render();
       updateProgress();
       updatePlaybackButtons();
@@ -1956,6 +1963,7 @@
       isReading = false;
       isPaused = false;
       activeIndex = -1;
+      hideComfortNote();
       setBrowseMode(browse && tokens.length > 0);
       render();
       updateProgress();
@@ -2014,6 +2022,7 @@
       };
 
       setStatus(t("started", { rate: Number(rateInput.value).toFixed(2) }));
+      if (gentleMode) showComfortNote();
       window.speechSynthesis.speak(utterance);
     }
 
@@ -2033,6 +2042,7 @@
       render();
       updatePlaybackButtons();
       setStatus(t("started", { rate: Number(rateInput.value).toFixed(2) }));
+      if (gentleMode) showComfortNote();
       scheduleSilentAdvance(runId);
     }
 
@@ -2193,6 +2203,20 @@
       return messages[Math.floor(Math.random() * messages.length)];
     }
 
+    function showComfortNote(message = randomComfortMessage()) {
+      window.clearTimeout(comfortTimer);
+      comfortNote.textContent = message;
+      comfortNote.classList.add("visible");
+      comfortTimer = window.setTimeout(() => {
+        comfortNote.classList.remove("visible");
+      }, 5200);
+    }
+
+    function hideComfortNote() {
+      window.clearTimeout(comfortTimer);
+      comfortNote.classList.remove("visible");
+    }
+
     function setGentleMode(value) {
       if (value && !gentleMode) {
         previousGentleSettings = {
@@ -2219,11 +2243,12 @@
         lineInput.value = "2.05";
         widthInput.value = "780";
         updateSettings({ save: false });
-        comfortNote.textContent = randomComfortMessage();
+        showComfortNote();
         setStatus(t("gentleOn"));
       } else if (!value && gentleMode) {
         gentleMode = false;
         document.body.classList.remove("gentle-mode");
+        hideComfortNote();
 
         if (previousGentleSettings) {
           flowMode = previousGentleSettings.flowMode;
@@ -2336,6 +2361,7 @@
     [fontInput, lineInput, widthInput].forEach(input => input.addEventListener("input", updateSettings));
     window.addEventListener("beforeunload", () => {
       clearSilentTimer();
+      window.clearTimeout(comfortTimer);
       window.speechSynthesis.cancel();
     });
 
