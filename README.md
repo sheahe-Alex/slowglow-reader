@@ -164,6 +164,7 @@ You can use:
 - [Friend Guide / 给朋友看的说明](./Friend-Guide_给朋友看的说明.md)
 - [Share Copy / 分享文案](./Share-Copy_分享文案.md)
 - [Bookmarklet / 书签按钮](./Bookmarklet_书签按钮.md)
+- [Product Charter / 产品宪章](./Product-Charter_产品宪章.md)
 
 ## 路线图 / Roadmap
 
