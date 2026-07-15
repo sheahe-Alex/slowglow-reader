@@ -833,6 +833,7 @@
       <div class="toolbar-row mode-row">
         <button class="button advanced-control" id="flowButton" type="button" aria-pressed="false">结构提示：关闭</button>
         <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="false">英文词首加粗：关闭</button>
+        <button class="button advanced-control" id="anchorButton" type="button" aria-pressed="false">句子锚点：关闭</button>
         <button class="button advanced-control" id="intensityButton" type="button" hidden>结构强度：轻</button>
         <button class="button advanced-control" id="languageButton" type="button">中文 / English</button>
       </div>
@@ -894,6 +895,7 @@
     const stopButton = document.querySelector("#stopButton");
     const flowButton = document.querySelector("#flowButton");
     const bionicButton = document.querySelector("#bionicButton");
+    const anchorButton = document.querySelector("#anchorButton");
     const intensityButton = document.querySelector("#intensityButton");
     const gentleButton = document.querySelector("#gentleButton");
     const gentleHint = document.querySelector("#gentleHint");
@@ -924,6 +926,7 @@
     let annotationIntensity = "light";
     let currentTheme = "soft";
     let gentleMode = false;
+    let sentenceAnchorEnabled = false;
     let previousGentleSettings = null;
     let isReading = false;
     let isPaused = false;
@@ -950,6 +953,7 @@
         stop: "停止",
         flowPrefix: "结构提示",
         bionicPrefix: "英文词首加粗",
+        anchorPrefix: "句子锚点",
         intensityPrefix: "结构强度",
         gentle: "逐句伴读：关",
         exitGentle: "逐句伴读：开",
@@ -1017,6 +1021,7 @@
         currentSentence: ({ current, total }) => `这一句 ${current} / ${total}`,
         flowLabels: { auto: "自动", en: "英文结构", zh: "中文结构", off: "关闭" },
         bionicLabels: { auto: "自动", on: "开启", off: "关闭" },
+        anchorLabels: { on: "开启", off: "关闭" },
         intensityLabels: { off: "无", light: "轻", standard: "标准" },
         themeLabels: { soft: "柔和", clean: "清爽", open: "开阔", night: "夜间" },
         zhLegend: {
@@ -1049,6 +1054,7 @@
         stop: "Stop",
         flowPrefix: "Structure Hints",
         bionicPrefix: "Bold Word Starts",
+        anchorPrefix: "Sentence Anchor",
         intensityPrefix: "Hint Strength",
         gentle: "Sentence Guide: Off",
         exitGentle: "Sentence Guide: On",
@@ -1116,6 +1122,7 @@
         currentSentence: ({ current, total }) => `This sentence ${current} / ${total}`,
         flowLabels: { auto: "Auto", en: "English", zh: "Chinese", off: "Off" },
         bionicLabels: { auto: "Auto", on: "On", off: "Off" },
+        anchorLabels: { on: "On", off: "Off" },
         intensityLabels: { off: "None", light: "Light", standard: "Standard" },
         themeLabels: { soft: "Soft", clean: "Clean", open: "Open", night: "Night" },
         zhLegend: {
@@ -1842,7 +1849,7 @@
     }
 
     function updateGentleGuide(sentenceFocus) {
-      if (!gentleMode || !sentenceFocus || activeIndex < 0) {
+      if (!gentleMode || !sentenceAnchorEnabled || !sentenceFocus || activeIndex < 0) {
         gentleGuide.classList.remove("visible");
         return;
       }
@@ -2136,6 +2143,7 @@
         if (saved.line) lineInput.value = saved.line;
         if (saved.width) widthInput.value = saved.width;
         if (saved.theme && themes.includes(saved.theme)) currentTheme = saved.theme;
+        sentenceAnchorEnabled = saved.sentenceAnchor === true;
       } catch {
       }
     }
@@ -2147,7 +2155,8 @@
           font: fontInput.value,
           line: lineInput.value,
           width: widthInput.value,
-          theme: currentTheme
+          theme: currentTheme,
+          sentenceAnchor: sentenceAnchorEnabled
         }));
       } catch {
       }
@@ -2185,6 +2194,10 @@
       bionicButton.textContent = `${t("bionicPrefix")}：${currentCopyGroup("bionicLabels")[bionicMode]}`;
       bionicButton.title = t("cycleHint");
       bionicButton.setAttribute("aria-pressed", String(bionicMode !== "off"));
+      anchorButton.textContent = `${t("anchorPrefix")}：${currentCopyGroup("anchorLabels")[sentenceAnchorEnabled ? "on" : "off"]}`;
+      anchorButton.title = t("cycleHint");
+      anchorButton.disabled = !gentleMode;
+      anchorButton.setAttribute("aria-pressed", String(sentenceAnchorEnabled));
       intensityButton.textContent = `${t("intensityPrefix")}：${currentCopyGroup("intensityLabels")[annotationIntensity]}`;
       intensityButton.title = t("cycleHint");
       intensityButton.hidden = flowMode === "off";
@@ -2249,6 +2262,7 @@
         gentleMode = false;
         document.body.classList.remove("gentle-mode");
         hideComfortNote();
+        gentleGuide.classList.remove("visible");
 
         if (previousGentleSettings) {
           flowMode = previousGentleSettings.flowMode;
@@ -2330,6 +2344,13 @@
       const nextIndex = (bionicModes.indexOf(bionicMode) + 1) % bionicModes.length;
       bionicMode = bionicModes[nextIndex];
       updateModeButtons();
+      render();
+    });
+    anchorButton.addEventListener("click", () => {
+      sentenceAnchorEnabled = !sentenceAnchorEnabled;
+      saveReadingPreferences();
+      updateModeButtons();
+      if (!sentenceAnchorEnabled) gentleGuide.classList.remove("visible");
       render();
     });
     intensityButton.addEventListener("click", () => {
