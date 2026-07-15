@@ -895,7 +895,7 @@
         zhLegend: {
           link: "中文逻辑信号",
           old: "指代/承接",
-          new: "句末推进重点"
+          new: "概念复现"
         },
         enLegend: {
           link: "连接词/逻辑关系",
@@ -991,7 +991,7 @@
         zhLegend: {
           link: "Chinese logic signal",
           old: "reference / carried context",
-          new: "sentence-end focus"
+          new: "repeated concept"
         },
         enLegend: {
           link: "connector / logic relation",
@@ -1305,6 +1305,14 @@
       return token.key.length >= 4 && !stopWords.has(token.key);
     }
 
+    function isChineseConceptKey(key) {
+      if (!key || /^[0-9]+$/.test(key)) return false;
+      if (/[\u3400-\u9fff]/.test(key)) {
+        return key.length >= 2 && !zhNoteStopWords.has(key) && !zhReferenceWords.includes(key);
+      }
+      return key.length >= 4 && !stopWords.has(key);
+    }
+
     function extractKeywords(text, limit = 18) {
       const items = noteTokens(text).filter(isUsefulNoteToken);
       const counts = new Map();
@@ -1549,6 +1557,14 @@
       if (annotationIntensity === "off") return sourceTokens;
       const annotated = sourceTokens.map(token => ({ ...token, flow: "" }));
       const sentences = splitSentences(source);
+      const conceptCounts = new Map();
+      const seenConcepts = new Set();
+
+      for (const token of annotated) {
+        const key = /[\u3400-\u9fff]/.test(token.text) ? token.text.trim() : lowerToken(token.text);
+        if (!isChineseConceptKey(key)) continue;
+        conceptCounts.set(key, (conceptCounts.get(key) ?? 0) + 1);
+      }
 
       for (const sentence of sentences) {
         const indices = annotated
@@ -1561,6 +1577,9 @@
         const label = zhConnectorLabelForSentence(sentence.text);
         if (label) annotated[indices[0]].sentenceLabel = label;
 
+        let repeatedConceptsInSentence = 0;
+        const conceptLimit = annotationIntensity === "standard" ? 2 : 1;
+
         for (const index of indices) {
           const tokenText = annotated[index].text;
           const inConnector = zhConnectorGroups.some(group => group.words.some(word => tokenText.includes(word) || sentence.text.slice(annotated[index].start - sentence.start).startsWith(word)));
@@ -1571,20 +1590,15 @@
           } else if (isReference) {
             annotated[index].flow = "old";
           }
-        }
 
-        const contentIndices = indices.filter(index => {
-          const token = annotated[index];
-          return /[\u3400-\u9fffA-Za-z0-9]/.test(token.text) && token.flow !== "link" && token.flow !== "old";
-        });
-
-        const hasSignal = indices.some(index => annotated[index].flow === "link" || annotated[index].flow === "old");
-        if (annotationIntensity === "light" && !hasSignal) continue;
-        if (!hasSignal && contentIndices.length < 8) continue;
-
-        const newLimit = annotationIntensity === "standard" ? 2 : 1;
-        for (const index of contentIndices.slice(-newLimit)) {
-          if (!annotated[index].flow) annotated[index].flow = "new";
+          const key = /[\u3400-\u9fff]/.test(tokenText) ? tokenText.trim() : lowerToken(tokenText);
+          if (isChineseConceptKey(key) && conceptCounts.get(key) > 1) {
+            if (seenConcepts.has(key) && !annotated[index].flow && repeatedConceptsInSentence < conceptLimit) {
+              annotated[index].flow = "new";
+              repeatedConceptsInSentence += 1;
+            }
+            seenConcepts.add(key);
+          }
         }
       }
 
