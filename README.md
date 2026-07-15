@@ -55,13 +55,17 @@ It is not a browser extension and does not require an extension store. Select te
 
 ## 为什么做 / Why
 
-伴读 Reader 不是为了催人读得更快，也不是为了证明谁的专注力够好。
+伴读 Reader 是一个深度阅读脚手架。
 
-Reader is not about forcing people to read faster or proving that they can focus well enough.
+Reader is a scaffold for deep reading.
 
-它想做的是一件更朴素的事：把阅读变得不那么吓人。你可以复制一段文字，让它放大显示，选择朗读或静音导读，并高亮当前读到的位置。走神了也没关系，从高亮处回来就好。
+它不是为了替你阅读，而是为了陪你一步一步进入文本：先读进去，再看见重点，最后把理解留下来，变成写作和复习时可以返回的材料。
 
-It tries to make reading feel less intimidating. You can copy a piece of text, make it larger, use read-aloud or silent guided highlighting, and follow the current highlighted word. If your attention drifts, you can gently return to the highlight.
+It is not here to read for you. It is here to help you enter the text step by step: first get into the reading, then notice what matters, then leave traces you can return to when writing or reviewing.
+
+很多人并不是不愿意深度阅读，而是阅读过程太容易触发过载、挫败和自责。伴读 Reader 希望降低这些阻力，让人可以一次次回到文本：第一遍读进去，第二遍看清重点，第 N 遍把内容变成自己的理解。
+
+Many people are not unwilling to read deeply. The process is often too easy to overload, frustrate, or shame them. Reader tries to lower that friction, so people can return to the text again and again: enter it on the first pass, see key points on the second pass, and slowly turn the content into their own understanding.
 
 核心信念是：
 
