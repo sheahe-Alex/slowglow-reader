@@ -842,6 +842,7 @@
         line: "行距 ",
         width: "宽度 ",
         themePrefix: "主题",
+        cycleHint: "点击切换选项",
         textTitle: "文本",
         placeholder: "从网页复制文字后，点“读取剪贴板”，或直接粘贴到这里。",
         ready: "准备好了。",
@@ -938,6 +939,7 @@
         line: "Line ",
         width: "Width ",
         themePrefix: "Theme",
+        cycleHint: "Click to cycle options",
         textTitle: "Text",
         placeholder: "Copy text from a webpage, then click Read Clipboard, or paste it here.",
         ready: "Ready.",
@@ -1095,6 +1097,7 @@
       updateMenuButton();
       stopButton.textContent = t("stop");
       languageButton.textContent = t("languageButton");
+      languageButton.title = uiLanguage === "zh" ? "Switch to English" : "切换到中文";
       document.querySelector(".panel-title").textContent = t("textTitle");
       sourceText.placeholder = t("placeholder");
       document.querySelector(".hint").textContent = t("hint");
@@ -2010,14 +2013,18 @@
         updateSettings();
       }
       themeButton.textContent = `${t("themePrefix")}：${currentCopyGroup("themeLabels")[currentTheme]}`;
+      themeButton.title = t("cycleHint");
     }
 
     function updateModeButtons() {
       flowButton.textContent = `${t("flowPrefix")}：${currentCopyGroup("flowLabels")[flowMode]}`;
+      flowButton.title = t("cycleHint");
       flowButton.setAttribute("aria-pressed", String(flowMode !== "off"));
       bionicButton.textContent = `${t("bionicPrefix")}：${currentCopyGroup("bionicLabels")[bionicMode]}`;
+      bionicButton.title = t("cycleHint");
       bionicButton.setAttribute("aria-pressed", String(bionicMode !== "off"));
       intensityButton.textContent = `${t("intensityPrefix")}：${currentCopyGroup("intensityLabels")[annotationIntensity]}`;
+      intensityButton.title = t("cycleHint");
       intensityButton.hidden = flowMode === "off";
       gentleButton.textContent = gentleMode ? t("exitGentle") : t("gentle");
       gentleButton.setAttribute("aria-pressed", String(gentleMode));
