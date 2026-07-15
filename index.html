@@ -706,13 +706,13 @@
       </section>
 
       <details class="notes-panel" id="notesPanel">
-        <summary>笔记辅助：关键词 / 关键句</summary>
+        <summary>重点回看：关键词 / 关键句</summary>
         <div class="notes-tools">
           <button class="button" id="notesButton" type="button">生成候选</button>
           <button class="button" id="copyNotesButton" type="button">复制笔记草稿</button>
         </div>
         <div class="notes-output" id="notesOutput">
-          <div class="note-card">这里会用本地规则提取关键词和关键句，作为做笔记的起点。它不是 AI 总结，也不会联网。</div>
+          <div class="note-card">这里会用本地规则提取关键词和关键句，帮你第二遍、第 N 遍回到重点。它不是 AI 总结，也不会联网。</div>
         </div>
       </details>
 
@@ -802,16 +802,16 @@
         comfortDefault: "只看这一句就好。其他文字会轻轻退后。",
         guideDefault: "这一句会显示在这里。",
         empty: "把文字放进左侧，然后开始阅读。这里会用大字号显示文本，并高亮当前读到的位置。",
-        notesSummary: "笔记辅助：关键词 / 关键句",
+        notesSummary: "重点回看：关键词 / 关键句",
         generateNotes: "生成候选",
         copyNotes: "复制笔记草稿",
-        notesIntro: "这里会用本地规则提取关键词和关键句，作为做笔记的起点。它不是 AI 总结，也不会联网。",
+        notesIntro: "这里会用本地规则提取关键词和关键句，帮你第二遍、第 N 遍回到重点。它不是 AI 总结，也不会联网。",
         pasteFirst: "先粘贴或读取一段文字。",
         keywordsTitle: "关键词候选",
         keySentencesTitle: "关键句候选",
         none: "暂无",
         noteMeta: ({ chars, words }) => `${chars} 字符，约 ${words} 词/中文词组`,
-        notesDisclaimer: "本地规则提取，用来起笔和搭逻辑，不等同于 AI 总结。",
+        notesDisclaimer: "本地规则提取，用来回看、起笔和搭逻辑，不等同于 AI 总结。",
         draftKeywords: "关键词：",
         draftKeySentences: "关键句：",
         notesCopied: "笔记草稿已复制。",
@@ -886,16 +886,16 @@
         comfortDefault: "Just stay with this sentence. The rest can gently fade back.",
         guideDefault: "This sentence will appear here.",
         empty: "Put text on the left, then start reading. This area will show large text and highlight the current reading position.",
-        notesSummary: "Note helper: keywords / key sentences",
+        notesSummary: "Review anchors: keywords / key sentences",
         generateNotes: "Generate Suggestions",
         copyNotes: "Copy Note Draft",
-        notesIntro: "Local rules will extract keyword and key-sentence candidates as a starting point for notes. This is not an AI summary and does not go online.",
+        notesIntro: "Local rules will extract keyword and key-sentence candidates to help you return to the main points on a second or later pass. This is not an AI summary and does not go online.",
         pasteFirst: "Paste or read some text first.",
         keywordsTitle: "Keyword Candidates",
         keySentencesTitle: "Key Sentence Candidates",
         none: "None yet",
         noteMeta: ({ chars, words }) => `${chars} characters, about ${words} words / Chinese chunks`,
-        notesDisclaimer: "Extracted with local rules to help you start notes and build structure. Not an AI summary.",
+        notesDisclaimer: "Extracted with local rules to help you review, start notes, and build structure. Not an AI summary.",
         draftKeywords: "Keywords:",
         draftKeySentences: "Key sentences:",
         notesCopied: "Note draft copied.",

@@ -1,13 +1,16 @@
 # 伴读 Reader
 
-这是一个面向长文、学习材料和严肃内容的低阻力阅读辅助工具，适合想更容易开始阅读、读下去、回到注意力的人。  
-This is a low-friction reading support tool for long-form text, study materials, and serious reading, for people who want less friction when starting, continuing, and returning to a text.
+这是一个帮助你进入、理解并回看长文的低阻力阅读辅助工具，适合想更容易开始阅读、读下去、回到注意力和重点的人。  
+This is a low-friction reading support tool that helps you enter, understand, and revisit long-form text, for people who want less friction when starting, continuing, and returning to a text.
 
 适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
 For articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
 
 它不是速读工具，也不是翻译器。它可以把你复制的文字放大显示，可以朗读，也可以关闭声音只保留高亮导读。你也可以打开“逐句伴读”，让当前句浮现出来，让其他文字轻轻退后，只跟着眼前这一句慢慢走。  
 It is not a speed-reading tool or a translator. It can enlarge copied text, read it aloud, or keep the voice off while the highlight still guides you. You can also turn on Sentence Guide, which lets the current sentence appear while surrounding text gently fades back.
+
+如果内容很重要，你也可以用“重点回看”提取关键词和关键句，作为第二遍阅读、复习和做笔记的起点。  
+If the content matters, you can also use Review Anchors to extract keyword and key-sentence candidates as a starting point for second-pass reading, review, and notes.
 
 它不会要求登录，不会上传你的文字，也不需要 AI。  
 It does not ask you to log in, does not upload your text, and does not require AI.

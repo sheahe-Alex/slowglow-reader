@@ -1,13 +1,16 @@
 # 伴读 Reader
 
-一个面向长文、学习材料和严肃内容的低阻力阅读辅助工具。  
-A low-friction reading support tool for long-form text, study materials, and serious reading.
+一个帮助你进入、理解并回看长文的低阻力阅读辅助工具。  
+A low-friction reading support tool that helps you enter, understand, and revisit long-form text.
 
 适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
 For articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
 
-它不是速读工具，也不是翻译器。它的核心特色是“逐句伴读”：当前句会浮现出来，其他文字轻轻退后，帮助你不用一次面对整屏文字。  
-It is not a speed-reading tool or a translator. Its core feature is Sentence Guide: the current sentence appears while surrounding text gently fades back, so you do not have to face the whole page at once.
+它不是速读工具，也不是翻译器。它先用“逐句伴读”帮你进入文本，再用关键词和关键句候选帮你第二遍、第 N 遍回到重点。  
+It is not a speed-reading tool or a translator. It first helps you enter the text with Sentence Guide, then helps you return to key points later with keyword and key-sentence candidates.
+
+你可以把它当成一个简单流程：先读进去，再回来看懂，最后留下可复习的痕迹。  
+You can treat it as a simple flow: enter the text, come back to understand it, then leave traces you can review.
 
 ## 直接使用 / Start Here
 
@@ -78,7 +81,7 @@ The core belief:
 - 逐句伴读：当前句浮现出来，其他文字轻轻退后，减少一次面对整屏文字的压力 / Sentence Guide: the current sentence appears while surrounding text gently fades back, reducing the pressure of facing the whole page at once
 - 可选加粗引导，帮助眼睛更容易落回文字 / Optional bold guidance to make it easier for the eyes to return to the text
 - 可选结构提示，轻量标出连接词和少量逻辑信号 / Optional structure hints for connectors and light logic signals
-- 本地关键词和关键句候选，帮助做笔记起步 / Local keyword and key-sentence suggestions for note-taking
+- 重点回看：本地关键词和关键句候选，帮助第二遍、第 N 遍复习和做笔记 / Review anchors: local keyword and key-sentence suggestions for second-pass review, later review, and note-taking
 - 根据浏览器语言自动显示中文或英文界面，也可以手动切换 / Automatically uses Chinese or English based on browser language, with manual switching available
 
 ## 本地运行 / Run Locally
