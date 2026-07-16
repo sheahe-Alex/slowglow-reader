@@ -944,10 +944,13 @@
     let speechOffset = 0;
     let silentTimer = null;
     let comfortTimer = null;
+    let boundaryTimers = new Set();
     let rateRestartTimer = null;
     let voiceEnabled = localStorage.getItem("slowglow-voice-enabled") !== "false";
     let menuCollapsed = true;
     let uiLanguage = localStorage.getItem("slowglow-ui-language") || (navigator.language?.toLowerCase().startsWith("zh") ? "zh" : "en");
+
+    const speechHighlightDelayMs = 120;
 
     const copy = {
       zh: {
@@ -1948,9 +1951,15 @@
       }
     }
 
+    function clearBoundaryTimer() {
+      boundaryTimers.forEach(timer => window.clearTimeout(timer));
+      boundaryTimers.clear();
+    }
+
     function finishReading(runId) {
       if (runId !== playbackRunId) return;
       clearSilentTimer();
+      clearBoundaryTimer();
       utterance = null;
       isReading = false;
       isPaused = false;
@@ -1998,6 +2007,7 @@
     function stopReading({ browse = true } = {}) {
       playbackRunId += 1;
       clearSilentTimer();
+      clearBoundaryTimer();
       window.speechSynthesis.cancel();
       utterance = null;
       isReading = false;
@@ -2020,6 +2030,7 @@
       const text = normalizeForSpeech(source.slice(speechOffset));
 
       clearSilentTimer();
+      clearBoundaryTimer();
       window.speechSynthesis.cancel();
       activeIndex = safeStartIndex;
       isReading = true;
@@ -2038,11 +2049,15 @@
       utterance.onboundary = event => {
         if (runId !== playbackRunId || event.charIndex == null) return;
         const nextIndex = tokenIndexForChar(speechOffset + event.charIndex);
-        if (nextIndex !== activeIndex) {
+        const timer = window.setTimeout(() => {
+          boundaryTimers.delete(timer);
+          if (runId !== playbackRunId || !isReading || isPaused) return;
+          if (nextIndex === activeIndex) return;
           activeIndex = nextIndex;
           render();
           setStatus(t("reading", { token: tokens[activeIndex]?.text ?? "" }));
-        }
+        }, speechHighlightDelayMs);
+        boundaryTimers.add(timer);
       };
 
       utterance.onend = () => {
@@ -2052,6 +2067,7 @@
       utterance.onerror = () => {
         if (runId !== playbackRunId) return;
         const elapsed = ((Date.now() - playStartedAt) / 1000).toFixed(1);
+        clearBoundaryTimer();
         isReading = false;
         isPaused = false;
         activeIndex = -1;
@@ -2072,6 +2088,7 @@
       const runId = ++playbackRunId;
 
       clearSilentTimer();
+      clearBoundaryTimer();
       window.speechSynthesis.cancel();
       utterance = null;
       activeIndex = safeStartIndex;
@@ -2357,6 +2374,7 @@
       } else {
         if (voiceEnabled) {
           window.speechSynthesis.pause();
+          clearBoundaryTimer();
         } else {
           clearSilentTimer();
         }
@@ -2415,6 +2433,7 @@
     [fontInput, lineInput, widthInput].forEach(input => input.addEventListener("input", updateSettings));
     window.addEventListener("beforeunload", () => {
       clearSilentTimer();
+      clearBoundaryTimer();
       window.clearTimeout(comfortTimer);
       window.speechSynthesis.cancel();
     });
