@@ -1,26 +1,39 @@
 # 伴读 Reader
 
-一个帮助你进入、理解并回看长文的低阻力阅读辅助工具。  
-A low-friction reading support tool that helps you enter, understand, and revisit long-form text.
+把难开始的文字，变成可以一点点读下去的文字。  
+Turn hard-to-start text into something you can keep reading.
 
-适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
-For articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
+伴读 Reader 是一个本地、无登录、不上传文字的低阻力伴读器。  
+Bandu Reader is a local, no-login, no-upload reading companion.
 
-它不是速读工具，也不是翻译器。它先用“只看当前句”帮你进入文本，再用关键词和关键句候选帮你第二遍、第 N 遍回到重点。  
-It is not a speed-reading tool or a translator. It first helps you enter the text with Current Sentence, then helps you return to key points later with keyword and key-sentence candidates.
-
-你可以把它当成一个简单流程：先读进去，再回来看懂，最后留下可复习的痕迹。  
-You can treat it as a simple flow: enter the text, come back to understand it, then leave traces you can review.
-
-## 直接使用 / Start Here
-
-最简单的使用方式是直接打开在线版：  
-The easiest way to use Reader is to open the online version:
-
+**直接打开在线版 / Open the online reader:**  
 [https://sheahe-alex.github.io/slowglow-reader/](https://sheahe-alex.github.io/slowglow-reader/)
 
 不需要安装，不需要登录。打开网页后，把文字粘贴进去即可。  
 No installation or login is required. Open the page and paste text into the reader.
+
+## 它适合什么 / What It Is For
+
+适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
+For articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
+
+它不是速读工具，也不是翻译器。它用大字号、高亮、可选声音和“逐句伴读”帮你进入文本；需要回看时，再用本地关键词和关键句候选提供少量线索。  
+It is not a speed-reading tool or a translator. It uses large text, highlighting, optional sound, and Sentence Guide to help you enter the text; when you need to review, local keyword and key-sentence candidates provide a few anchors.
+
+它不会替你总结，也不抢走学习过程。它只是一个阅读脚手架：在你容易卡住、走神、过载的时候，把你轻轻带回文字里。  
+It does not summarize for you or take over the learning process. It is a reading scaffold: when you get stuck, drift, or feel overloaded, it gently brings you back to the text.
+
+## 直接使用 / Start Here
+
+最简单的使用方式就是上面的在线版链接。  
+The easiest way to use it is the online link above.
+
+1. 放入文字：粘贴文章、课程材料、文档，或任何想读但难开始的文字。  
+   Add text: paste an article, course material, document, or any text that feels hard to begin.
+2. 开始伴读：大字号、高亮和可选声音会陪你往下走。  
+   Start reading: large text, highlighting, and optional sound help you keep moving.
+3. 需要时打开逐句伴读：只让当前句站出来。  
+   Use Sentence Guide when needed: let only the current sentence stand forward.
 
 手机上如果 `读取剪贴板` 不可用，直接点文本框手动粘贴即可。  
 On phones, if `Read Clipboard` does not work, tap the text box and paste manually.
@@ -81,11 +94,12 @@ The core belief:
 - 可开关朗读：有声朗读或静音高亮导读 / Optional read-aloud: spoken reading or silent guided highlighting
 - 当前词高亮 / Current-word highlight
 - 上一句：阅读中可以退回上一句 / Previous sentence: step back while reading
-- 停止导读：停止自动推进，收起粘贴框和设置，保留标注后自由浏览 / Stop Guide: stop auto-advance, hide input and settings, and browse the marked text freely
+- 停止：停止自动推进，收起粘贴框和设置，保留标注后自由浏览 / Stop: stop auto-advance, hide input and settings, and browse the marked text freely
 - 阅读中调整速度 / Adjust reading speed while it is running
 - 自动记住语速、字号、行距、宽度和主题 / Remembers speed, font size, line height, width, and theme
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
-- 只看当前句：当前句浮现出来，其他文字轻轻退后，减少一次面对整屏文字的压力 / Current Sentence: the current sentence appears while surrounding text gently fades back, reducing the pressure of facing the whole page at once
+- 逐句伴读：只让当前句站出来，减少一次面对整屏文字的压力 / Sentence Guide: let only the current sentence stand forward, reducing the pressure of facing the whole page at once
+- 可选句子锚点：需要时固定显示当前句 / Optional Sentence Anchor: keep the current sentence visible when needed
 - 标记这一句：一键留下重点判断，再点一次撤销 / Mark Sentence: keep a trace of your judgment, click again to unmark
 - 设置里可开启英文词首加粗，帮助眼睛更容易落回英文单词 / Optional Bold Word Starts in Settings to make it easier for the eyes to return to English words
 - 设置里可开启结构提示和结构强度：英文偏信息流，中文偏逻辑信号和概念复现 / Optional structure hints and hint strength in Settings: information flow for English, logic signals and repeated concepts for Chinese
@@ -126,13 +140,13 @@ If macOS blocks it, right-click the file, choose "Open", and confirm once more.
    Press `Command C` to copy.
 3. 回到伴读 Reader。  
    Return to Reader.
-4. 点 `读取剪贴板`，或直接粘贴到 `粘贴文字` 区域。  
-   Click `Read Clipboard`, or paste directly into the `Paste Text` area.
-5. 点 `从头阅读`。  
-   Click `Read From Top`.
+4. 点 `读取剪贴板`，或直接粘贴到 `放入文字` 区域。  
+   Click `Read Clipboard`, or paste directly into the `Add Text` area.
+5. 点 `开始伴读`。  
+   Click `Start Reading`.
 
-状态不好、文字太压迫时，可以点 `只看当前句`。  
-When the text feels overwhelming, try `只看当前句` / Current Sentence.
+状态不好、文字太压迫时，可以点 `逐句伴读`。  
+When the text feels overwhelming, try `逐句伴读` / Sentence Guide.
 
 ## 隐私 / Privacy
 
@@ -176,7 +190,7 @@ You can use:
 - 更正式的跨平台网页版 / A more polished cross-platform web version
 - 更稳定的大段文本导读 / More stable long-text guided reading
 - 可选的 PDF/OCR 辅助 / Optional PDF/OCR support
-- 更细腻的只看当前句调节 / More nuanced Current Sentence controls
+- 更细腻的逐句伴读调节 / More nuanced Sentence Guide controls
 - 多语言阅读体验优化 / Better multilingual reading experience
 
 ## License
