@@ -1,7 +1,7 @@
 # 伴读 Reader
 
 让阅读更容易开始，也更容易继续。  
-Turn hard-to-start text into something you can keep reading.
+Make reading easier to start, and easier to keep going.
 
 伴读 Reader 是一个本地、无登录、不上传文字的低阻力伴读器。  
 Bandu Reader is a local, no-login, no-upload reading companion.

@@ -29,7 +29,7 @@ https://sheahe-alex.github.io/slowglow-reader/
 
 ## English
 
-I made a small tool called Reader: it turns hard-to-start text into something you can keep reading.
+I made a small tool called Reader: it makes reading easier to start, and easier to keep going.
 
 Open the online version here:  
 https://sheahe-alex.github.io/slowglow-reader/
