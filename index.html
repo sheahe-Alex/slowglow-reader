@@ -1072,6 +1072,7 @@
         noteReminder: "用自己的话记下重点。",
         pasteFirst: "先粘贴或读取一段文字。",
         keywordsTitle: "关键词候选",
+        noKeywords: "没有足够稳定的关键词候选。",
         keySentencesTitle: "关键句候选",
         markedTitle: "我标记的句子",
         none: "暂无",
@@ -1184,6 +1185,7 @@
         noteReminder: "Put key points in your own words.",
         pasteFirst: "Paste or read some text first.",
         keywordsTitle: "Keyword Candidates",
+        noKeywords: "No stable keyword candidates.",
         keySentencesTitle: "Key Sentence Candidates",
         markedTitle: "Sentences I Marked",
         none: "None yet",
@@ -1304,7 +1306,8 @@
 
     const zhNoteStopWords = new Set([
       "这个", "这些", "这种", "一个", "一些", "如果", "因为", "所以", "但是", "我们", "你们", "他们", "可以", "需要", "进行", "通过",
-      "以及", "或者", "并且", "没有", "不是", "就是", "然后", "非常", "比较", "可能", "应该", "对于", "关于", "其中", "时候"
+      "以及", "或者", "并且", "没有", "不是", "就是", "然后", "非常", "比较", "可能", "应该", "对于", "关于", "其中", "时候",
+      "什么", "一样", "一种", "这样", "那样", "这里", "那里", "东西", "问题", "内容", "方式", "部分", "情况", "过程", "方面"
     ]);
 
     const segmenter = typeof Intl !== "undefined" && Intl.Segmenter
@@ -1578,9 +1581,18 @@
       if (!token.key) return false;
       if (/^[0-9]+$/.test(token.key)) return false;
       if (/[\u3400-\u9fff]/.test(token.key)) {
-        return token.key.length >= 2 && !zhNoteStopWords.has(token.key);
+        return token.key.length >= 3 && !zhNoteStopWords.has(token.key) && !zhReferenceWords.includes(token.key);
       }
       return token.key.length >= 4 && !stopWords.has(token.key);
+    }
+
+    function isStrongKeywordCandidate(item) {
+      const isChinese = /[\u3400-\u9fff]/.test(item.text);
+      const isProperName = /\b[A-Z][A-Za-z0-9-]{2,}\b/.test(item.text) && !/^[A-Z]{1,2}$/.test(item.text);
+      if (isChinese) {
+        return item.count >= 2 && item.text.length >= 3;
+      }
+      return item.count >= 2 || isProperName;
     }
 
     function isChineseConceptKey(key) {
@@ -1591,7 +1603,7 @@
       return key.length >= 4 && !stopWords.has(key);
     }
 
-    function extractKeywords(text, limit = 18) {
+    function extractKeywords(text, limit = 8) {
       const items = noteTokens(text).filter(isUsefulNoteToken);
       const counts = new Map();
 
@@ -1605,6 +1617,7 @@
 
       const textLength = Math.max(text.length, 1);
       return Array.from(counts.values())
+        .filter(isStrongKeywordCandidate)
         .map(item => ({
           ...item,
           score: item.count * 3 + (1 - item.first / textLength)
@@ -1670,7 +1683,7 @@
         <section class="note-card">
           <h2>${escapeHTML(t("keywordsTitle"))}</h2>
           <ul class="keyword-list">
-            ${keywords.map(keyword => `<li>${escapeHTML(keyword)}</li>`).join("") || `<li>${escapeHTML(t("none"))}</li>`}
+            ${keywords.map(keyword => `<li>${escapeHTML(keyword)}</li>`).join("") || `<li>${escapeHTML(t("noKeywords"))}</li>`}
           </ul>
           <div class="note-meta">${meta}</div>
         </section>
