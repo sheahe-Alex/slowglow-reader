@@ -834,16 +834,16 @@
 
     @media (max-width: 900px) {
       .toolbar {
-        gap: 8px;
-        padding: 8px;
+        gap: 6px;
+        padding: 8px 10px;
       }
 
       .toolbar-row {
-        gap: 8px;
+        gap: 6px;
       }
 
       .brand {
-        flex: 1 1 100%;
+        flex: 0 1 auto;
         font-size: 18px;
         line-height: 1.25;
       }
@@ -854,20 +854,21 @@
       }
 
       .support-actions {
-        flex: 1 1 100%;
+        flex: 0 1 auto;
       }
 
       .guide-toggle-wrap {
-        flex: 1 1 100%;
+        flex: 0 1 auto;
       }
 
       .guide-caption {
-        max-width: none;
+        display: none;
       }
 
       .button {
-        min-height: 40px;
-        padding: 0 10px;
+        min-height: 36px;
+        padding: 0 9px;
+        font-size: 15px;
       }
 
       .toolbar-row.settings-row {
@@ -885,14 +886,33 @@
 
       .reader-shell {
         grid-template-columns: 1fr;
-        gap: 8px;
+        gap: 7px;
         padding: 8px;
       }
 
+      .input-panel {
+        gap: 6px;
+      }
+
+      .panel-title {
+        font-size: 15px;
+      }
+
+      .panel-heading .button {
+        min-height: 32px;
+        padding: 0 9px;
+        font-size: 13px;
+      }
+
       textarea {
-        min-height: 34vh;
-        max-height: none;
-        font-size: 18px;
+        min-height: 120px;
+        max-height: 22vh;
+        font-size: 16px;
+      }
+
+      .hint,
+      .status {
+        font-size: 13px;
       }
 
       .input-panel,
