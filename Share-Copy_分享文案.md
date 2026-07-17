@@ -2,12 +2,12 @@
 
 ## 中文版
 
-我做了一个小工具，叫「伴读 Reader」。
+我做了一个小工具，叫「伴读 Reader」：把难开始的文字，变成可以一点点读下去的文字。
 
 直接打开在线版：  
 https://sheahe-alex.github.io/slowglow-reader/
 
-它是一个帮助你进入、理解并回看长文的低阻力阅读辅助工具，适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。
+它是一个本地、无登录、不上传文字的低阻力伴读器，适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。
 
 我把它想成一个深度阅读脚手架：不是替你阅读，而是陪你一步一步进入文本，留下可以回看、复习和写作的痕迹。
 
@@ -29,12 +29,12 @@ https://sheahe-alex.github.io/slowglow-reader/
 
 ## English
 
-I made a small tool called Reader.
+I made a small tool called Reader: it turns hard-to-start text into something you can keep reading.
 
 Open the online version here:  
 https://sheahe-alex.github.io/slowglow-reader/
 
-It is a low-friction reading support tool that helps you enter, understand, and revisit long-form text. It is for articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
+It is a local, no-login, no-upload reading companion for articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
 
 I think of it as a scaffold for deep reading: it does not read for you, but helps you enter the text step by step and leave traces you can return to for review and writing.
 

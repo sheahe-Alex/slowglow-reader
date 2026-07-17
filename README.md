@@ -12,6 +12,15 @@ Bandu Reader is a local, no-login, no-upload reading companion.
 不需要安装，不需要登录。打开网页后，把文字粘贴进去即可。  
 No installation or login is required. Open the page and paste text into the reader.
 
+## 三件事先知道 / Good To Know
+
+- 不需要登录，也不会上传你的文字。  
+  No login, and your text is not uploaded.
+- 它不是总结器、翻译器或速读器；它只是帮你更容易读下去。  
+  It is not a summarizer, translator, or speed-reading tool; it helps you keep reading.
+- 先放一小段文字试试就好。  
+  Start with one small passage.
+
 ## 它适合什么 / What It Is For
 
 适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
