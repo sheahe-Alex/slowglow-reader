@@ -58,13 +58,13 @@ Bandu Reader can be installed as a web app.
 
 ### 网页选中文字后一键打开 / Send Selected Text From A Webpage
 
-如果你经常在网页里读文章，可以使用书签按钮：  
-If you often read in webpages, you can use the bookmarklet:
+如果你经常在网页里读文章，可以用书签按钮把选中文字一键送进 Reader：  
+If you often read webpages, the bookmarklet can send selected text into Reader with one click:
 
 - [Bookmarklet / 书签按钮](./Bookmarklet_书签按钮.md)
 
-它不是浏览器插件，不需要安装商店扩展。选中文字后点书签，就会打开在线版并带入文字。  
-It is not a browser extension and does not require an extension store. Select text, click the bookmark, and it opens the online reader with the text.
+它不是浏览器插件，不需要安装扩展商店里的东西。选中文字后点书签，就会打开在线版并带入文字。  
+It is not a browser extension and does not require an extension store. Select text, click the bookmark, and it opens the online reader with that text.
 
 ## 为什么做 / Why
 
