@@ -358,17 +358,25 @@
       line-height: 1.55;
     }
 
-    .hint {
+    .input-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 6px 12px;
       color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .hint {
+      display: none;
     }
 
     .text-meter {
-      margin-top: 4px;
-      color: color-mix(in srgb, var(--muted) 88%, var(--ink));
-      font-size: 13px;
-      line-height: 1.45;
+      color: color-mix(in srgb, var(--muted) 82%, var(--ink));
+      font-size: 12px;
+      white-space: nowrap;
     }
 
     .reader-panel {
@@ -687,9 +695,9 @@
     }
 
     .status {
-      min-height: 22px;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 13px;
+      min-width: 0;
     }
 
     .notes-panel {
@@ -986,9 +994,9 @@
           <button class="button utility" id="clipboardButton" type="button">读取剪贴板</button>
         </div>
         <textarea id="sourceText" placeholder="把想读的文字粘贴到这里。"></textarea>
-        <div>
+        <div class="input-meta">
           <div class="status" id="status">粘贴一段想读的文字。</div>
-          <div class="text-meter" id="textMeter">当前：0 字符。建议长文分段阅读。</div>
+          <div class="text-meter" id="textMeter">当前：0 字符</div>
           <div class="hint">也可以点“读取剪贴板”。如果失败，手动粘贴就好。</div>
         </div>
       </section>
@@ -1110,8 +1118,8 @@
         placeholder: "把想读的文字粘贴到这里。",
         ready: "粘贴一段想读的文字。",
         hint: "也可以点“读取剪贴板”。如果失败，手动粘贴就好。",
-        meterEmpty: "当前：0 字符。建议长文分段阅读。",
-        meterStats: ({ chars, words }) => `当前：${chars} 字符 / 约 ${words} 词或中文词组。建议每次英文 1,000–3,000 词，中文 2,000–6,000 字。`,
+        meterEmpty: "当前：0 字符",
+        meterStats: ({ chars, words }) => `${chars} 字符 / 约 ${words} 词或词组`,
         meterLong: "这段有点长。可以分两次读，会更轻松。",
         progress: ({ current, total }) => `第 ${current} 段 / 共 ${total} 段`,
         comfortDefault: "只看这一句就好。其他文字会轻轻退后。",
@@ -1230,8 +1238,8 @@
         placeholder: "Paste something you want to read here.",
         ready: "Paste something you want to read.",
         hint: "You can also click Read Clipboard. If it fails, manual paste is fine.",
-        meterEmpty: "Current: 0 characters. For long texts, smaller passages are easier.",
-        meterStats: ({ chars, words }) => `Current: ${chars} characters / about ${words} words or chunks. Suggested: 1,000–3,000 English words, or 2,000–6,000 Chinese characters per pass.`,
+        meterEmpty: "Current: 0 characters",
+        meterStats: ({ chars, words }) => `${chars} characters / about ${words} words or chunks`,
         meterLong: "This is a longer passage. Splitting it into two passes may feel lighter.",
         progress: ({ current, total }) => `Paragraph ${current} / ${total}`,
         comfortDefault: "Just stay with this sentence. The rest can gently fade back.",
