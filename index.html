@@ -377,6 +377,10 @@
       min-height: calc(100vh - 132px);
     }
 
+    .reader-panel.is-empty {
+      padding-top: clamp(12px, 2.2vw, 28px);
+    }
+
     .reader {
       max-width: var(--max-width);
       margin: 0 auto;
@@ -598,7 +602,7 @@
 
     .empty-state-card {
       max-width: 720px;
-      margin: 0 auto;
+      margin: clamp(2px, 1.5vh, 16px) auto 0;
     }
 
     .empty-state-title {
@@ -900,6 +904,10 @@
       .reader-panel {
         padding: 16px 10px;
         min-height: 54vh;
+      }
+
+      .reader-panel.is-empty {
+        padding-top: 10px;
       }
 
       .notes-output {
@@ -1362,6 +1370,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function renderEmptyState() {
       const steps = currentCopyGroup("onboardingSteps");
+      readerPanel.classList.add("is-empty");
       reader.innerHTML = `
         <div class="empty-state empty-state-card">
           <h2 class="empty-state-title">${escapeHTML(t("emptyTitle"))}</h2>
@@ -1983,6 +1992,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         return;
       }
 
+      readerPanel.classList.remove("is-empty");
       const source = sourceText.value.trim();
       const currentFlowMode = effectiveFlowMode(source);
       const displayTokens = annotateFlow(tokens, source, currentFlowMode);
