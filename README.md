@@ -37,6 +37,9 @@ It does not summarize for you or take over the learning process. It is a reading
 最简单的使用方式就是上面的在线版链接。  
 The easiest way to use it is the online link above.
 
+还没有准备好文字时，可以先点页面里的“没有文字？先试一小段示例”。  
+If you do not have text ready, click "No text yet? Try a short sample" on the page.
+
 1. 放入文字：粘贴文章、课程材料、文档，或任何想读但难开始的文字。  
    Add text: paste an article, course material, document, or any text that feels hard to begin.
 2. 开始伴读：大字号、高亮和可选声音会陪你往下走。  

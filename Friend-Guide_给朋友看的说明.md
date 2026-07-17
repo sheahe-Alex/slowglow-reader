@@ -25,6 +25,9 @@ Open the online version:
 打开后，把文字粘贴进去即可。  
 After it opens, paste text into the reader.
 
+如果暂时没有文字，可以先点页面里的“没有文字？先试一小段示例”。  
+If you do not have text ready, click "No text yet? Try a short sample" on the page.
+
 手机上如果 `读取剪贴板` 不可用，直接点文本框手动粘贴即可。  
 On phones, if `Read Clipboard` does not work, tap the text box and paste manually.
 

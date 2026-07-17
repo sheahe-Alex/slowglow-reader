@@ -654,6 +654,34 @@
       font-size: 0.92em;
     }
 
+    .empty-state-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+      margin: 0 0 1.1rem;
+    }
+
+    .sample-button {
+      min-height: 42px;
+      padding: 0 1rem;
+      border: 1px solid var(--comfort-line);
+      border-radius: 999px;
+      background: var(--comfort-bg);
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.9em;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .sample-button:hover {
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--comfort-line) 70%, var(--accent));
+      background: color-mix(in srgb, var(--comfort-bg) 78%, white);
+    }
+
     .status {
       min-height: 22px;
       color: var(--muted);
@@ -1064,6 +1092,13 @@
           ["开始伴读", "大字号、高亮和可选声音会陪你往下走。"],
           ["走神也没关系", "回到高亮处；需要时打开逐句伴读，只让当前句站出来。"]
         ],
+        sampleButton: "没有文字？先试一小段示例",
+        sampleLoaded: "示例文字已放好。可以点“开始伴读”试试看。",
+        sampleText: `有些文字并不是太难，而是太满了。眼睛看到一整屏内容时，大脑可能会先紧张起来，不知道从哪里开始。
+
+伴读 Reader 想做的事情很简单：把一大块文字变成可以一点点进入的阅读过程。你可以只跟着当前高亮的位置走，也可以打开逐句伴读，让眼前这一句站出来，其他文字轻轻退后。
+
+读一点也算。走神了也没关系。回到高亮处，再读下一小句。`,
         emptyNote: "不用设置完美，先试一小段就好。读一点也算。",
         notesSummary: "回看线索：词 / 句",
         copyNotes: "复制回看草稿",
@@ -1177,6 +1212,13 @@
           ["Start reading", "Large text, highlighting, and optional sound help you keep moving."],
           ["It is okay to drift", "Come back to the highlight. Use Sentence Guide when you want only the current sentence to stand forward."]
         ],
+        sampleButton: "No text yet? Try a short sample",
+        sampleLoaded: "Sample text is ready. Click Start Reading when you want to try it.",
+        sampleText: `Sometimes a text is not too hard; it is simply too much at once. When the page feels full, the brain may tense up before reading has even begun.
+
+Reader is meant to make that first step softer. You can follow the current highlight, or turn on Sentence Guide so only the current sentence stands forward while the rest gently fades back.
+
+A little reading counts. If your attention drifts, come back to the highlight and continue with the next small piece.`,
         emptyNote: "You do not need perfect settings. Try a small passage first. A little reading counts.",
         notesSummary: "Review Cues: words / sentences",
         copyNotes: "Copy Review Draft",
@@ -1332,6 +1374,9 @@
               </li>
             `).join("")}
           </ol>
+          <div class="empty-state-actions">
+            <button class="sample-button" id="sampleTextButton" type="button">${escapeHTML(t("sampleButton"))}</button>
+          </div>
           <p class="empty-state-note">${escapeHTML(t("emptyNote"))}</p>
         </div>
       `;
@@ -2275,6 +2320,15 @@
       sourceText.focus();
     }
 
+    function loadSampleText() {
+      stopReading({ browse: false });
+      setBrowseMode(false);
+      sourceText.value = t("sampleText");
+      rebuildTokens();
+      setStatus(t("sampleLoaded"));
+      sourceText.focus();
+    }
+
     function readTextFromURL() {
       const queryText = new URLSearchParams(window.location.search).get("text");
       const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
@@ -2458,6 +2512,9 @@
     }
 
     clipboardButton.addEventListener("click", readClipboard);
+    reader.addEventListener("click", event => {
+      if (event.target.closest("#sampleTextButton")) loadSampleText();
+    });
     playButton.addEventListener("click", play);
     voiceButton.addEventListener("click", () => {
       voiceEnabled = !voiceEnabled;
