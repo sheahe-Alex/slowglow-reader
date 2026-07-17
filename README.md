@@ -26,8 +26,8 @@ No installation or login is required. Open the page and paste text into the read
 适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
 For articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
 
-它不是速读工具，也不是翻译器。它用大字号、高亮、可选声音和“逐句伴读”帮你进入文本；需要回看时，再用本地关键词和关键句候选提供少量线索。  
-It is not a speed-reading tool or a translator. It uses large text, highlighting, optional sound, and Sentence Guide to help you enter the text; when you need to review, local keyword and key-sentence candidates provide a few anchors.
+它不是速读工具，也不是翻译器。它用大字号、高亮、可选声音和“逐句伴读”帮你进入文本；需要回看时，再用本地规则提供少量回看线索。  
+It is not a speed-reading tool or a translator. It uses large text, highlighting, optional sound, and Sentence Guide to help you enter the text; when you need to review, local rules provide a few review cues.
 
 它不会替你总结，也不抢走学习过程。它只是一个阅读脚手架：在你容易卡住、走神、过载的时候，把你轻轻带回文字里。  
 It does not summarize for you or take over the learning process. It is a reading scaffold: when you get stuck, drift, or feel overloaded, it gently brings you back to the text.
@@ -112,7 +112,7 @@ The core belief:
 - 标记这一句：一键留下重点判断，再点一次撤销 / Mark Sentence: keep a trace of your judgment, click again to unmark
 - 设置里可开启英文词首加粗，帮助眼睛更容易落回英文单词 / Optional Bold Word Starts in Settings to make it easier for the eyes to return to English words
 - 设置里可开启结构提示和结构强度：英文偏信息流，中文偏逻辑信号和概念复现 / Optional structure hints and hint strength in Settings: information flow for English, logic signals and repeated concepts for Chinese
-- 重点回看：本地关键词和关键句候选，帮助第二遍、第 N 遍复习和做笔记 / Review anchors: local keyword and key-sentence suggestions for second-pass review, later review, and note-taking
+- 回看线索：本地规则给出少量可能的回看词和回看句，帮助第二遍、第 N 遍复习和做笔记 / Review Cues: local rules suggest a few possible words and sentences to return to during second-pass review, later review, and note-taking
 - 笔记提示：用自己的话记下重点 / Note cue: put key points in your own words
 - 根据浏览器语言自动显示中文或英文界面，也可以手动切换 / Automatically uses Chinese or English based on browser language, with manual switching available
 

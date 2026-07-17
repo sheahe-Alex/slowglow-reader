@@ -943,12 +943,12 @@
       </section>
 
       <details class="notes-panel" id="notesPanel">
-        <summary>重点回看：关键词 / 关键句</summary>
+        <summary>回看线索：词 / 句</summary>
         <div class="notes-tools">
-          <button class="button" id="copyNotesButton" type="button">复制笔记草稿</button>
+          <button class="button" id="copyNotesButton" type="button">复制回看草稿</button>
         </div>
         <div class="notes-output" id="notesOutput">
-          <div class="note-card">这里会用本地规则提取关键词和关键句，帮你第二遍、第 N 遍回到重点。它不是 AI 总结，也不会联网。</div>
+          <div class="note-card">这里会用本地规则找少量回看线索，帮你第二遍、第 N 遍回到文本。它不是 AI 总结，也不会联网。</div>
         </div>
       </details>
 
@@ -1065,25 +1065,25 @@
           ["走神也没关系", "回到高亮处；需要时打开逐句伴读，只让当前句站出来。"]
         ],
         emptyNote: "不用设置完美，先试一小段就好。读一点也算。",
-        notesSummary: "重点回看：关键词 / 关键句",
-        copyNotes: "复制笔记草稿",
-        notesIntro: "这里会用本地规则提取关键词和关键句，帮你第二遍、第 N 遍回到重点。它不是 AI 总结，也不会联网。",
+        notesSummary: "回看线索：词 / 句",
+        copyNotes: "复制回看草稿",
+        notesIntro: "这里会用本地规则找少量回看线索，帮你第二遍、第 N 遍回到文本。它不是 AI 总结，也不会联网。",
         noteReminderTitle: "笔记提示",
         noteReminder: "用自己的话记下重点。",
         pasteFirst: "先粘贴或读取一段文字。",
-        keywordsTitle: "关键词候选",
-        noKeywords: "没有足够稳定的关键词候选。",
-        keySentencesTitle: "关键句候选",
+        keywordsTitle: "可能的回看词",
+        noKeywords: "没有足够稳定的回看词。",
+        keySentencesTitle: "可能的回看句",
         markedTitle: "我标记的句子",
         none: "暂无",
         noteMeta: ({ chars, words }) => `${chars} 字符，约 ${words} 词/中文词组`,
-        notesDisclaimer: "本地规则提取，用来回看、起笔和搭逻辑，不等同于 AI 总结。",
-        draftKeywords: "关键词：",
-        draftKeySentences: "关键句：",
+        notesDisclaimer: "本地规则提取，只作回看线索，不等同于总结。",
+        draftKeywords: "可能的回看词：",
+        draftKeySentences: "可能的回看句：",
         draftMarked: "我标记的句子：",
         draftReminder: "用自己的话记下：",
-        notesCopied: "笔记草稿已复制。",
-        sentenceMarked: "已标记这一句，稍后可以在重点回看里找到。",
+        notesCopied: "回看草稿已复制。",
+        sentenceMarked: "已标记这一句，稍后可以在回看线索里找到。",
         sentenceUnmarked: "已取消这一句的标记。",
         noSentenceToMark: "开始导读后，可以标记当前句。",
         noPreviousSentence: "已经是第一句了。",
@@ -1093,7 +1093,7 @@
         noText: "还没有文本。",
         stopped: "已停止伴读。可以自由浏览标注后的文本。",
         reading: ({ token }) => `正在读：${token}`,
-        finished: "这一段读完了。可以停在这里；需要时再打开重点回看。",
+        finished: "这一段读完了。可以停在这里；需要时再打开回看线索。",
         interrupted: ({ seconds }) => `阅读中断了，已进行 ${seconds} 秒。可以再按开始伴读重试。`,
         started: ({ rate }) => `从开头开始伴读。速度 ${rate}x`,
         voiceEnabled: "声音已开启。会朗读并高亮当前读到的位置。",
@@ -1178,25 +1178,25 @@
           ["It is okay to drift", "Come back to the highlight. Use Sentence Guide when you want only the current sentence to stand forward."]
         ],
         emptyNote: "You do not need perfect settings. Try a small passage first. A little reading counts.",
-        notesSummary: "Review anchors: keywords / key sentences",
-        copyNotes: "Copy Note Draft",
-        notesIntro: "Local rules will extract keyword and key-sentence candidates to help you return to the main points on a second or later pass. This is not an AI summary and does not go online.",
+        notesSummary: "Review Cues: words / sentences",
+        copyNotes: "Copy Review Draft",
+        notesIntro: "Local rules can surface a few review cues to help you return to the text on a second or later pass. This is not an AI summary and does not go online.",
         noteReminderTitle: "Note cue",
         noteReminder: "Put key points in your own words.",
         pasteFirst: "Paste or read some text first.",
-        keywordsTitle: "Keyword Candidates",
-        noKeywords: "No stable keyword candidates.",
-        keySentencesTitle: "Key Sentence Candidates",
+        keywordsTitle: "Possible Review Words",
+        noKeywords: "No stable review words.",
+        keySentencesTitle: "Possible Review Sentences",
         markedTitle: "Sentences I Marked",
         none: "None yet",
         noteMeta: ({ chars, words }) => `${chars} characters, about ${words} words / Chinese chunks`,
-        notesDisclaimer: "Extracted with local rules to help you review, start notes, and build structure. Not an AI summary.",
-        draftKeywords: "Keywords:",
-        draftKeySentences: "Key sentences:",
+        notesDisclaimer: "Extracted with local rules as review cues, not a summary.",
+        draftKeywords: "Possible review words:",
+        draftKeySentences: "Possible review sentences:",
         draftMarked: "Sentences I marked:",
         draftReminder: "In my own words:",
-        notesCopied: "Note draft copied.",
-        sentenceMarked: "Sentence marked. You can find it in Review Anchors.",
+        notesCopied: "Review draft copied.",
+        sentenceMarked: "Sentence marked. You can find it in Review Cues.",
         sentenceUnmarked: "Sentence unmarked.",
         noSentenceToMark: "Start reading, then you can mark the current sentence.",
         noPreviousSentence: "Already at the first sentence.",
@@ -1206,7 +1206,7 @@
         noText: "No text yet.",
         stopped: "Reading guide stopped. You can now browse the marked text freely.",
         reading: ({ token }) => `Reading: ${token}`,
-        finished: "This passage is done. You can stop here; Review Anchors are there if you need them.",
+        finished: "This passage is done. You can stop here; Review Cues are there if you need them.",
         interrupted: ({ seconds }) => `Reading was interrupted after ${seconds} seconds. You can try Start Reading again.`,
         started: ({ rate }) => `Started from the top at ${rate}x.`,
         voiceEnabled: "Sound is on. It will speak and highlight the current position.",
