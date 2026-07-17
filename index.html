@@ -700,6 +700,13 @@
       color: var(--muted);
     }
 
+    .notes-footnote {
+      grid-column: 1 / -1;
+      color: color-mix(in srgb, var(--muted) 86%, var(--panel));
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
     .keyword-list {
       display: flex;
       flex-wrap: wrap;
@@ -1654,10 +1661,6 @@
       });
       notesOutput.innerHTML = `
         <section class="note-card">
-          <h2>${escapeHTML(t("noteReminderTitle"))}</h2>
-          <p>${escapeHTML(t("noteReminder"))}</p>
-        </section>
-        <section class="note-card">
           <h2>${escapeHTML(t("markedTitle"))}</h2>
           <ol class="key-sentence-list">
             ${marked.map(sentence => `<li>${escapeHTML(sentence)}</li>`).join("") || `<li>${escapeHTML(t("none"))}</li>`}
@@ -1678,6 +1681,7 @@
           </ol>
           <div class="note-meta">${escapeHTML(t("notesDisclaimer"))}</div>
         </section>
+        <div class="notes-footnote">${escapeHTML(t("noteReminder"))}</div>
       `;
     }
 
