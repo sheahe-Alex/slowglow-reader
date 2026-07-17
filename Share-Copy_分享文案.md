@@ -2,7 +2,7 @@
 
 ## 中文版
 
-我做了一个小工具，叫「伴读 Reader」：让阅读变得更容易。
+我做了一个小工具，叫「伴读 Reader」：让阅读更容易开始，也更容易继续。
 
 直接打开在线版：  
 https://sheahe-alex.github.io/slowglow-reader/

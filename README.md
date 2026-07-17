@@ -1,6 +1,6 @@
 # 伴读 Reader
 
-让阅读变得更容易。  
+让阅读更容易开始，也更容易继续。  
 Turn hard-to-start text into something you can keep reading.
 
 伴读 Reader 是一个本地、无登录、不上传文字的低阻力伴读器。  
