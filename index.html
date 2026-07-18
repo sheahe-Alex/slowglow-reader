@@ -362,8 +362,8 @@
 
     textarea {
       width: 100%;
-      min-height: 160px;
-      max-height: 34vh;
+      min-height: 128px;
+      max-height: 28vh;
       resize: vertical;
       border: 1px solid var(--hairline);
       border-radius: 10px;
@@ -382,6 +382,11 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.35;
+    }
+
+    .input-panel.has-text textarea {
+      min-height: 112px;
+      max-height: 24vh;
     }
 
     .hint {
@@ -546,6 +551,27 @@
       color: var(--highlight-ink);
       box-shadow: 0 0 0 0.08em var(--highlight);
       text-decoration-color: var(--mark);
+    }
+
+    .token.review-target {
+      background: color-mix(in srgb, var(--comfort-bg) 82%, var(--panel));
+      box-shadow: 0 0 0 0.12em var(--comfort-line);
+      text-decoration-line: underline;
+      text-decoration-color: var(--mark);
+      text-decoration-thickness: 0.1em;
+      text-underline-offset: 0.2em;
+      animation: reviewTargetAppear 420ms ease-out;
+    }
+
+    @keyframes reviewTargetAppear {
+      from {
+        background: transparent;
+        box-shadow: 0 0 0 0 transparent;
+      }
+      to {
+        background: color-mix(in srgb, var(--comfort-bg) 82%, var(--panel));
+        box-shadow: 0 0 0 0.12em var(--comfort-line);
+      }
     }
 
     .flow-label {
@@ -777,6 +803,24 @@
       background: var(--flow-old);
     }
 
+    .note-link {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      text-decoration: underline;
+      text-decoration-color: var(--comfort-line);
+      text-underline-offset: 0.18em;
+      cursor: pointer;
+    }
+
+    .note-link:hover {
+      color: var(--accent);
+      text-decoration-color: var(--accent);
+    }
+
     .key-sentence-list {
       margin: 0;
       padding-left: 1.25rem;
@@ -928,9 +972,14 @@
       }
 
       textarea {
-        min-height: 120px;
-        max-height: 22vh;
+        min-height: 100px;
+        max-height: 18vh;
         font-size: 16px;
+      }
+
+      .input-panel.has-text textarea {
+        min-height: 92px;
+        max-height: 16vh;
       }
 
       .hint,
@@ -959,6 +1008,17 @@
 
       .notes-output {
         grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
       }
     }
   </style>
@@ -1066,6 +1126,7 @@
     const notesPanel = document.querySelector("#notesPanel");
     const copyNotesButton = document.querySelector("#copyNotesButton");
     const notesOutput = document.querySelector("#notesOutput");
+    const inputPanel = document.querySelector(".input-panel");
     const rateInput = document.querySelector("#rateInput");
     const fontInput = document.querySelector("#fontInput");
     const lineInput = document.querySelector("#lineInput");
@@ -1090,6 +1151,7 @@
     let previousGentleSettings = null;
     let isReading = false;
     let isPaused = false;
+    let hasCompleted = false;
     let markedSentences = [];
     let playbackRunId = 0;
     let speechOffset = 0;
@@ -1097,6 +1159,8 @@
     let comfortTimer = null;
     let boundaryTimers = new Set();
     let rateRestartTimer = null;
+    let reviewTargetIndex = -1;
+    let reviewTargetTimer = null;
     let voiceEnabled = localStorage.getItem("slowglow-voice-enabled") !== "false";
     let menuCollapsed = true;
     let uiLanguage = localStorage.getItem("slowglow-ui-language") || (navigator.language?.toLowerCase().startsWith("zh") ? "zh" : "en");
@@ -1107,6 +1171,8 @@
       zh: {
         clipboard: "读取剪贴板",
         play: "开始伴读",
+        replay: "从头再读",
+        readingNow: "阅读中",
         voiceOn: "朗读：开",
         voiceOff: "朗读：关",
         showMenu: "设置",
@@ -1199,6 +1265,7 @@
         gentleOn: "已开启逐句伴读。当前句会浮现出来，其他文字会轻轻退后。",
         gentleOff: "已退出逐句伴读。",
         rateAfterResume: ({ rate }) => `语速已改为 ${rate}x，点继续后生效。`,
+        reviewJumped: "已回到原文对应位置。",
         paused: "已暂停。",
         currentSentence: ({ current, total }) => `这一句 ${current} / ${total}`,
         flowLabels: { auto: "自动", en: "英文结构", zh: "中文结构", off: "关闭" },
@@ -1227,6 +1294,8 @@
       en: {
         clipboard: "Read Clipboard",
         play: "Start Reading",
+        replay: "Read Again",
+        readingNow: "Reading",
         voiceOn: "Read Aloud: On",
         voiceOff: "Read Aloud: Off",
         showMenu: "Settings",
@@ -1319,6 +1388,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         gentleOn: "Sentence Guide is on. The current sentence will appear while surrounding text gently fades back.",
         gentleOff: "Sentence Guide is off.",
         rateAfterResume: ({ rate }) => `Speed changed to ${rate}x. It will apply when you resume.`,
+        reviewJumped: "Jumped back to the source text.",
         paused: "Paused.",
         currentSentence: ({ current, total }) => `This sentence ${current} / ${total}`,
         flowLabels: { auto: "Auto", en: "English", zh: "Chinese", off: "Off" },
@@ -1442,6 +1512,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function updateTextMeter() {
       const text = sourceText.value.trim();
+      inputPanel.classList.toggle("has-text", Boolean(text));
       if (!text) {
         textMeter.textContent = t("meterEmpty");
         return;
@@ -1465,7 +1536,6 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function applyLanguage({ resetStatus = false } = {}) {
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
-      playButton.textContent = t("play");
       previousButton.textContent = t("previousSentence");
       updateVoiceButton();
       updateMenuButton();
@@ -1514,10 +1584,20 @@ The goal is simple: lower the friction of entering a text, and help you return g
       }
     }
 
+    function updatePlayButton() {
+      playButton.textContent = isReading
+        ? t("readingNow")
+        : hasCompleted
+          ? t("replay")
+          : t("play");
+      playButton.disabled = isReading;
+    }
+
     function updatePlaybackButtons() {
       pauseButton.disabled = !isReading;
       pauseButton.textContent = isPaused ? t("resume") : t("pause");
       stopButton.disabled = !isReading;
+      updatePlayButton();
       updateMarkButton();
       updatePreviousButton();
     }
@@ -1706,7 +1786,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return key.length >= 4 && !stopWords.has(key);
     }
 
-    function extractKeywords(text, limit = 8) {
+    function extractKeywords(text, limit = 3) {
       const items = noteTokens(text).filter(isUsefulNoteToken);
       const counts = new Map();
 
@@ -1741,7 +1821,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return keywordHits * 2 + connectorBoost + earlyBoost + lengthPenalty;
     }
 
-    function extractKeySentences(text, keywords, limit = 5) {
+    function extractKeySentences(text, keywords, limit = 2) {
       const sentences = splitSentences(text);
       const keywordSet = new Set(keywords.map(keyword => /[\u3400-\u9fff]/.test(keyword) ? keyword : lowerToken(keyword)));
       return sentences
@@ -1763,6 +1843,25 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return { keywords, keySentences, marked: markedSentences.map(sentence => sentence.text) };
     }
 
+    function tokenIndexForKeyword(keyword) {
+      const normalized = lowerToken(keyword);
+      return tokens.findIndex(token => {
+        const tokenKey = lowerToken(token.text);
+        return tokenKey === normalized || (/[\u3400-\u9fff]/.test(keyword) && token.text.includes(keyword));
+      });
+    }
+
+    function tokenIndexForSentenceText(sentenceText) {
+      const target = sentenceText.trim().replace(/\s+/g, " ");
+      const sentence = splitSentences(sourceText.value).find(item => item.text.trim().replace(/\s+/g, " ") === target);
+      return sentence ? tokenIndexForChar(sentence.start) : -1;
+    }
+
+    function noteLinkHTML(label, index) {
+      if (index < 0) return escapeHTML(label);
+      return `<button class="note-link" type="button" data-note-target="${index}">${escapeHTML(label)}</button>`;
+    }
+
     function renderNotes() {
       const text = sourceText.value.trim();
       if (!text) {
@@ -1771,6 +1870,18 @@ The goal is simple: lower the friction of entering a text, and help you return g
       }
 
       const { keywords, keySentences, marked } = buildNotesDraft(text);
+      const markedEntries = markedSentences.map(sentence => ({
+        text: sentence.text,
+        index: tokenIndexForChar(sentence.start)
+      }));
+      const keywordEntries = keywords.map(keyword => ({
+        text: keyword,
+        index: tokenIndexForKeyword(keyword)
+      }));
+      const keySentenceEntries = keySentences.map(sentence => ({
+        text: sentence,
+        index: tokenIndexForSentenceText(sentence)
+      }));
       const meta = t("noteMeta", {
         chars: text.length.toLocaleString(),
         words: roughWordCount(text).toLocaleString()
@@ -1779,26 +1890,40 @@ The goal is simple: lower the friction of entering a text, and help you return g
         <section class="note-card">
           <h2>${escapeHTML(t("markedTitle"))}</h2>
           <ol class="key-sentence-list">
-            ${marked.map(sentence => `<li>${escapeHTML(sentence)}</li>`).join("") || `<li>${escapeHTML(t("none"))}</li>`}
+            ${markedEntries.map(entry => `<li>${noteLinkHTML(entry.text, entry.index)}</li>`).join("") || `<li>${escapeHTML(t("none"))}</li>`}
           </ol>
           <div class="note-meta">${escapeHTML(t("notesDisclaimer"))}</div>
         </section>
         <section class="note-card">
           <h2>${escapeHTML(t("keywordsTitle"))}</h2>
           <ul class="keyword-list">
-            ${keywords.map(keyword => `<li>${escapeHTML(keyword)}</li>`).join("") || `<li>${escapeHTML(t("noKeywords"))}</li>`}
+            ${keywordEntries.map(entry => `<li>${noteLinkHTML(entry.text, entry.index)}</li>`).join("") || `<li>${escapeHTML(t("noKeywords"))}</li>`}
           </ul>
           <div class="note-meta">${meta}</div>
         </section>
         <section class="note-card">
           <h2>${escapeHTML(t("keySentencesTitle"))}</h2>
           <ol class="key-sentence-list">
-            ${keySentences.map(sentence => `<li>${escapeHTML(sentence)}</li>`).join("") || `<li>${escapeHTML(t("none"))}</li>`}
+            ${keySentenceEntries.map(entry => `<li>${noteLinkHTML(entry.text, entry.index)}</li>`).join("") || `<li>${escapeHTML(t("none"))}</li>`}
           </ol>
           <div class="note-meta">${escapeHTML(t("notesDisclaimer"))}</div>
         </section>
         <div class="notes-footnote">${escapeHTML(t("noteReminder"))}</div>
       `;
+    }
+
+    function jumpToReviewTarget(index) {
+      if (index < 0 || !tokens[index]) return;
+      window.clearTimeout(reviewTargetTimer);
+      reviewTargetIndex = index;
+      render();
+      const target = reader.querySelector(`[data-index="${index}"]`);
+      target?.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+      setStatus(t("reviewJumped"));
+      reviewTargetTimer = window.setTimeout(() => {
+        reviewTargetIndex = -1;
+        render();
+      }, 2200);
     }
 
     async function copyNotesDraft() {
@@ -2050,6 +2175,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       let cursor = 0;
       const html = displayTokens.map((token, index) => {
         const active = index === activeIndex ? " active" : "";
+        const reviewTarget = index === reviewTargetIndex ? " review-target" : "";
         const flowClass = currentFlowMode !== "off" && token.flow ? ` flow-${token.flow}` : "";
         const sentenceClass = sentenceFocus && token.start >= sentenceFocus.start && token.end <= sentenceFocus.end ? " sentence-focus" : "";
         const markedClass = isTokenInMarkedSentence(token) ? " marked-sentence" : "";
@@ -2058,7 +2184,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         const label = currentFlowMode !== "off" && token.sentenceLabel ? `<span class="flow-label">${token.sentenceLabel}</span>` : "";
         const spacer = escapeHTML(source.slice(cursor, token.start));
         cursor = token.end;
-        return `${spacer}${label}<span class="token${active}${flowClass}${sentenceClass}${markedClass}${gentleReadClass}${gentleOutsideClass}" data-index="${index}">${tokenHTML(token.text)}</span>`;
+        return `${spacer}${label}<span class="token${active}${reviewTarget}${flowClass}${sentenceClass}${markedClass}${gentleReadClass}${gentleOutsideClass}" data-index="${index}">${tokenHTML(token.text)}</span>`;
       }).join("") + escapeHTML(source.slice(cursor));
 
       const legend = currentFlowMode === "off" || annotationIntensity === "off" ? "" : (
@@ -2134,9 +2260,13 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function rebuildTokens() {
       tokens = tokenize(sourceText.value);
       activeIndex = -1;
+      hasCompleted = false;
+      reviewTargetIndex = -1;
+      window.clearTimeout(reviewTargetTimer);
       markedSentences = [];
       updateTextMeter();
       render();
+      updatePlaybackButtons();
       if (notesPanel.open) renderNotes();
       if (tokens.length) {
         setStatus(t("loaded", {
@@ -2178,6 +2308,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       utterance = null;
       isReading = false;
       isPaused = false;
+      hasCompleted = true;
       activeIndex = -1;
       hideComfortNote();
       render();
@@ -2227,7 +2358,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
       utterance = null;
       isReading = false;
       isPaused = false;
+      hasCompleted = tokens.length > 0;
       activeIndex = -1;
+      reviewTargetIndex = -1;
+      window.clearTimeout(reviewTargetTimer);
       hideComfortNote();
       setBrowseMode(browse && tokens.length > 0);
       render();
@@ -2247,6 +2381,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
       clearSilentTimer();
       clearBoundaryTimer();
       window.speechSynthesis.cancel();
+      reviewTargetIndex = -1;
+      window.clearTimeout(reviewTargetTimer);
       activeIndex = safeStartIndex;
       isReading = true;
       isPaused = false;
@@ -2305,6 +2441,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
       clearSilentTimer();
       clearBoundaryTimer();
       window.speechSynthesis.cancel();
+      reviewTargetIndex = -1;
+      window.clearTimeout(reviewTargetTimer);
       utterance = null;
       activeIndex = safeStartIndex;
       isReading = true;
@@ -2653,9 +2791,17 @@ The goal is simple: lower the friction of entering a text, and help you return g
     notesPanel.addEventListener("toggle", () => {
       if (notesPanel.open) renderNotes();
     });
+    notesOutput.addEventListener("click", event => {
+      const link = event.target.closest("[data-note-target]");
+      if (!link) return;
+      jumpToReviewTarget(Number(link.dataset.noteTarget));
+    });
     copyNotesButton.addEventListener("click", copyNotesDraft);
     markButton.addEventListener("click", markCurrentSentence);
-    sourceText.addEventListener("input", rebuildTokens);
+    sourceText.addEventListener("input", () => {
+      if (isReading) stopReading({ browse: false });
+      rebuildTokens();
+    });
     rateInput.addEventListener("input", handleRateInput);
     [fontInput, lineInput, widthInput].forEach(input => input.addEventListener("input", updateSettings));
     window.addEventListener("beforeunload", () => {
