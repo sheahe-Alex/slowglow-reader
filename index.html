@@ -164,6 +164,13 @@
       line-height: 1.25;
     }
 
+    .preference-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding-left: 2px;
+    }
+
     .brand {
       font-weight: 800;
       font-size: 22px;
@@ -209,6 +216,14 @@
     .button.utility {
       color: var(--muted);
       background: color-mix(in srgb, var(--panel) 78%, var(--bg));
+    }
+
+    .button.preference {
+      min-height: 36px;
+      padding: 0 10px;
+      color: color-mix(in srgb, var(--muted) 88%, var(--ink));
+      font-size: 14px;
+      background: color-mix(in srgb, var(--panel) 90%, var(--bg));
     }
 
     .button:disabled {
@@ -967,8 +982,10 @@
             <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读：关</button>
             <span class="guide-caption" id="gentleHint">当前句浮现，其他文字退后。</span>
           </span>
-          <button class="button utility" id="voiceButton" type="button" aria-pressed="true">声音：开</button>
-          <button class="button utility" id="menuButton" type="button" aria-expanded="false">设置</button>
+          <span class="preference-actions">
+            <button class="button utility preference" id="voiceButton" type="button" aria-pressed="true">朗读：开</button>
+            <button class="button utility preference" id="menuButton" type="button" aria-expanded="false">设置</button>
+          </span>
         </div>
       </div>
       <div class="toolbar-row mode-row">
@@ -1090,8 +1107,8 @@
       zh: {
         clipboard: "读取剪贴板",
         play: "开始伴读",
-        voiceOn: "声音：开",
-        voiceOff: "声音：关",
+        voiceOn: "朗读：开",
+        voiceOff: "朗读：关",
         showMenu: "设置",
         hideMenu: "收起",
         pause: "暂停",
@@ -1171,8 +1188,8 @@
         finished: "这一段读完了。可以停在这里；需要时再打开回看线索。",
         interrupted: ({ seconds }) => `阅读中断了，已进行 ${seconds} 秒。可以再按开始伴读重试。`,
         started: ({ rate }) => `从开头开始伴读。速度 ${rate}x`,
-        voiceEnabled: "声音已开启。会朗读并高亮当前读到的位置。",
-        voiceMuted: "声音已关闭。高亮会按速度继续推进。",
+        voiceEnabled: "朗读已开启。会朗读并高亮当前读到的位置。",
+        voiceMuted: "朗读已关闭。高亮会按速度继续推进。",
         rateChangedNow: ({ rate }) => `已切换到 ${rate}x，从当前位置继续。`,
         clipboardEmpty: "剪贴板里没有文字。",
         clipboardLoaded: "新文字已放好。可以开始伴读。",
@@ -1210,8 +1227,8 @@
       en: {
         clipboard: "Read Clipboard",
         play: "Start Reading",
-        voiceOn: "Sound: On",
-        voiceOff: "Sound: Off",
+        voiceOn: "Read Aloud: On",
+        voiceOff: "Read Aloud: Off",
         showMenu: "Settings",
         hideMenu: "Hide",
         pause: "Pause",
@@ -1291,8 +1308,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
         finished: "This passage is done. You can stop here; Review Cues are there if you need them.",
         interrupted: ({ seconds }) => `Reading was interrupted after ${seconds} seconds. You can try Start Reading again.`,
         started: ({ rate }) => `Started from the top at ${rate}x.`,
-        voiceEnabled: "Sound is on. It will speak and highlight the current position.",
-        voiceMuted: "Sound is off. Highlighting will keep moving at the selected speed.",
+        voiceEnabled: "Read Aloud is on. It will speak and highlight the current position.",
+        voiceMuted: "Read Aloud is off. Highlighting will keep moving at the selected speed.",
         rateChangedNow: ({ rate }) => `Switched to ${rate}x and continued from the current position.`,
         clipboardEmpty: "There is no text in the clipboard.",
         clipboardLoaded: "New text is ready. You can start reading.",

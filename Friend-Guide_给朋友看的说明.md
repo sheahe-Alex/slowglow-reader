@@ -101,8 +101,8 @@ If clipboard reading does not work, you can paste the text directly into the lef
   If the text feels too dense: increase font size and line spacing.
 - 如果觉得声音太慢或太快：调“语速”。  
   If the voice feels too slow or too fast: adjust speech speed.
-- 如果暂时不想听声音：点 `声音：开`，切到 `声音：关`。高亮仍会继续走。  
-  If you do not want audio right now: click `Voice: On` to switch it off. The highlight will still keep moving.
+- 如果暂时不想听朗读：点 `朗读：开`，切到 `朗读：关`。高亮仍会继续走。  
+  If you do not want audio right now: click `Read Aloud: On` to switch it off. The highlight will still keep moving.
 - 如果觉得辅助痕迹太多：点 `辅助强度`，切到 `无`。  
   If there are too many visual cues: click `Support Level` and switch to `None`.
 - 如果状态不好、很抗拒阅读：点 `逐句伴读`。  
