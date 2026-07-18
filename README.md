@@ -106,6 +106,7 @@ The core belief:
 - 可开关朗读：有声朗读或静音高亮导读 / Optional read-aloud: spoken reading or silent guided highlighting
 - 当前词高亮 / Current-word highlight
 - 上一句：阅读中可以退回上一句 / Previous sentence: step back while reading
+- 暂停后可在上一句和下一句之间移动 / While paused, move between the previous and next sentence
 - 停止：停止自动推进，收起粘贴框和设置，保留标注后自由浏览 / Stop: stop auto-advance, hide input and settings, and browse the marked text freely
 - 阅读中调整速度 / Adjust reading speed while it is running
 - 自动记住语速、字号、行距、宽度和主题 / Remembers speed, font size, line height, width, and theme

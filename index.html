@@ -1111,6 +1111,7 @@
         <div class="action-group reading-actions">
           <button class="button utility context-action" id="pauseButton" type="button" disabled>暂停</button>
           <button class="button utility context-action" id="previousButton" type="button" disabled>上一句</button>
+          <button class="button utility context-action" id="nextButton" type="button" disabled>下一句</button>
           <button class="button utility context-action" id="markButton" type="button" disabled>标记这一句</button>
           <button class="button utility context-action" id="stopButton" type="button" disabled>停止</button>
         </div>
@@ -1205,6 +1206,7 @@
     const stopButton = document.querySelector("#stopButton");
     const flowButton = document.querySelector("#flowButton");
     const bionicButton = document.querySelector("#bionicButton");
+    const nextButton = document.querySelector("#nextButton");
     const anchorButton = document.querySelector("#anchorButton");
     const intensityButton = document.querySelector("#intensityButton");
     const gentleButton = document.querySelector("#gentleButton");
@@ -1292,6 +1294,7 @@
         markSentence: "标记这一句",
         unmarkSentence: "取消标记",
         previousSentence: "上一句",
+        nextSentence: "下一句",
         languageButton: "中文 / English",
         rate: "语速 ",
         font: "字号 ",
@@ -1348,6 +1351,8 @@
         noSentenceToMark: "开始导读后，可以标记当前句。",
         noPreviousSentence: "已经是第一句了。",
         previousSentenceReady: "已回到上一句。",
+        nextSentenceReady: "已进入下一句。",
+        noNextSentence: "已经是最后一句了。",
         copyFailed: "复制失败，可以手动选中笔记内容复制。",
         loaded: ({ tokens, chars }) => `已载入 ${tokens} 个词/片段，约 ${chars} 字符。`,
         noText: "还没有文本。",
@@ -1423,6 +1428,7 @@
         markSentence: "Mark Sentence",
         unmarkSentence: "Unmark",
         previousSentence: "Previous",
+        nextSentence: "Next",
         languageButton: "English / 中文",
         rate: "Speed ",
         font: "Font ",
@@ -1479,6 +1485,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
         noSentenceToMark: "Start reading, then you can mark the current sentence.",
         noPreviousSentence: "Already at the first sentence.",
         previousSentenceReady: "Moved back to the previous sentence.",
+        nextSentenceReady: "Moved to the next sentence.",
+        noNextSentence: "Already at the last sentence.",
         copyFailed: "Copy failed. You can manually select and copy the note content.",
         loaded: ({ tokens, chars }) => `Loaded ${tokens} words/chunks, about ${chars} characters.`,
         noText: "No text yet.",
@@ -1656,6 +1664,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
       previousButton.textContent = t("previousSentence");
+      nextButton.textContent = t("nextSentence");
       updateVoiceButton();
       updateMenuButton();
       stopButton.textContent = t("stop");
@@ -1693,6 +1702,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       updateProgress();
       updateMarkButton();
       updatePreviousButton();
+      updateNextButton();
     }
 
     function guidePromptWasSeen() {
@@ -1765,6 +1775,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       updatePlayButton();
       updateMarkButton();
       updatePreviousButton();
+      updateNextButton();
     }
 
     function updateVoiceButton() {
@@ -1780,6 +1791,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function updatePreviousButton() {
       previousButton.disabled = previousSentenceTokenIndex() < 0;
+    }
+
+    function updateNextButton() {
+      nextButton.disabled = !(isReading && isPaused) || nextSentenceTokenIndex() < 0;
     }
 
     function refreshSpeechVoices() {
@@ -1939,6 +1954,15 @@ The goal is simple: lower the friction of entering a text, and help you return g
       if (!source || currentSentenceIndex <= 0) return -1;
       const previousSentence = splitSentences(source)[currentSentenceIndex - 1];
       return previousSentence ? tokenIndexForChar(previousSentence.start) : -1;
+    }
+
+    function nextSentenceTokenIndex() {
+      const source = sourceText.value.trim();
+      const sentences = splitSentences(source);
+      const currentSentenceIndex = sentenceIndexForToken(activeIndex);
+      if (!source || currentSentenceIndex < 0 || currentSentenceIndex >= sentences.length - 1) return -1;
+      const nextSentence = sentences[currentSentenceIndex + 1];
+      return nextSentence ? tokenIndexForChar(nextSentence.start) : -1;
     }
 
     function connectorLabelForSentence(sentenceText) {
@@ -2245,6 +2269,24 @@ The goal is simple: lower the friction of entering a text, and help you return g
       setStatus(t("previousSentenceReady"));
     }
 
+    function goToNextSentence() {
+      const targetIndex = nextSentenceTokenIndex();
+      if (targetIndex < 0) {
+        setStatus(t("noNextSentence"));
+        return;
+      }
+
+      if (isReading && !isPaused) return;
+      if (isReading && isPaused) playbackRunId += 1;
+      clearSilentTimer();
+      if (voiceEnabled) window.speechSynthesis.cancel();
+      utterance = null;
+      activeIndex = targetIndex;
+      render();
+      updatePlaybackButtons();
+      setStatus(t("nextSentenceReady"));
+    }
+
     function annotateInformationFlow(sourceTokens, source) {
       if (annotationIntensity === "off") return sourceTokens;
       const annotated = sourceTokens.map(token => ({ ...token, flow: "" }));
@@ -2399,6 +2441,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         updateProgress();
         updateMarkButton();
         updatePreviousButton();
+        updateNextButton();
         return;
       }
 
@@ -2458,6 +2501,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       updateProgress();
       updateMarkButton();
       updatePreviousButton();
+      updateNextButton();
     }
 
     function updateGentleGuide(sentenceFocus) {
@@ -3034,6 +3078,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
     });
     stopButton.addEventListener("click", stopReading);
     previousButton.addEventListener("click", goToPreviousSentence);
+    nextButton.addEventListener("click", goToNextSentence);
     flowButton.addEventListener("click", () => {
       const nextIndex = (flowModes.indexOf(flowMode) + 1) % flowModes.length;
       flowMode = flowModes[nextIndex];
