@@ -1250,6 +1250,9 @@
     let tokens = [];
     let activeIndex = -1;
     let utterance = null;
+    let speechVoices = [];
+    let speechChunks = [];
+    let speechChunkIndex = -1;
     let playStartedAt = 0;
     let flowMode = "off";
     let bionicMode = "off";
@@ -1788,6 +1791,77 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function updatePreviousButton() {
       previousButton.disabled = previousSentenceTokenIndex() < 0;
+    }
+
+    function refreshSpeechVoices() {
+      speechVoices = window.speechSynthesis.getVoices().filter(voice => voice.lang);
+    }
+
+    function speechVoiceForText(text) {
+      refreshSpeechVoices();
+      const target = cjkRatio(text) >= 0.25 ? "zh" : "en";
+      const targetLocales = target === "zh" ? ["zh-cn", "zh", "cmn"] : ["en-us", "en-gb", "en"];
+      return speechVoices
+        .map(voice => {
+          const locale = voice.lang.toLowerCase().replace("_", "-");
+          const name = voice.name.toLowerCase();
+          let score = 0;
+          if (locale === targetLocales[0]) score += 100;
+          else if (targetLocales.some(item => locale === item || locale.startsWith(`${item}-`))) score += 60;
+          else if (locale.startsWith(target)) score += 20;
+          if (voice.localService) score += 15;
+          if (/premium|enhanced|natural|neural|siri/.test(name)) score += 10;
+          return { voice, score };
+        })
+        .filter(item => item.score >= 20)
+        .sort((a, b) => b.score - a.score)[0]?.voice || null;
+    }
+
+    // Short speech tasks are more reliable than one long browser utterance.
+    function speechChunksForText(source, maxLength = 460) {
+      const sentences = splitSentences(source);
+      const chunks = [];
+
+      for (const sentence of sentences) {
+        let start = sentence.start;
+        while (start < sentence.end) {
+          let end = Math.min(sentence.end, start + maxLength);
+          if (end < sentence.end) {
+            const part = source.slice(start, end);
+            const breakPoints = [
+              part.lastIndexOf("\n"),
+              part.lastIndexOf(" "),
+              part.lastIndexOf("，"),
+              part.lastIndexOf(","),
+              part.lastIndexOf("；"),
+              part.lastIndexOf(";")
+            ];
+            const breakPoint = Math.max(...breakPoints);
+            if (breakPoint > maxLength * 0.55) {
+              end = start + breakPoint + (/[，,；;]/.test(part[breakPoint]) ? 1 : 0);
+            }
+          }
+
+          if (end <= start) end = Math.min(sentence.end, start + maxLength);
+          const splitToken = tokens.find(token => token.start < end && token.end > end);
+          if (splitToken && splitToken.start > start) end = splitToken.start;
+          chunks.push({ start, end });
+          start = end;
+        }
+      }
+
+      return chunks.length ? chunks : [{ start: 0, end: source.length }];
+    }
+
+    function speechChunkIndexForToken(index) {
+      const token = tokens[index];
+      if (!token || !speechChunks.length) return -1;
+      const found = speechChunks.findIndex(chunk => token.start >= chunk.start && token.start < chunk.end);
+      return found >= 0 ? found : speechChunks.length - 1;
+    }
+
+    function firstTokenAtOrAfter(charIndex) {
+      return tokens.findIndex(token => token.start >= charIndex);
     }
 
     function normalizeForSpeech(text) {
@@ -2479,6 +2553,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
       clearSilentTimer();
       clearBoundaryTimer();
       utterance = null;
+      speechChunks = [];
+      speechChunkIndex = -1;
       isReading = false;
       isPaused = false;
       hasCompleted = true;
@@ -2529,6 +2605,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
       clearBoundaryTimer();
       window.speechSynthesis.cancel();
       utterance = null;
+      speechChunks = [];
+      speechChunkIndex = -1;
       isReading = false;
       isPaused = false;
       hasCompleted = tokens.length > 0;
@@ -2543,32 +2621,34 @@ The goal is simple: lower the friction of entering a text, and help you return g
       setStatus(t("stopped"));
     }
 
-    function speakFromToken(startIndex) {
-      if (!tokens.length) return;
-      const safeStartIndex = Math.max(0, Math.min(startIndex, tokens.length - 1));
-      const source = sourceText.value.trim();
-      const runId = ++playbackRunId;
-      speechOffset = tokens[safeStartIndex].start;
-      const text = normalizeForSpeech(source.slice(speechOffset));
+    function speakSpeechChunk(runId, startIndex) {
+      if (runId !== playbackRunId || !isReading || isPaused) return;
 
-      clearSilentTimer();
-      clearBoundaryTimer();
-      window.speechSynthesis.cancel();
-      reviewTargetIndex = -1;
-      window.clearTimeout(reviewTargetTimer);
-      activeIndex = safeStartIndex;
-      isReading = true;
-      isPaused = false;
-      setBrowseMode(false);
-      render();
-      updatePlaybackButtons();
+      const chunk = speechChunks[speechChunkIndex];
+      if (!chunk) {
+        finishReading(runId);
+        return;
+      }
 
+      const token = tokens[startIndex];
+      const chunkStart = token && token.start < chunk.end ? token.start : chunk.start;
+      const rawText = sourceText.value.trim().slice(chunkStart, chunk.end);
+      const leadingWhitespace = rawText.search(/\S|$/);
+      const text = rawText.trim();
+      if (!text) {
+        speechChunkIndex += 1;
+        speakSpeechChunk(runId, firstTokenAtOrAfter(speechChunks[speechChunkIndex]?.start ?? chunk.end));
+        return;
+      }
+
+      speechOffset = chunkStart + Math.max(0, leadingWhitespace);
       utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = /[\u4e00-\u9fff]/.test(text) ? "zh-CN" : "en-US";
+      const voice = speechVoiceForText(text);
+      utterance.lang = voice?.lang || (cjkRatio(text) >= 0.25 ? "zh-CN" : "en-US");
+      if (voice) utterance.voice = voice;
       utterance.rate = Number(rateInput.value);
       utterance.pitch = 1;
       utterance.volume = 1;
-      playStartedAt = Date.now();
 
       utterance.onboundary = event => {
         if (runId !== playbackRunId || event.charIndex == null) return;
@@ -2585,13 +2665,29 @@ The goal is simple: lower the friction of entering a text, and help you return g
       };
 
       utterance.onend = () => {
-        finishReading(runId);
+        if (runId !== playbackRunId) return;
+        speechChunkIndex += 1;
+        if (speechChunkIndex >= speechChunks.length) {
+          finishReading(runId);
+          return;
+        }
+
+        const nextIndex = firstTokenAtOrAfter(speechChunks[speechChunkIndex].start);
+        if (nextIndex < 0) {
+          finishReading(runId);
+          return;
+        }
+        activeIndex = nextIndex;
+        render();
+        speakSpeechChunk(runId, nextIndex);
       };
 
       utterance.onerror = () => {
         if (runId !== playbackRunId) return;
         const elapsed = ((Date.now() - playStartedAt) / 1000).toFixed(1);
         clearBoundaryTimer();
+        speechChunks = [];
+        speechChunkIndex = -1;
         isReading = false;
         isPaused = false;
         activeIndex = -1;
@@ -2601,9 +2697,33 @@ The goal is simple: lower the friction of entering a text, and help you return g
         setStatus(t("interrupted", { seconds: elapsed }));
       };
 
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function speakFromToken(startIndex) {
+      if (!tokens.length) return;
+      const safeStartIndex = Math.max(0, Math.min(startIndex, tokens.length - 1));
+      const source = sourceText.value.trim();
+      const runId = ++playbackRunId;
+
+      speechChunks = speechChunksForText(source);
+      speechChunkIndex = speechChunkIndexForToken(safeStartIndex);
+      clearSilentTimer();
+      clearBoundaryTimer();
+      window.speechSynthesis.cancel();
+      reviewTargetIndex = -1;
+      window.clearTimeout(reviewTargetTimer);
+      activeIndex = safeStartIndex;
+      isReading = true;
+      isPaused = false;
+      setBrowseMode(false);
+      render();
+      updatePlaybackButtons();
+
+      playStartedAt = Date.now();
       setStatus(t("started", { rate: Number(rateInput.value).toFixed(2) }));
       if (gentleMode) showComfortNote();
-      window.speechSynthesis.speak(utterance);
+      speakSpeechChunk(runId, safeStartIndex);
     }
 
     function readSilentlyFromToken(startIndex) {
@@ -2998,6 +3118,11 @@ The goal is simple: lower the friction of entering a text, and help you return g
       window.clearTimeout(comfortTimer);
       window.speechSynthesis.cancel();
     });
+
+    if ("speechSynthesis" in window) {
+      refreshSpeechVoices();
+      window.speechSynthesis.addEventListener?.("voiceschanged", refreshSpeechVoices);
+    }
 
     loadReadingPreferences();
     updateSettings({ save: false });
