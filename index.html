@@ -1246,7 +1246,7 @@
     let speechChunkIndex = -1;
     let playStartedAt = 0;
     let flowMode = "off";
-    let bionicMode = "off";
+    let bionicMode = "auto";
     let annotationIntensity = "light";
     let currentTheme = "soft";
     let gentleMode = false;
@@ -1384,7 +1384,7 @@
         paused: "已暂停。",
         currentSentence: ({ current, total }) => `这一句 ${current} / ${total}`,
         flowLabels: { auto: "自动", en: "英文结构", zh: "中文结构", off: "关闭" },
-        bionicLabels: { auto: "自动", on: "开启", off: "关闭" },
+        bionicLabels: { auto: "自动", off: "关闭" },
         anchorLabels: { on: "开启", off: "关闭" },
         intensityLabels: { off: "无", light: "轻", standard: "标准" },
         themeLabels: { soft: "柔和", clean: "清爽", open: "开阔", night: "夜间" },
@@ -1518,7 +1518,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         paused: "Paused.",
         currentSentence: ({ current, total }) => `This sentence ${current} / ${total}`,
         flowLabels: { auto: "Auto", en: "English", zh: "Chinese", off: "Off" },
-        bionicLabels: { auto: "Auto", on: "On", off: "Off" },
+        bionicLabels: { auto: "Auto", off: "Off" },
         anchorLabels: { on: "On", off: "Off" },
         intensityLabels: { off: "None", light: "Light", standard: "Standard" },
         themeLabels: { soft: "Soft", clean: "Clean", open: "Open", night: "Night" },
@@ -1553,7 +1553,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     const flowModes = ["auto", "en", "zh", "off"];
 
-    const bionicModes = ["off", "auto", "on"];
+    const bionicModes = ["auto", "off"];
 
     const annotationIntensities = ["off", "light", "standard"];
 
@@ -2417,8 +2417,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function shouldUseBionic(word) {
       if (!/[A-Za-z0-9]/.test(word) || /[\u3400-\u9fff]/.test(word)) return false;
       if (bionicMode === "off") return false;
-      if (bionicMode === "on") return true;
-      return true;
+      const latinWord = word.match(/[A-Za-z][A-Za-z0-9'-]*/)?.[0] || "";
+      return latinWord.length >= 4;
     }
 
     function tokenHTML(word) {
@@ -2884,6 +2884,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         if (saved.line) lineInput.value = saved.line;
         if (saved.width) widthInput.value = saved.width;
         if (saved.theme && themes.includes(saved.theme)) currentTheme = saved.theme;
+        if (saved.bionicMode && bionicModes.includes(saved.bionicMode)) bionicMode = saved.bionicMode;
         sentenceAnchorEnabled = saved.sentenceAnchor === true;
       } catch {
       }
@@ -2897,6 +2898,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
           line: lineInput.value,
           width: widthInput.value,
           theme: currentTheme,
+          bionicMode,
           sentenceAnchor: sentenceAnchorEnabled
         }));
       } catch {
@@ -3088,6 +3090,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
     bionicButton.addEventListener("click", () => {
       const nextIndex = (bionicModes.indexOf(bionicMode) + 1) % bionicModes.length;
       bionicMode = bionicModes[nextIndex];
+      saveReadingPreferences();
       updateModeButtons();
       render();
     });

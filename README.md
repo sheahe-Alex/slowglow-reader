@@ -115,7 +115,7 @@ The core belief:
 - 第一次放入文字时会轻轻询问是否体验逐句伴读，也可以先跳过 / On first use, a gentle prompt offers Sentence Guide; you can skip it
 - 可选句子锚点：需要时固定显示当前句 / Optional Sentence Anchor: keep the current sentence visible when needed
 - 标记这一句：一键留下重点判断，再点一次撤销 / Mark Sentence: keep a trace of your judgment, click again to unmark
-- 设置里可开启英文词首加粗，帮助眼睛更容易落回英文单词 / Optional Bold Word Starts in Settings to make it easier for the eyes to return to English words
+- 英文默认使用词首加粗，设置里可以关闭 / English word starts are bold by default; you can turn them off in Settings
 - 设置里可开启结构提示和结构强度：英文偏信息流，中文偏逻辑信号和概念复现 / Optional structure hints and hint strength in Settings: information flow for English, logic signals and repeated concepts for Chinese
 - 回看线索：本地规则给出少量可能的回看词和回看句，点击即可回到原文对应位置 / Review Cues: local rules suggest a few possible words and sentences; click one to jump back to its place in the source text
 - 笔记提示：用自己的话记下重点 / Note cue: put key points in your own words
