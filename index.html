@@ -50,6 +50,10 @@
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
+    body.modal-open {
+      overflow: hidden;
+    }
+
     body[data-theme="soft"] {
       --bg: #f6f3ec;
       --panel: #fffefa;
@@ -229,6 +233,90 @@
     .button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+
+    .mode-prompt[hidden] {
+      display: none;
+    }
+
+    .mode-prompt {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .mode-prompt-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(23, 23, 23, 0.24);
+      backdrop-filter: blur(6px);
+    }
+
+    .mode-prompt-card {
+      position: relative;
+      width: min(100%, 440px);
+      padding: 28px;
+      border: 1px solid var(--hairline);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 24px 70px rgba(23, 23, 23, 0.18);
+    }
+
+    .mode-prompt-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 34px;
+      height: 34px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .mode-prompt-close:hover {
+      border-color: var(--line);
+      background: var(--control-bg);
+    }
+
+    .mode-prompt-kicker {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .mode-prompt-title {
+      max-width: 13em;
+      margin: 0 0 10px;
+      color: var(--ink);
+      font-size: 24px;
+      line-height: 1.28;
+    }
+
+    .mode-prompt-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .mode-prompt-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 22px;
+    }
+
+    .mode-prompt-actions .button {
+      flex: 1 1 150px;
     }
 
     .button.context-action:disabled {
@@ -1100,6 +1188,20 @@
     </main>
   </div>
 
+  <div class="mode-prompt" id="guidePrompt" hidden>
+    <div class="mode-prompt-backdrop" data-guide-prompt-dismiss></div>
+    <section class="mode-prompt-card" role="dialog" aria-modal="true" aria-labelledby="guidePromptTitle" aria-describedby="guidePromptCopy">
+      <button class="mode-prompt-close" id="guidePromptClose" type="button" aria-label="关闭">×</button>
+      <p class="mode-prompt-kicker" id="guidePromptKicker">第一次使用</p>
+      <h2 class="mode-prompt-title" id="guidePromptTitle">要不要先试试逐句伴读？</h2>
+      <p class="mode-prompt-copy" id="guidePromptCopy">当前句会浮现，其他文字轻轻退后。它不会自动播放声音，只会先帮你把阅读范围变得更清楚。</p>
+      <div class="mode-prompt-actions">
+        <button class="button primary" id="guidePromptAccept" type="button">体验逐句伴读</button>
+        <button class="button utility" id="guidePromptDecline" type="button">先不用</button>
+      </div>
+    </section>
+  </div>
+
   <script>
     const sourceText = document.querySelector("#sourceText");
     const reader = document.querySelector("#reader");
@@ -1127,6 +1229,13 @@
     const copyNotesButton = document.querySelector("#copyNotesButton");
     const notesOutput = document.querySelector("#notesOutput");
     const inputPanel = document.querySelector(".input-panel");
+    const guidePrompt = document.querySelector("#guidePrompt");
+    const guidePromptKicker = document.querySelector("#guidePromptKicker");
+    const guidePromptTitle = document.querySelector("#guidePromptTitle");
+    const guidePromptCopy = document.querySelector("#guidePromptCopy");
+    const guidePromptAccept = document.querySelector("#guidePromptAccept");
+    const guidePromptDecline = document.querySelector("#guidePromptDecline");
+    const guidePromptClose = document.querySelector("#guidePromptClose");
     const rateInput = document.querySelector("#rateInput");
     const fontInput = document.querySelector("#fontInput");
     const lineInput = document.querySelector("#lineInput");
@@ -1161,6 +1270,7 @@
     let rateRestartTimer = null;
     let reviewTargetIndex = -1;
     let reviewTargetTimer = null;
+    let guidePromptReturnFocus = null;
     let voiceEnabled = localStorage.getItem("slowglow-voice-enabled") !== "false";
     let menuCollapsed = true;
     let uiLanguage = localStorage.getItem("slowglow-ui-language") || (navigator.language?.toLowerCase().startsWith("zh") ? "zh" : "en");
@@ -1264,6 +1374,14 @@
         externalLoaded: "文字已放好。可以开始伴读。",
         gentleOn: "已开启逐句伴读。当前句会浮现出来，其他文字会轻轻退后。",
         gentleOff: "已退出逐句伴读。",
+        guidePromptKicker: "第一次使用",
+        guidePromptTitle: "要不要先试试逐句伴读？",
+        guidePromptCopy: "当前句会浮现，其他文字轻轻退后。它不会自动播放声音，只会先帮你把阅读范围变得更清楚。",
+        guidePromptAccept: "体验逐句伴读",
+        guidePromptDecline: "先不用",
+        guidePromptClose: "关闭提示",
+        guidePromptAccepted: "已开启逐句伴读。点“开始伴读”后，当前句会浮现出来。",
+        guidePromptDeclined: "好的。之后也可以随时从顶部打开逐句伴读。",
         rateAfterResume: ({ rate }) => `语速已改为 ${rate}x，点继续后生效。`,
         reviewJumped: "已回到原文对应位置。",
         paused: "已暂停。",
@@ -1387,6 +1505,14 @@ The goal is simple: lower the friction of entering a text, and help you return g
         externalLoaded: "Text is ready. You can start reading.",
         gentleOn: "Sentence Guide is on. The current sentence will appear while surrounding text gently fades back.",
         gentleOff: "Sentence Guide is off.",
+        guidePromptKicker: "First time here",
+        guidePromptTitle: "Would you like to try Sentence Guide?",
+        guidePromptCopy: "The current sentence will stand forward while the rest gently fades back. It will not start audio; it only makes the reading area clearer first.",
+        guidePromptAccept: "Try Sentence Guide",
+        guidePromptDecline: "Not now",
+        guidePromptClose: "Close prompt",
+        guidePromptAccepted: "Sentence Guide is on. Click Start Reading when you are ready.",
+        guidePromptDeclined: "That is okay. You can turn on Sentence Guide from the top at any time.",
         rateAfterResume: ({ rate }) => `Speed changed to ${rate}x. It will apply when you resume.`,
         reviewJumped: "Jumped back to the source text.",
         paused: "Paused.",
@@ -1441,6 +1567,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
     };
 
     const preferenceKey = "slowglow-reading-preferences";
+    const guidePromptKey = "slowglow-sentence-guide-prompted";
 
     const connectorGroups = [
       { label: "转折", words: ["however", "but", "yet", "although", "though", "nevertheless", "nonetheless", "whereas", "while", "despite", "instead", "rather"] },
@@ -1551,6 +1678,12 @@ The goal is simple: lower the friction of entering a text, and help you return g
       gentleGuide.textContent = t("guideDefault");
       notesPanel.querySelector("summary").textContent = t("notesSummary");
       copyNotesButton.textContent = t("copyNotes");
+      guidePromptKicker.textContent = t("guidePromptKicker");
+      guidePromptTitle.textContent = t("guidePromptTitle");
+      guidePromptCopy.textContent = t("guidePromptCopy");
+      guidePromptAccept.textContent = t("guidePromptAccept");
+      guidePromptDecline.textContent = t("guidePromptDecline");
+      guidePromptClose.setAttribute("aria-label", t("guidePromptClose"));
       setLabelText(rateInput, t("rate"));
       setLabelText(fontInput, t("font"));
       setLabelText(lineInput, t("line"));
@@ -1568,6 +1701,46 @@ The goal is simple: lower the friction of entering a text, and help you return g
       updateProgress();
       updateMarkButton();
       updatePreviousButton();
+    }
+
+    function guidePromptWasSeen() {
+      try {
+        return localStorage.getItem(guidePromptKey) === "true";
+      } catch {
+        return false;
+      }
+    }
+
+    function rememberGuidePrompt() {
+      try {
+        localStorage.setItem(guidePromptKey, "true");
+      } catch {
+      }
+    }
+
+    function openGuidePrompt() {
+      if (!tokens.length || gentleMode || guidePromptWasSeen() || !guidePrompt.hidden) return;
+      if (sourceText.value.trim().length < 12 && tokens.length < 3) return;
+      guidePromptReturnFocus = document.activeElement;
+      rememberGuidePrompt();
+      guidePrompt.hidden = false;
+      document.body.classList.add("modal-open");
+      window.requestAnimationFrame(() => guidePromptAccept.focus());
+    }
+
+    function closeGuidePrompt({ accept = false } = {}) {
+      guidePrompt.hidden = true;
+      document.body.classList.remove("modal-open");
+
+      if (accept) {
+        setGentleMode(true);
+        playButton.focus();
+        setStatus(t("guidePromptAccepted"));
+        return;
+      }
+
+      if (guidePromptReturnFocus?.focus) guidePromptReturnFocus.focus();
+      setStatus(t("guidePromptDeclined"));
     }
 
     function updateMenuButton() {
@@ -2499,6 +2672,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         sourceText.value = text;
         rebuildTokens();
         setStatus(t("clipboardLoaded"));
+        openGuidePrompt();
       } catch {
         setBrowseMode(false);
         setStatus(t("clipboardFailed"));
@@ -2515,6 +2689,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       rebuildTokens();
       setStatus(t("externalLoaded"));
       sourceText.focus();
+      openGuidePrompt();
     }
 
     function loadSampleText() {
@@ -2524,6 +2699,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       rebuildTokens();
       setStatus(t("sampleLoaded"));
       sourceText.focus();
+      openGuidePrompt();
     }
 
     function readTextFromURL() {
@@ -2791,6 +2967,15 @@ The goal is simple: lower the friction of entering a text, and help you return g
     notesPanel.addEventListener("toggle", () => {
       if (notesPanel.open) renderNotes();
     });
+    guidePromptAccept.addEventListener("click", () => closeGuidePrompt({ accept: true }));
+    guidePromptDecline.addEventListener("click", () => closeGuidePrompt());
+    guidePromptClose.addEventListener("click", () => closeGuidePrompt());
+    guidePrompt.addEventListener("click", event => {
+      if (event.target.matches("[data-guide-prompt-dismiss]")) closeGuidePrompt();
+    });
+    window.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !guidePrompt.hidden) closeGuidePrompt();
+    });
     notesOutput.addEventListener("click", event => {
       const link = event.target.closest("[data-note-target]");
       if (!link) return;
@@ -2801,6 +2986,9 @@ The goal is simple: lower the friction of entering a text, and help you return g
     sourceText.addEventListener("input", () => {
       if (isReading) stopReading({ browse: false });
       rebuildTokens();
+    });
+    sourceText.addEventListener("paste", () => {
+      window.setTimeout(openGuidePrompt, 0);
     });
     rateInput.addEventListener("input", handleRateInput);
     [fontInput, lineInput, widthInput].forEach(input => input.addEventListener("input", updateSettings));

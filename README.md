@@ -111,6 +111,7 @@ The core belief:
 - 自动记住语速、字号、行距、宽度和主题 / Remembers speed, font size, line height, width, and theme
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
 - 逐句伴读：只让当前句站出来，减少一次面对整屏文字的压力 / Sentence Guide: let only the current sentence stand forward, reducing the pressure of facing the whole page at once
+- 第一次放入文字时会轻轻询问是否体验逐句伴读，也可以先跳过 / On first use, a gentle prompt offers Sentence Guide; you can skip it
 - 可选句子锚点：需要时固定显示当前句 / Optional Sentence Anchor: keep the current sentence visible when needed
 - 标记这一句：一键留下重点判断，再点一次撤销 / Mark Sentence: keep a trace of your judgment, click again to unmark
 - 设置里可开启英文词首加粗，帮助眼睛更容易落回英文单词 / Optional Bold Word Starts in Settings to make it easier for the eyes to return to English words

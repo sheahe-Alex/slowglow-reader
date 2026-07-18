@@ -89,8 +89,11 @@ If macOS blocks it:
    Return to Reader.
 4. 点 `读取剪贴板`。  
    Click `读取剪贴板`.
-5. 点 `开始阅读`。  
+5. 点 `开始伴读`。
    Click `Start Reading`.
+
+第一次放入文字后，页面会轻轻问你要不要体验“逐句伴读”。点“体验逐句伴读”只会开启模式，不会突然播放声音；也可以点“先不用”，以后从顶部随时打开。
+After you add text for the first time, the page gently asks whether you want to try Sentence Guide. Choosing it only turns on the mode; it does not suddenly start audio. You can choose `Not now` and turn it on from the top later.
 
 如果读取剪贴板失败，也可以直接把文字粘贴到左侧文本框。  
 If clipboard reading does not work, you can paste the text directly into the left text box.
