@@ -2482,7 +2482,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         const active = index === activeIndex ? " active" : "";
         const reviewTarget = index === reviewTargetIndex ? " review-target" : "";
         const flowClass = currentFlowMode !== "off" && token.flow ? ` flow-${token.flow}` : "";
-        const sentenceClass = sentenceFocus && token.start >= sentenceFocus.start && token.end <= sentenceFocus.end ? " sentence-focus" : "";
+        const sentenceClass = gentleMode && sentenceFocus && token.start >= sentenceFocus.start && token.end <= sentenceFocus.end ? " sentence-focus" : "";
         const markedClass = isTokenInMarkedSentence(token) ? " marked-sentence" : "";
         const gentleReadClass = gentleMode && activeIndex >= 0 && index < activeIndex ? " gentle-read" : "";
         const gentleOutsideClass = gentleMode && sentenceFocus && (token.start < sentenceFocus.start || token.end > sentenceFocus.end) ? " gentle-outside" : "";
