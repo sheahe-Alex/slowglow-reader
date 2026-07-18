@@ -116,7 +116,7 @@ The core belief:
 - 可选句子锚点：需要时固定显示当前句 / Optional Sentence Anchor: keep the current sentence visible when needed
 - 在逐句伴读的当前句旁标记：一键留下重点判断，再点一次撤销 / Mark beside the current sentence in Sentence Guide; click again to unmark
 - 英文默认使用词首加粗，设置里可以关闭 / English word starts are bold by default; you can turn them off in Settings
-- 设置里可开启结构提示和结构强度：英文偏信息流，中文偏逻辑信号和概念复现 / Optional structure hints and hint strength in Settings: information flow for English, logic signals and repeated concepts for Chinese
+- 结构提示默认自动适配语言，设置里可以关闭或调整强度：英文偏信息流，中文偏逻辑信号和概念复现 / Structure hints adapt to the language by default; you can turn them off or adjust their strength in Settings: information flow for English, logic signals and repeated concepts for Chinese
 - 回看线索：本地规则给出少量可能的回看词和回看句，点击即可回到原文对应位置 / Review Cues: local rules suggest a few possible words and sentences; click one to jump back to its place in the source text
 - 笔记提示：用自己的话记下重点 / Note cue: put key points in your own words
 - 根据浏览器语言自动显示中文或英文界面，也可以手动切换 / Automatically uses Chinese or English based on browser language, with manual switching available

@@ -1149,7 +1149,7 @@
         </div>
       </div>
       <div class="toolbar-row mode-row">
-        <button class="button advanced-control" id="flowButton" type="button" aria-pressed="false">结构提示：关闭</button>
+        <button class="button advanced-control" id="flowButton" type="button" aria-pressed="true">结构提示：自动</button>
         <button class="button advanced-control" id="bionicButton" type="button" aria-pressed="false">英文词首加粗：关闭</button>
         <button class="button advanced-control" id="anchorButton" type="button" aria-pressed="false">句子锚点：关闭</button>
         <button class="button advanced-control" id="intensityButton" type="button" hidden>结构强度：轻</button>
@@ -1271,7 +1271,7 @@
     let speechChunks = [];
     let speechChunkIndex = -1;
     let playStartedAt = 0;
-    let flowMode = "off";
+    let flowMode = "auto";
     let bionicMode = "auto";
     let annotationIntensity = "light";
     let currentTheme = "soft";
@@ -2910,6 +2910,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         if (saved.line) lineInput.value = saved.line;
         if (saved.width) widthInput.value = saved.width;
         if (saved.theme && themes.includes(saved.theme)) currentTheme = saved.theme;
+        if (saved.flowMode && flowModes.includes(saved.flowMode)) flowMode = saved.flowMode;
         if (saved.bionicMode && bionicModes.includes(saved.bionicMode)) bionicMode = saved.bionicMode;
         sentenceAnchorEnabled = saved.sentenceAnchor === true;
       } catch {
@@ -2924,6 +2925,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
           line: lineInput.value,
           width: widthInput.value,
           theme: currentTheme,
+          flowMode,
           bionicMode,
           sentenceAnchor: sentenceAnchorEnabled
         }));
@@ -3110,6 +3112,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
     flowButton.addEventListener("click", () => {
       const nextIndex = (flowModes.indexOf(flowMode) + 1) % flowModes.length;
       flowMode = flowModes[nextIndex];
+      saveReadingPreferences();
       updateModeButtons();
       render();
     });
