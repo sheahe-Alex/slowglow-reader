@@ -958,6 +958,8 @@
       position: sticky;
       top: 0.35rem;
       z-index: 3;
+      align-items: flex-start;
+      gap: 0.85rem;
       max-width: var(--max-width);
       margin: 0 auto 1rem;
       padding: 0.75rem 0.85rem;
@@ -972,8 +974,21 @@
       backdrop-filter: blur(10px);
     }
 
+    .gentle-guide-content {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .gentle-guide-mark {
+      flex: 0 0 auto;
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
     body.gentle-mode .gentle-guide.visible {
-      display: block;
+      display: flex;
     }
 
     @media (max-width: 900px) {
@@ -1032,6 +1047,14 @@
         grid-template-columns: 1fr;
         gap: 7px;
         padding: 8px;
+      }
+
+      .gentle-guide {
+        flex-wrap: wrap;
+      }
+
+      .gentle-guide-mark {
+        margin-left: auto;
       }
 
       .input-panel {
@@ -1112,7 +1135,6 @@
           <button class="button utility context-action" id="pauseButton" type="button" disabled>暂停</button>
           <button class="button utility context-action" id="previousButton" type="button" disabled>上一句</button>
           <button class="button utility context-action" id="nextButton" type="button" disabled>下一句</button>
-          <button class="button utility context-action" id="markButton" type="button" disabled>标记这一句</button>
           <button class="button utility context-action" id="stopButton" type="button" disabled>停止</button>
         </div>
         <div class="action-group support-actions">
@@ -1159,7 +1181,10 @@
       <section class="reader-panel" id="readerPanel">
         <div class="progress-pill" id="progressPill">第 1 段 / 共 1 段</div>
         <div class="comfort-note" id="comfortNote">读一点也算。走神了也没关系，从高亮处回来就好。</div>
-        <div class="gentle-guide" id="gentleGuide">这一句会显示在这里。</div>
+        <div class="gentle-guide" id="gentleGuide">
+          <div class="gentle-guide-content" id="gentleGuideContent">这一句会显示在这里。</div>
+          <button class="button utility context-action gentle-guide-mark" id="markButton" type="button" disabled>标记这一句</button>
+        </div>
         <div class="reader" id="reader">
           <div class="empty-state">文字放进来后，点“开始伴读”。我会用大字号和高亮陪你往下读。</div>
         </div>
@@ -1216,6 +1241,7 @@
     const progressPill = document.querySelector("#progressPill");
     const comfortNote = document.querySelector("#comfortNote");
     const gentleGuide = document.querySelector("#gentleGuide");
+    const gentleGuideContent = document.querySelector("#gentleGuideContent");
     const notesPanel = document.querySelector("#notesPanel");
     const copyNotesButton = document.querySelector("#copyNotesButton");
     const notesOutput = document.querySelector("#notesOutput");
@@ -1676,7 +1702,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       updateTextMeter();
       gentleHint.textContent = t("gentleHint");
       comfortNote.textContent = t("comfortDefault");
-      gentleGuide.textContent = t("guideDefault");
+      gentleGuideContent.textContent = t("guideDefault");
       notesPanel.querySelector("summary").textContent = t("notesSummary");
       copyNotesButton.textContent = t("copyNotes");
       guidePromptKicker.textContent = t("guidePromptKicker");
@@ -2513,7 +2539,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       const currentSentenceIndex = sentenceIndexForToken(activeIndex);
       const sentenceCount = splitSentences(sourceText.value).length;
       const sentenceText = sentenceFocus.text.trim().replace(/\s+/g, " ");
-      gentleGuide.innerHTML = `
+      gentleGuideContent.innerHTML = `
         <strong>${escapeHTML(t("currentSentence", { current: currentSentenceIndex + 1, total: sentenceCount }))}</strong><br>
         ${escapeHTML(sentenceText)}
       `;
