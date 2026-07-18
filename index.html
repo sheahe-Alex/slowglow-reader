@@ -553,7 +553,7 @@
       background: color-mix(in srgb, var(--comfort-bg) 78%, transparent);
       box-shadow: 0 0 0 0.18em color-mix(in srgb, var(--comfort-bg) 72%, transparent);
       border-bottom-color: var(--comfort-line);
-      animation: sentenceAppear 360ms ease-out;
+      animation: none;
     }
 
     body.gentle-mode .token.gentle-read {
@@ -580,17 +580,6 @@
       to {
         background: var(--highlight);
         box-shadow: 0 0 0 0.14em var(--highlight), 0 0.18em 0.7em rgba(16, 24, 40, 0.08);
-      }
-    }
-
-    @keyframes sentenceAppear {
-      from {
-        background: transparent;
-        box-shadow: 0 0 0 0 transparent;
-      }
-      to {
-        background: color-mix(in srgb, var(--comfort-bg) 78%, transparent);
-        box-shadow: 0 0 0 0.18em color-mix(in srgb, var(--comfort-bg) 72%, transparent);
       }
     }
 
