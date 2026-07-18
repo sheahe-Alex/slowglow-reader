@@ -15,7 +15,7 @@ https://sheahe-alex.github.io/slowglow-reader/
 
 它不是速读工具，也不是翻译器。我最想做的是「逐句伴读」：当前句会浮现出来，其他文字轻轻退后，帮助人一小句一小句地读，不用一下子面对整屏文字。
 
-如果内容很重要，也可以打开「回看线索」，让本地规则给出少量可以第二遍再回来的词和句。
+如果内容很重要，也可以打开「回看线索」，让本地规则给出少量可以第二遍再回来的词和句；点一下就能回到原文对应位置。
 
 它不是为了逼人读得更快，而是希望阅读变得更不吓人：可以暂停，可以走神后回来，可以只读一点点。
 
@@ -42,7 +42,7 @@ It does not require login, and it does not upload your text. You can paste conte
 
 It is not a speed-reading tool or a translator. The part I care about most is Sentence Guide. The current sentence appears while surrounding text gently fades back, so you can read one sentence at a time without facing the whole page all at once.
 
-If the content matters, Review Cues can suggest a few words and sentences you may want to return to on a second pass.
+If the content matters, Review Cues can suggest a few words and sentences you may want to return to on a second pass; click one to jump back to its place in the source text.
 
 It is not meant to push people to read faster. I want it to make reading feel less scary: you can pause, drift away and come back, or read only a little.
 
