@@ -194,6 +194,7 @@ It is not a medical tool and does not replace professional support. It is simply
 可以参考：  
 You can use:
 
+- [Case Study / 求职案例](./case-study/output/伴读Reader_求职案例.pdf)
 - [Friend Guide / 给朋友看的说明](./Friend-Guide_给朋友看的说明.md)
 - [Share Copy / 分享文案](./Share-Copy_分享文案.md)
 - [Bookmarklet / 书签按钮](./Bookmarklet_书签按钮.md)
