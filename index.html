@@ -163,11 +163,41 @@
     }
 
     .reading-actions .context-action {
+      position: relative;
       width: 42px;
       min-width: 42px;
       padding: 0;
       display: inline-grid;
       place-items: center;
+    }
+
+    .reading-actions .context-action::after {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      z-index: 20;
+      max-width: 12rem;
+      padding: 6px 9px;
+      border: 1px solid var(--hairline);
+      border-radius: 7px;
+      background: color-mix(in srgb, var(--panel) 94%, var(--bg));
+      box-shadow: 0 8px 20px rgba(16, 24, 40, 0.12);
+      color: var(--ink);
+      content: attr(data-tooltip);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.2;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -4px);
+      transition: opacity 140ms ease 420ms, transform 140ms ease 420ms;
+      white-space: nowrap;
+    }
+
+    .reading-actions .context-action:hover::after,
+    .reading-actions .context-action:focus-visible::after {
+      opacity: 1;
+      transform: translate(-50%, 0);
     }
 
     .reading-actions .paragraph-jump {
@@ -2114,6 +2144,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       if (labelNode) labelNode.textContent = label;
       button.setAttribute("aria-label", label);
       button.title = label;
+      button.dataset.tooltip = label;
     }
 
     function updateIconButton(button, icon, label) {
