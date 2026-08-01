@@ -1739,6 +1739,57 @@ The goal is simple: lower the friction of entering a text, and help you return g
       "when", "where", "what", "which", "who", "how", "about", "into", "than", "through", "use", "uses", "used"
     ]);
 
+    const languageProfiles = {
+      en: {
+        voiceLocales: ["en-us", "en-gb", "en"],
+        hints: ["the", "and", "that", "this", "with", "from", "have", "are", "not", "for"]
+      },
+      fr: {
+        voiceLocales: ["fr-fr", "fr-ca", "fr"],
+        hints: ["le", "la", "les", "des", "une", "est", "dans", "pour", "avec", "que", "qui", "pas", "sur", "aux", "et"]
+      },
+      de: {
+        voiceLocales: ["de-de", "de-at", "de-ch", "de"],
+        hints: ["der", "die", "das", "und", "ist", "nicht", "ein", "eine", "mit", "auf", "für", "von", "zu", "dass", "sich"]
+      },
+      es: {
+        voiceLocales: ["es-es", "es-mx", "es"],
+        hints: ["el", "la", "los", "las", "una", "una", "es", "que", "por", "para", "con", "del", "como", "pero", "no"]
+      },
+      it: {
+        voiceLocales: ["it-it", "it"],
+        hints: ["il", "lo", "gli", "le", "una", "che", "per", "con", "non", "della", "sono", "questo", "come", "ma"]
+      },
+      pt: {
+        voiceLocales: ["pt-br", "pt-pt", "pt"],
+        hints: ["o", "os", "as", "uma", "que", "para", "com", "não", "dos", "das", "como", "por", "mas", "são"]
+      },
+      nl: {
+        voiceLocales: ["nl-nl", "nl-be", "nl"],
+        hints: ["de", "het", "een", "en", "is", "niet", "van", "voor", "met", "dat", "die", "op", "maar"]
+      },
+      zh: {
+        voiceLocales: ["zh-cn", "zh-tw", "zh", "cmn"],
+        hints: []
+      },
+      ja: {
+        voiceLocales: ["ja-jp", "ja"],
+        hints: []
+      },
+      ko: {
+        voiceLocales: ["ko-kr", "ko"],
+        hints: []
+      },
+      ru: {
+        voiceLocales: ["ru-ru", "ru"],
+        hints: ["и", "в", "не", "что", "это", "как", "для", "на", "с", "по"]
+      },
+      ar: {
+        voiceLocales: ["ar-sa", "ar-eg", "ar"],
+        hints: ["من", "في", "على", "هذا", "هذه", "أن", "ما", "مع", "هو", "هي"]
+      }
+    };
+
     const zhConnectorGroups = [
       { label: "转折", words: ["但是", "但", "不过", "然而", "可是", "只是", "反而", "尽管", "虽然", "却"] },
       { label: "因果", words: ["因为", "由于", "因此", "所以", "因而", "于是", "导致", "使得", "由此", "可见"] },
@@ -1986,7 +2037,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function speechVoiceForText(text) {
       refreshSpeechVoices();
       const target = speechLanguageForText(text);
-      const targetLocales = target === "zh" ? ["zh-cn", "zh", "cmn"] : ["en-us", "en-gb", "en"];
+      const targetLocales = languageProfiles[target]?.voiceLocales || languageProfiles.en.voiceLocales;
+      const targetRoot = target.split("-")[0];
       return speechVoices
         .map(voice => {
           const locale = voice.lang.toLowerCase().replace("_", "-");
@@ -1994,7 +2046,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
           let score = 0;
           if (locale === targetLocales[0]) score += 100;
           else if (targetLocales.some(item => locale === item || locale.startsWith(`${item}-`))) score += 60;
-          else if (locale.startsWith(target)) score += 20;
+          else if (locale.startsWith(targetRoot)) score += 20;
           if (voice.localService) score += 15;
           if (/premium|enhanced|natural|neural|siri/.test(name)) score += 10;
           score += speechVoiceQualityScore(name, target);
@@ -2005,7 +2057,11 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function speechLanguageForText(text) {
-      return cjkRatio(text) >= 0.5 ? "zh" : "en";
+      return detectTextLanguage(text) || "en";
+    }
+
+    function speechLocaleForLanguage(language) {
+      return languageProfiles[language]?.voiceLocales?.[0] || languageProfiles.en.voiceLocales[0];
     }
 
     function speechVoiceQualityScore(name, language) {
@@ -2105,9 +2161,50 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return cjk / visible.length;
     }
 
+    function detectScriptLanguage(text) {
+      const visible = Array.from(text).filter(char => !/\s/.test(char));
+      if (!visible.length) return "";
+
+      const kanaCount = visible.filter(char => /[\u3040-\u30ff]/.test(char)).length;
+      const hangulCount = visible.filter(char => /[\uac00-\ud7af]/.test(char)).length;
+      const arabicCount = visible.filter(char => /[\u0600-\u06ff]/.test(char)).length;
+      const cyrillicCount = visible.filter(char => /[\u0400-\u04ff]/.test(char)).length;
+
+      if (kanaCount / visible.length > 0.04) return "ja";
+      if (hangulCount / visible.length > 0.2) return "ko";
+      if (arabicCount / visible.length > 0.2) return "ar";
+      if (cyrillicCount / visible.length > 0.2) return "ru";
+      if (cjkRatio(text) > 0.35) return "zh";
+      return "";
+    }
+
+    function detectTextLanguage(text) {
+      const scriptLanguage = detectScriptLanguage(text);
+      if (scriptLanguage) return scriptLanguage;
+
+      const words = text.toLocaleLowerCase().match(/[\p{L}\p{N}]+/gu) || [];
+      if (words.length < 3) return "en";
+
+      const scores = Object.entries(languageProfiles)
+        .filter(([, profile]) => profile.hints.length)
+        .map(([language, profile]) => ({
+          language,
+          score: words.filter(word => word.length > 1 && profile.hints.includes(word)).length
+        }))
+        .sort((a, b) => b.score - a.score);
+
+      const strongest = scores[0];
+      const runnerUp = scores[1];
+      if (strongest && strongest.score >= 2 && (!runnerUp || strongest.score > runnerUp.score)) {
+        return strongest.language;
+      }
+      return "en";
+    }
+
     function effectiveFlowMode(source) {
       if (flowMode !== "auto") return flowMode;
-      return cjkRatio(source) > 0.35 ? "zh" : "en";
+      const language = detectTextLanguage(source);
+      return language === "zh" || language === "en" ? language : "off";
     }
 
     function splitSentences(text) {
@@ -2216,7 +2313,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
           }));
       }
 
-      const matches = source.matchAll(/[\p{Script=Han}]{1,4}|[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)?|[^\s]/gu);
+      const matches = source.matchAll(/[\p{Script=Han}]{1,4}|[\p{L}\p{N}]+(?:['’\u2011-][\p{L}\p{N}]+)*|[^\s]/gu);
       return Array.from(matches).map(match => ({
         text: match[0],
         start: match.index,
@@ -2228,7 +2325,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function noteTokens(text) {
       const source = text.trim();
       if (!source) return [];
-      const matches = source.matchAll(/[\u3400-\u9fff]{2,6}|[A-Za-z][A-Za-z0-9]+(?:['-][A-Za-z0-9]+)?/gu);
+      const matches = source.matchAll(/[\u3400-\u9fff]{2,6}|[\p{L}][\p{L}\p{N}]+(?:['’\u2011-][\p{L}\p{N}]+)*/gu);
       return Array.from(matches).map(match => ({
         text: match[0],
         index: match.index,
@@ -2631,10 +2728,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function shouldUseBionic(word) {
-      if (!/[A-Za-z0-9]/.test(word) || /[\u3400-\u9fff]/.test(word)) return false;
+      if (!/\p{Script=Latin}/u.test(word) || /[\u3400-\u9fff]/.test(word)) return false;
       if (bionicMode === "off") return false;
-      const latinWord = word.match(/[A-Za-z][A-Za-z0-9'-]*/)?.[0] || "";
-      return latinWord.length >= 4;
+      const latinWord = word.match(/[\p{Script=Latin}][\p{Script=Latin}\p{N}'’\u2011-]*/u)?.[0] || "";
+      return Array.from(latinWord).length >= 4;
     }
 
     function tokenHTML(word) {
@@ -2900,7 +2997,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       speechOffset = chunkStart + Math.max(0, leadingWhitespace);
       utterance = new SpeechSynthesisUtterance(text);
       const voice = speechVoiceForText(text);
-      utterance.lang = voice?.lang || (speechLanguageForText(text) === "zh" ? "zh-CN" : "en-US");
+      utterance.lang = voice?.lang || speechLocaleForLanguage(speechLanguageForText(text));
       if (voice) utterance.voice = voice;
       utterance.rate = Number(rateInput.value);
       utterance.pitch = 1;
