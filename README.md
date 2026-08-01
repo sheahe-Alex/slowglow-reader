@@ -132,7 +132,7 @@ The core belief:
 - 回看线索：本地规则给出少量可能的回看词和回看句，点击即可回到原文对应位置 / Review Cues: local rules suggest a few possible words and sentences; click one to jump back to its place in the source text
 - 笔记提示：用自己的话记下重点 / Note cue: put key points in your own words
 - 根据浏览器语言自动显示中文或英文界面，也可以手动切换 / Automatically uses Chinese or English based on browser language, with manual switching available
-- 基础阅读支持多种文字；结构提示目前主要针对中文和英文，其他语言会保持干净显示 / Basic reading support works across multiple writing systems; structure hints currently focus on Chinese and English, while other languages stay visually clean
+- 基础阅读、朗读和回看关键词支持多种文字；结构提示目前主要针对中文和英文，其他语言会保持干净显示 / Reading, speech, and review keywords work across multiple writing systems; structure hints currently focus on Chinese and English, while other languages stay visually clean
 
 ## 本地运行 / Run Locally
 

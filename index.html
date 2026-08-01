@@ -1742,51 +1742,63 @@ The goal is simple: lower the friction of entering a text, and help you return g
     const languageProfiles = {
       en: {
         voiceLocales: ["en-us", "en-gb", "en"],
-        hints: ["the", "and", "that", "this", "with", "from", "have", "are", "not", "for"]
+        hints: ["the", "and", "that", "this", "with", "from", "have", "are", "not", "for"],
+        stopWords: ["a", "an", "the", "and", "or", "but", "if", "then", "so", "to", "of", "in", "on", "for", "with", "as", "by", "at", "from", "is", "are", "was", "were", "be", "been", "being", "it", "this", "that", "these", "those", "you", "your", "we", "they", "he", "she", "i", "me", "my", "our", "their", "his", "her", "its", "not", "can", "will", "would", "should", "could", "when", "where", "what", "which", "who", "how", "about", "into", "than", "through", "use", "uses", "used"]
       },
       fr: {
         voiceLocales: ["fr-fr", "fr-ca", "fr"],
-        hints: ["le", "la", "les", "des", "une", "est", "dans", "pour", "avec", "que", "qui", "pas", "sur", "aux", "et"]
+        hints: ["le", "la", "les", "des", "une", "est", "dans", "pour", "avec", "que", "qui", "pas", "sur", "aux", "et"],
+        stopWords: ["un", "une", "des", "le", "la", "les", "du", "de", "et", "ou", "mais", "si", "que", "qui", "quoi", "dont", "où", "à", "au", "aux", "en", "dans", "sur", "sous", "pour", "par", "avec", "sans", "est", "sont", "être", "a", "ont", "avoir", "ce", "cette", "ces", "cela", "ça", "il", "elle", "ils", "elles", "on", "je", "tu", "vous", "nous", "son", "sa", "ses", "leur", "leurs", "pas", "ne", "plus", "très", "comme", "se", "soi"]
       },
       de: {
         voiceLocales: ["de-de", "de-at", "de-ch", "de"],
-        hints: ["der", "die", "das", "und", "ist", "nicht", "ein", "eine", "mit", "auf", "für", "von", "zu", "dass", "sich"]
+        hints: ["der", "die", "das", "und", "ist", "nicht", "ein", "eine", "mit", "auf", "für", "von", "zu", "dass", "sich"],
+        stopWords: ["der", "die", "das", "ein", "eine", "einer", "einem", "einen", "eines", "und", "oder", "aber", "wenn", "dann", "weil", "dass", "was", "wer", "wie", "wo", "mit", "von", "zu", "zum", "zur", "für", "auf", "in", "an", "aus", "bei", "über", "unter", "ist", "sind", "war", "waren", "sein", "haben", "hat", "ich", "du", "er", "sie", "es", "wir", "ihr", "nicht", "kein", "keine", "sich", "auch", "nur", "sehr", "noch", "als", "dies", "diese", "dieser", "diesen", "dem", "den", "des"]
       },
       es: {
         voiceLocales: ["es-es", "es-mx", "es"],
-        hints: ["el", "la", "los", "las", "una", "una", "es", "que", "por", "para", "con", "del", "como", "pero", "no"]
+        hints: ["el", "la", "los", "las", "una", "es", "que", "por", "para", "con", "del", "como", "pero", "no"],
+        stopWords: ["un", "una", "unos", "unas", "el", "la", "los", "las", "del", "al", "de", "y", "o", "pero", "si", "que", "quien", "cual", "como", "donde", "cuando", "para", "por", "con", "sin", "sobre", "entre", "en", "es", "son", "ser", "estar", "hay", "he", "ha", "han", "yo", "tu", "tú", "usted", "ustedes", "nosotros", "ellos", "ellas", "él", "ella", "se", "su", "sus", "mi", "mis", "nuestro", "nuestra", "no", "más", "muy", "también", "este", "esta", "estos", "estas", "eso", "esa", "esas"]
       },
       it: {
         voiceLocales: ["it-it", "it"],
-        hints: ["il", "lo", "gli", "le", "una", "che", "per", "con", "non", "della", "sono", "questo", "come", "ma"]
+        hints: ["il", "lo", "gli", "le", "una", "che", "per", "con", "non", "della", "sono", "questo", "come", "ma"],
+        stopWords: ["un", "uno", "una", "il", "lo", "la", "i", "gli", "le", "del", "dello", "della", "dei", "degli", "delle", "di", "e", "o", "ma", "se", "che", "chi", "come", "dove", "quando", "per", "con", "senza", "su", "tra", "fra", "in", "a", "da", "sono", "è", "essere", "avere", "ha", "ho", "hanno", "io", "tu", "lui", "lei", "noi", "voi", "loro", "non", "più", "molto", "anche", "questo", "questa", "questi", "queste", "quello", "quella"]
       },
       pt: {
         voiceLocales: ["pt-br", "pt-pt", "pt"],
-        hints: ["o", "os", "as", "uma", "que", "para", "com", "não", "dos", "das", "como", "por", "mas", "são"]
+        hints: ["o", "os", "as", "uma", "que", "para", "com", "não", "dos", "das", "como", "por", "mas", "são"],
+        stopWords: ["um", "uma", "uns", "umas", "o", "a", "os", "as", "do", "da", "dos", "das", "de", "e", "ou", "mas", "se", "que", "quem", "como", "onde", "quando", "para", "por", "com", "sem", "sobre", "entre", "em", "no", "na", "nos", "nas", "é", "são", "ser", "estar", "há", "eu", "tu", "você", "vocês", "ele", "ela", "eles", "elas", "nós", "meu", "minha", "seu", "sua", "não", "mais", "muito", "também", "este", "esta", "isso", "essa"]
       },
       nl: {
         voiceLocales: ["nl-nl", "nl-be", "nl"],
-        hints: ["de", "het", "een", "en", "is", "niet", "van", "voor", "met", "dat", "die", "op", "maar"]
+        hints: ["de", "het", "een", "en", "is", "niet", "van", "voor", "met", "dat", "die", "op", "maar"],
+        stopWords: ["de", "het", "een", "en", "of", "maar", "als", "dan", "dat", "die", "wat", "wie", "hoe", "waar", "van", "voor", "met", "zonder", "op", "in", "aan", "uit", "over", "is", "zijn", "was", "waren", "worden", "hebben", "ik", "jij", "je", "hij", "zij", "wij", "we", "jullie", "niet", "geen", "ook", "meer", "zeer", "dit", "deze", "zijn", "haar", "hun"]
       },
       zh: {
         voiceLocales: ["zh-cn", "zh-tw", "zh", "cmn"],
-        hints: []
+        hints: [],
+        stopWords: []
       },
       ja: {
         voiceLocales: ["ja-jp", "ja"],
-        hints: []
+        hints: [],
+        stopWords: []
       },
       ko: {
         voiceLocales: ["ko-kr", "ko"],
-        hints: []
+        hints: [],
+        stopWords: []
       },
       ru: {
         voiceLocales: ["ru-ru", "ru"],
-        hints: ["и", "в", "не", "что", "это", "как", "для", "на", "с", "по"]
+        hints: ["и", "в", "не", "что", "это", "как", "для", "на", "с", "по"],
+        stopWords: ["и", "а", "но", "или", "если", "то", "что", "кто", "как", "где", "когда", "для", "на", "в", "с", "со", "из", "от", "до", "по", "о", "об", "у", "за", "под", "над", "при", "не", "ни", "это", "этот", "эта", "эти", "я", "ты", "он", "она", "мы", "вы", "они", "быть", "есть", "был", "были", "также", "только", "очень", "более"]
       },
       ar: {
         voiceLocales: ["ar-sa", "ar-eg", "ar"],
-        hints: ["من", "في", "على", "هذا", "هذه", "أن", "ما", "مع", "هو", "هي"]
+        hints: ["من", "في", "على", "هذا", "هذه", "أن", "ما", "مع", "هو", "هي"],
+        stopWords: ["و", "أو", "لكن", "إذا", "ثم", "أن", "إن", "ما", "من", "في", "على", "إلى", "عن", "مع", "ل", "ب", "ك", "هذا", "هذه", "ذلك", "تلك", "الذي", "التي", "الذين", "هو", "هي", "هم", "هن", "أنا", "نحن", "أنت", "أنتم", "كان", "كانت", "يكون", "ليس", "لا", "لم", "لن", "قد", "كما", "حتى", "كل", "أي", "أكثر", "جدا"]
       }
     };
 
@@ -1810,9 +1822,17 @@ The goal is simple: lower the friction of entering a text, and help you return g
       "什么", "一样", "一种", "这样", "那样", "这里", "那里", "东西", "问题", "内容", "方式", "部分", "情况", "过程", "方面"
     ]);
 
-    const segmenter = typeof Intl !== "undefined" && Intl.Segmenter
-      ? new Intl.Segmenter(["zh", "en"], { granularity: "word" })
-      : null;
+    const noteStopWordCache = new Map();
+
+    function noteStopWordsForText(text) {
+      const language = detectTextLanguage(text);
+      if (language === "zh") return zhNoteStopWords;
+      if (noteStopWordCache.has(language)) return noteStopWordCache.get(language);
+      const words = languageProfiles[language]?.stopWords;
+      const result = words?.length ? new Set(words) : stopWords;
+      noteStopWordCache.set(language, result);
+      return result;
+    }
 
     function setStatus(message) {
       status.textContent = message;
@@ -2149,9 +2169,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function roughWordCount(text) {
-      const enWords = text.match(/[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)?/g)?.length || 0;
+      const wordMatches = text.match(/[\p{L}\p{N}]+(?:['’\u2011-][\p{L}\p{N}]+)*/gu) || [];
+      const nonCjkWords = wordMatches.filter(word => !/[\u3400-\u9fff]/.test(word)).length;
       const cjkChars = text.match(/[\u3400-\u9fff]/g)?.length || 0;
-      return enWords + Math.ceil(cjkChars / 2);
+      return nonCjkWords + Math.ceil(cjkChars / 2);
     }
 
     function cjkRatio(text) {
@@ -2205,6 +2226,18 @@ The goal is simple: lower the friction of entering a text, and help you return g
       if (flowMode !== "auto") return flowMode;
       const language = detectTextLanguage(source);
       return language === "zh" || language === "en" ? language : "off";
+    }
+
+    const segmenterCache = new Map();
+
+    function segmenterForText(text) {
+      if (typeof Intl === "undefined" || !Intl.Segmenter) return null;
+      const language = detectTextLanguage(text);
+      const locale = languageProfiles[language]?.voiceLocales?.[0] || "en";
+      if (!segmenterCache.has(locale)) {
+        segmenterCache.set(locale, new Intl.Segmenter(locale, { granularity: "word" }));
+      }
+      return segmenterCache.get(locale);
     }
 
     function splitSentences(text) {
@@ -2302,8 +2335,9 @@ The goal is simple: lower the friction of entering a text, and help you return g
       const source = text.trim();
       if (!source) return [];
 
-      if (segmenter) {
-        return Array.from(segmenter.segment(source))
+      const activeSegmenter = segmenterForText(source);
+      if (activeSegmenter) {
+        return Array.from(activeSegmenter.segment(source))
           .filter(part => part.isWordLike || /[，。！？；：、,.!?;:]/.test(part.segment))
           .map(part => ({
             text: part.segment,
@@ -2333,13 +2367,13 @@ The goal is simple: lower the friction of entering a text, and help you return g
       }));
     }
 
-    function isUsefulNoteToken(token) {
+    function isUsefulNoteToken(token, stopWordSet = stopWords) {
       if (!token.key) return false;
       if (/^[0-9]+$/.test(token.key)) return false;
       if (/[\u3400-\u9fff]/.test(token.key)) {
         return token.key.length >= 3 && !zhNoteStopWords.has(token.key) && !zhReferenceWords.includes(token.key);
       }
-      return token.key.length >= 4 && !stopWords.has(token.key);
+      return token.key.length >= 4 && !stopWordSet.has(token.key);
     }
 
     function isStrongKeywordCandidate(item) {
@@ -2360,7 +2394,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function extractKeywords(text, limit = 3) {
-      const items = noteTokens(text).filter(isUsefulNoteToken);
+      const stopWordSet = noteStopWordsForText(text);
+      const items = noteTokens(text).filter(item => isUsefulNoteToken(item, stopWordSet));
       const counts = new Map();
 
       for (const item of items) {
@@ -2383,8 +2418,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
         .map(item => item.text);
     }
 
-    function sentenceScore(sentence, keywordSet, position, total) {
-      const tokensInSentence = noteTokens(sentence.text).filter(isUsefulNoteToken);
+    function sentenceScore(sentence, keywordSet, position, total, stopWordSet) {
+      const tokensInSentence = noteTokens(sentence.text).filter(item => isUsefulNoteToken(item, stopWordSet));
       const unique = new Set(tokensInSentence.map(token => token.key));
       const keywordHits = Array.from(unique).filter(key => keywordSet.has(key)).length;
       const connectorBoost = connectorGroups.concat(zhConnectorGroups)
@@ -2397,11 +2432,12 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function extractKeySentences(text, keywords, limit = 2) {
       const sentences = splitSentences(text);
       const keywordSet = new Set(keywords.map(keyword => /[\u3400-\u9fff]/.test(keyword) ? keyword : lowerToken(keyword)));
+      const stopWordSet = noteStopWordsForText(text);
       return sentences
         .map((sentence, index) => ({
           text: sentence.text.trim(),
           index,
-          score: sentenceScore(sentence, keywordSet, index, sentences.length)
+          score: sentenceScore(sentence, keywordSet, index, sentences.length, stopWordSet)
         }))
         .filter(item => item.text.length >= 12)
         .sort((a, b) => b.score - a.score || a.index - b.index)
