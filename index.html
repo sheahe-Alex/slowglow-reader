@@ -218,6 +218,20 @@
       gap: 6px;
     }
 
+    .document-icon-button {
+      width: 38px;
+      min-width: 38px;
+      padding: 0;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .document-icon {
+      width: 17px;
+      height: 17px;
+      display: block;
+    }
+
     .brand {
       font-weight: 800;
       font-size: 22px;
@@ -1216,8 +1230,24 @@
             <span class="guide-caption" id="gentleHint">当前句浮现，其他文字退后。</span>
           </span>
           <span class="document-actions">
-            <button class="button utility preference" id="topButton" type="button" hidden>回到顶部</button>
-            <button class="button utility preference" id="newTextButton" type="button" hidden>换一段</button>
+            <button class="button utility preference document-icon-button" id="topButton" type="button" aria-label="回到顶部" title="回到顶部" hidden>
+              <svg class="document-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 19V5"></path>
+                <path d="m6 11 6-6 6 6"></path>
+                <path d="M5 19h14"></path>
+              </svg>
+              <span class="sr-only" id="topLabel">回到顶部</span>
+            </button>
+            <button class="button utility preference document-icon-button" id="newTextButton" type="button" aria-label="清空文字" title="清空文字" hidden>
+              <svg class="document-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 4h12"></path>
+                <path d="M9 4V2.5h6V4"></path>
+                <path d="M7 4l1 17h8l1-17"></path>
+                <path d="M10 9v8"></path>
+                <path d="M14 9v8"></path>
+              </svg>
+              <span class="sr-only" id="clearTextLabel">清空文字</span>
+            </button>
           </span>
           <span class="preference-actions">
             <button class="button utility preference sound-control" id="voiceButton" type="button" aria-label="朗读声音：开" title="朗读声音：开" aria-pressed="true">
@@ -1397,7 +1427,7 @@
         voiceOn: "朗读声音：开",
         voiceOff: "朗读声音：关",
         backToTop: "回到顶部",
-        newText: "换一段",
+        clearText: "清空文字",
         showMenu: "设置",
         hideMenu: "收起",
         pause: "暂停",
@@ -1534,7 +1564,7 @@
         voiceOn: "Read-aloud sound: On",
         voiceOff: "Read-aloud sound: Off",
         backToTop: "Back to top",
-        newText: "New text",
+        clearText: "Clear text",
         showMenu: "Settings",
         hideMenu: "Hide",
         pause: "Pause",
@@ -1788,8 +1818,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
       clipboardButton.textContent = t("clipboard");
       updateIconButton(previousButton, "⏮", t("previousSentence"));
       updateIconButton(nextButton, "⏭", t("nextSentence"));
-      topButton.textContent = t("backToTop");
-      newTextButton.textContent = t("newText");
+      updateButtonLabel(topButton, t("backToTop"));
+      updateButtonLabel(newTextButton, t("clearText"));
       updateVoiceButton();
       updateMenuButton();
       updateIconButton(stopButton, "⏹", t("stop"));
@@ -1877,13 +1907,17 @@ The goal is simple: lower the friction of entering a text, and help you return g
       menuButton.setAttribute("aria-expanded", String(!menuCollapsed));
     }
 
-    function updateIconButton(button, icon, label) {
-      const iconNode = button.querySelector("[data-icon]");
+    function updateButtonLabel(button, label) {
       const labelNode = button.querySelector(".sr-only");
-      if (iconNode) iconNode.textContent = icon;
       if (labelNode) labelNode.textContent = label;
       button.setAttribute("aria-label", label);
       button.title = label;
+    }
+
+    function updateIconButton(button, icon, label) {
+      const iconNode = button.querySelector("[data-icon]");
+      if (iconNode) iconNode.textContent = icon;
+      updateButtonLabel(button, label);
     }
 
     function setBrowseMode(enabled) {
