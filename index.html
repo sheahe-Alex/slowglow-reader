@@ -21,7 +21,7 @@
       --control-bg: rgba(255, 255, 255, 0.72);
       --accent: #0b7a75;
       --accent-ink: #ffffff;
-      --highlight: #f4b267;
+      --highlight: #c9a7b0;
       --highlight-ink: #101010;
       --mark: #0f766e;
       --mark-bg: rgba(15, 118, 110, 0.1);
@@ -60,7 +60,7 @@
       --ink: #171717;
       --muted: #68635b;
       --line: #d9d1c3;
-      --highlight: #f4b267;
+      --highlight: #c9a7b0;
     }
 
     body[data-theme="clean"] {
@@ -69,7 +69,7 @@
       --ink: #111827;
       --muted: #667085;
       --line: #d0d5dd;
-      --highlight: #f2b875;
+      --highlight: #b7c5cd;
     }
 
     body[data-theme="open"] {
@@ -78,7 +78,7 @@
       --ink: #102019;
       --muted: #617068;
       --line: #cbd9d1;
-      --highlight: #f5bd78;
+      --highlight: #b8c7bd;
       --line-height: 1.95;
       --max-width: 860px;
     }
@@ -95,7 +95,7 @@
       --control-bg: rgba(255, 255, 255, 0.08);
       --accent: #55b8ad;
       --accent-ink: #071412;
-      --highlight: #eeb45d;
+      --highlight: #c4abb4;
       --highlight-ink: #111318;
       --mark: #7dd3c7;
       --mark-bg: rgba(125, 211, 199, 0.14);
@@ -292,6 +292,21 @@
       color: color-mix(in srgb, var(--muted) 88%, var(--ink));
       font-size: 14px;
       background: color-mix(in srgb, var(--panel) 90%, var(--bg));
+    }
+
+    .highlight-preference {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .highlight-swatch {
+      width: 12px;
+      height: 12px;
+      flex: 0 0 12px;
+      border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+      border-radius: 50%;
+      background: var(--highlight);
     }
 
     .sound-control {
@@ -1344,6 +1359,10 @@
         <label class="control">字号 <input id="fontInput" type="range" min="24" max="64" step="2" value="38"><span id="fontValue">38px</span></label>
         <label class="control">行距 <input id="lineInput" type="range" min="1.35" max="2.2" step="0.05" value="1.75"><span id="lineValue">1.75</span></label>
         <label class="control">宽度 <input id="widthInput" type="range" min="620" max="1280" step="20" value="980"><span id="widthValue">980px</span></label>
+        <button class="button utility preference highlight-preference" id="highlightButton" type="button">
+          <span class="highlight-swatch" aria-hidden="true"></span>
+          <span id="highlightLabel">当前词高光：雾玫瑰</span>
+        </button>
         <button class="button" id="themeButton" type="button">主题：柔和</button>
       </div>
     </header>
@@ -1446,6 +1465,8 @@
     const fontInput = document.querySelector("#fontInput");
     const lineInput = document.querySelector("#lineInput");
     const widthInput = document.querySelector("#widthInput");
+    const highlightButton = document.querySelector("#highlightButton");
+    const highlightLabel = document.querySelector("#highlightLabel");
     const rateValue = document.querySelector("#rateValue");
     const fontValue = document.querySelector("#fontValue");
     const lineValue = document.querySelector("#lineValue");
@@ -1465,6 +1486,7 @@
     let bionicMode = "auto";
     let annotationIntensity = "light";
     let currentTheme = "soft";
+    let highlightPalette = "rose";
     let gentleMode = false;
     let sentenceAnchorEnabled = false;
     let previousGentleSettings = null;
@@ -1520,6 +1542,8 @@
         font: "字号 ",
         line: "行距 ",
         width: "宽度 ",
+        highlightPrefix: "当前词高光",
+        highlightLabels: { rose: "雾玫瑰", blue: "雾蓝", sage: "鼠尾草", sand: "沙灰" },
         themePrefix: "主题",
         cycleHint: "点击切换选项",
         textTitle: "放入文字",
@@ -1669,6 +1693,8 @@
         font: "Font ",
         line: "Line ",
         width: "Width ",
+        highlightPrefix: "Reading highlight",
+        highlightLabels: { rose: "Dusty rose", blue: "Mist blue", sage: "Sage", sand: "Soft sand" },
         themePrefix: "Theme",
         cycleHint: "Click to cycle options",
         textTitle: "Add Text",
@@ -1804,6 +1830,15 @@ The goal is simple: lower the friction of entering a text, and help you return g
     const annotationIntensities = ["off", "light", "standard"];
 
     const themes = ["soft", "clean", "open", "night"];
+
+    const highlightPalettes = ["rose", "blue", "sage", "sand"];
+
+    const highlightColors = {
+      rose: "#c9a7b0",
+      blue: "#a9bec5",
+      sage: "#b7c6b3",
+      sand: "#d3c0a6"
+    };
 
     const themePresets = {
       soft: { font: 38, line: 1.75, width: 980 },
@@ -3714,6 +3749,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         if (saved.theme && themes.includes(saved.theme)) currentTheme = saved.theme;
         if (saved.flowMode && flowModes.includes(saved.flowMode)) flowMode = saved.flowMode;
         if (saved.bionicMode && bionicModes.includes(saved.bionicMode)) bionicMode = saved.bionicMode;
+        if (saved.highlightPalette && highlightPalettes.includes(saved.highlightPalette)) highlightPalette = saved.highlightPalette;
         sentenceAnchorEnabled = saved.sentenceAnchor === true;
       } catch {
       }
@@ -3729,6 +3765,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
           theme: currentTheme,
           flowMode,
           bionicMode,
+          highlightPalette,
           sentenceAnchor: sentenceAnchorEnabled
         }));
       } catch {
@@ -3748,6 +3785,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function applyTheme({ applyPreset = true, save = true } = {}) {
       document.body.dataset.theme = currentTheme;
+      applyHighlightPalette({ save: false });
       const preset = themePresets[currentTheme];
       if (applyPreset && preset) {
         fontInput.value = preset.font;
@@ -3757,6 +3795,17 @@ The goal is simple: lower the friction of entering a text, and help you return g
       }
       themeButton.textContent = `${t("themePrefix")}：${currentCopyGroup("themeLabels")[currentTheme]}`;
       themeButton.title = t("cycleHint");
+      if (save) saveReadingPreferences();
+    }
+
+    function applyHighlightPalette({ save = true } = {}) {
+      const color = highlightColors[highlightPalette] || highlightColors.rose;
+      document.body.style.setProperty("--highlight", color);
+      const label = currentCopyGroup("highlightLabels")[highlightPalette];
+      const separator = uiLanguage === "zh" ? "：" : ": ";
+      highlightLabel.textContent = `${t("highlightPrefix")}${separator}${label}`;
+      highlightButton.title = t("cycleHint");
+      highlightButton.setAttribute("aria-label", `${t("highlightPrefix")}${separator}${label}`);
       if (save) saveReadingPreferences();
     }
 
@@ -3954,6 +4003,11 @@ The goal is simple: lower the friction of entering a text, and help you return g
       const nextIndex = (themes.indexOf(currentTheme) + 1) % themes.length;
       currentTheme = themes[nextIndex];
       applyTheme();
+    });
+    highlightButton.addEventListener("click", () => {
+      const nextIndex = (highlightPalettes.indexOf(highlightPalette) + 1) % highlightPalettes.length;
+      highlightPalette = highlightPalettes[nextIndex];
+      applyHighlightPalette();
     });
     notesPanel.addEventListener("toggle", () => {
       if (notesPanel.open) renderNotes();

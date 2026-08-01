@@ -102,9 +102,11 @@ If clipboard reading does not work, you can paste the text directly into the lef
 
 - 如果觉得文字太密：调大“字号”和“行距”。  
   If the text feels too dense: increase font size and line spacing.
-- 如果觉得声音太慢或太快：调“语速”。  
+- 如果觉得声音太慢或太快：调“语速”。
   If the voice feels too slow or too fast: adjust speech speed.
-- 如果暂时不想听朗读：点 `朗读：开`，切到 `朗读：关`。高亮仍会继续走。  
+- 如果默认高光不合适：在“设置”里切换当前词的颜色。
+  If the default highlight does not feel right: switch the current-word color in Settings.
+- 如果暂时不想听朗读：点 `朗读：开`，切到 `朗读：关`。高亮仍会继续走。
   If you do not want audio right now: click `Read Aloud: On` to switch it off. The highlight will still keep moving.
 - 如果觉得结构提示太多：点 `结构强度`，切到 `无`。
   If there are too many structure cues: click `Hint Strength` and switch to `None`.
