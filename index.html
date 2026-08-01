@@ -1284,20 +1284,20 @@
             <span class="control-icon" id="pauseIcon" data-icon aria-hidden="true">⏸</span>
             <span class="sr-only" id="pauseLabel">暂停</span>
           </button>
+          <button class="button utility context-action paragraph-jump" id="previousParagraphButton" type="button" aria-label="上一段" title="上一段" disabled>
+            <span class="control-icon" data-icon aria-hidden="true">◀◀</span>
+            <span class="sr-only">上一段</span>
+          </button>
           <button class="button utility context-action" id="previousButton" type="button" aria-label="上一句" title="上一句" disabled>
-            <span class="control-icon" data-icon aria-hidden="true">⏮</span>
+            <span class="control-icon" data-icon aria-hidden="true">◀</span>
             <span class="sr-only">上一句</span>
           </button>
           <button class="button utility context-action" id="nextButton" type="button" aria-label="下一句" title="下一句" disabled>
-            <span class="control-icon" data-icon aria-hidden="true">⏭</span>
+            <span class="control-icon" data-icon aria-hidden="true">▶</span>
             <span class="sr-only">下一句</span>
           </button>
-          <button class="button utility context-action paragraph-jump" id="previousParagraphButton" type="button" aria-label="上一段" title="上一段" disabled>
-            <span class="control-icon" data-icon aria-hidden="true">⏪</span>
-            <span class="sr-only">上一段</span>
-          </button>
           <button class="button utility context-action paragraph-jump" id="nextParagraphButton" type="button" aria-label="下一段" title="下一段" disabled>
-            <span class="control-icon" data-icon aria-hidden="true">⏩</span>
+            <span class="control-icon" data-icon aria-hidden="true">▶▶</span>
             <span class="sr-only">下一段</span>
           </button>
           <button class="button utility context-action" id="stopButton" type="button" aria-label="停止" title="停止" disabled>
@@ -2015,10 +2015,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function applyLanguage({ resetStatus = false } = {}) {
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
-      updateIconButton(previousButton, "⏮", t("previousSentence"));
-      updateIconButton(nextButton, "⏭", t("nextSentence"));
-      updateIconButton(previousParagraphButton, "⏪", t("previousParagraph"));
-      updateIconButton(nextParagraphButton, "⏩", t("nextParagraph"));
+      updateIconButton(previousParagraphButton, "◀◀", t("previousParagraph"));
+      updateIconButton(previousButton, "◀", t("previousSentence"));
+      updateIconButton(nextButton, "▶", t("nextSentence"));
+      updateIconButton(nextParagraphButton, "▶▶", t("nextParagraph"));
       updateButtonLabel(topButton, t("backToTop"));
       updateButtonLabel(newTextButton, t("clearText"));
       updateVoiceButton();
