@@ -161,7 +161,7 @@
       pointer-events: none;
     }
 
-    .pause-control {
+    .reading-actions .context-action {
       width: 42px;
       min-width: 42px;
       padding: 0;
@@ -175,7 +175,7 @@
       color: var(--ink);
     }
 
-    .pause-icon {
+    .control-icon {
       font-size: 19px;
       line-height: 1;
     }
@@ -1176,12 +1176,21 @@
         </div>
         <div class="action-group reading-actions">
           <button class="button utility context-action pause-control" id="pauseButton" type="button" aria-label="暂停" title="暂停" aria-pressed="false" disabled>
-            <span class="pause-icon" id="pauseIcon" aria-hidden="true">⏸</span>
+            <span class="control-icon" id="pauseIcon" data-icon aria-hidden="true">⏸</span>
             <span class="sr-only" id="pauseLabel">暂停</span>
           </button>
-          <button class="button utility context-action" id="previousButton" type="button" disabled>上一句</button>
-          <button class="button utility context-action" id="nextButton" type="button" disabled>下一句</button>
-          <button class="button utility context-action" id="stopButton" type="button" disabled>停止</button>
+          <button class="button utility context-action" id="previousButton" type="button" aria-label="上一句" title="上一句" disabled>
+            <span class="control-icon" data-icon aria-hidden="true">⏮</span>
+            <span class="sr-only">上一句</span>
+          </button>
+          <button class="button utility context-action" id="nextButton" type="button" aria-label="下一句" title="下一句" disabled>
+            <span class="control-icon" data-icon aria-hidden="true">⏭</span>
+            <span class="sr-only">下一句</span>
+          </button>
+          <button class="button utility context-action" id="stopButton" type="button" aria-label="停止" title="停止" disabled>
+            <span class="control-icon" data-icon aria-hidden="true">⏹</span>
+            <span class="sr-only">停止</span>
+          </button>
         </div>
         <div class="action-group support-actions">
           <span class="guide-toggle-wrap">
@@ -1281,8 +1290,6 @@
     const markButton = document.querySelector("#markButton");
     const previousButton = document.querySelector("#previousButton");
     const pauseButton = document.querySelector("#pauseButton");
-    const pauseIcon = document.querySelector("#pauseIcon");
-    const pauseLabel = document.querySelector("#pauseLabel");
     const stopButton = document.querySelector("#stopButton");
     const flowButton = document.querySelector("#flowButton");
     const bionicButton = document.querySelector("#bionicButton");
@@ -1750,13 +1757,13 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function applyLanguage({ resetStatus = false } = {}) {
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
-      previousButton.textContent = t("previousSentence");
-      nextButton.textContent = t("nextSentence");
+      updateIconButton(previousButton, "⏮", t("previousSentence"));
+      updateIconButton(nextButton, "⏭", t("nextSentence"));
       topButton.textContent = t("backToTop");
       newTextButton.textContent = t("newText");
       updateVoiceButton();
       updateMenuButton();
-      stopButton.textContent = t("stop");
+      updateIconButton(stopButton, "⏹", t("stop"));
       languageButton.textContent = t("languageButton");
       languageButton.title = uiLanguage === "zh" ? "Switch to English" : "切换到中文";
       document.querySelector(".panel-title").textContent = t("textTitle");
@@ -1841,6 +1848,15 @@ The goal is simple: lower the friction of entering a text, and help you return g
       menuButton.setAttribute("aria-expanded", String(!menuCollapsed));
     }
 
+    function updateIconButton(button, icon, label) {
+      const iconNode = button.querySelector("[data-icon]");
+      const labelNode = button.querySelector(".sr-only");
+      if (iconNode) iconNode.textContent = icon;
+      if (labelNode) labelNode.textContent = label;
+      button.setAttribute("aria-label", label);
+      button.title = label;
+    }
+
     function setBrowseMode(enabled) {
       document.body.classList.toggle("browse-mode", enabled);
       if (enabled) {
@@ -1862,10 +1878,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       readingActions.classList.toggle("is-reading", isReading);
       pauseButton.disabled = !isReading;
       const label = isPaused ? t("resume") : t("pause");
-      pauseIcon.textContent = isPaused ? "▶" : "⏸";
-      pauseLabel.textContent = label;
-      pauseButton.setAttribute("aria-label", label);
-      pauseButton.title = label;
+      updateIconButton(pauseButton, isPaused ? "▶" : "⏸", label);
       pauseButton.setAttribute("aria-pressed", String(isPaused));
       stopButton.disabled = !isReading;
       updatePlayButton();
