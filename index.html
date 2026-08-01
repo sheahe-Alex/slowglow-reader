@@ -1594,7 +1594,7 @@
         clipboardLoaded: "新文字已放好。可以开始伴读。",
         clipboardUnchanged: "剪贴板内容没有变化。",
         clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
-        tableLoaded: "已识别表格。会保留表格布局，并按行伴读。",
+        clipboardRichLoaded: "已保留表格及其前后的文字。表格会按行伴读。",
         newTextReady: "可以粘贴下一段文字了。",
         externalLoaded: "文字已放好。可以开始伴读。",
         gentleOn: "已开启专注阅读。当前句会浮现出来，其他文字会轻轻退后。",
@@ -1743,7 +1743,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         clipboardLoaded: "New text is ready. You can start reading.",
         clipboardUnchanged: "Clipboard text has not changed.",
         clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
-        tableLoaded: "A table was detected. Its layout will stay visible, and reading will move row by row.",
+        clipboardRichLoaded: "The table and surrounding text were preserved. Table rows will be read row by row.",
         newTextReady: "Ready for the next passage.",
         externalLoaded: "Text is ready. You can start reading.",
         gentleOn: "Focus Reading is on. The current sentence will appear while surrounding text gently fades back.",
@@ -2365,12 +2365,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         .filter(sentence => sentence.text.trim());
     }
 
-    function parseClipboardTable(html) {
-      if (!html || typeof DOMParser === "undefined") return null;
-      const documentFragment = new DOMParser().parseFromString(html, "text/html");
-      const table = documentFragment.querySelector("table");
-      if (!table) return null;
-
+    function rowsFromTableElement(table) {
       const rows = Array.from(table.rows)
         .map(row => {
           const inHeader = row.parentElement?.tagName?.toLowerCase() === "thead";
@@ -2381,7 +2376,97 @@ The goal is simple: lower the friction of entering a text, and help you return g
         })
         .filter(row => row.length && row.some(cell => cell.text));
 
-      return rows.length ? { rows } : null;
+      return rows;
+    }
+
+    function shiftTableBlock(block, offset) {
+      return {
+        ...block,
+        start: block.start + offset,
+        end: block.end + offset,
+        rows: block.rows.map(row => ({
+          ...row,
+          start: row.start + offset,
+          end: row.end + offset,
+          cells: row.cells.map(cell => ({
+            ...cell,
+            start: cell.start + offset,
+            end: cell.end + offset
+          }))
+        }))
+      };
+    }
+
+    function parseClipboardContent(html) {
+      if (!html || typeof DOMParser === "undefined") return null;
+      const documentFragment = new DOMParser().parseFromString(html, "text/html");
+      const blockTags = new Set([
+        "ADDRESS", "ARTICLE", "ASIDE", "BLOCKQUOTE", "DD", "DIV", "DL", "DT",
+        "FIELDSET", "FIGCAPTION", "FIGURE", "FOOTER", "FORM", "H1", "H2", "H3",
+        "H4", "H5", "H6", "HEADER", "LI", "MAIN", "NAV", "OL", "P", "PRE",
+        "SECTION", "SUMMARY", "TR", "UL"
+      ]);
+      const ignoredTags = new Set(["HEAD", "SCRIPT", "STYLE", "TITLE", "META", "LINK"]);
+      const parts = [];
+      const tableBlocks = [];
+
+      const currentText = () => parts.join("");
+
+      const appendText = (value, preserveWhitespace = false) => {
+        let text = String(value || "").replace(/\u00a0/g, " ").replace(/\r\n?/g, "\n");
+        if (!preserveWhitespace) text = text.replace(/\s+/g, " ");
+        if (text) parts.push(text);
+      };
+
+      const appendBreak = (count = 2) => {
+        while (parts.length && /[ \t]$/.test(parts[parts.length - 1])) {
+          parts[parts.length - 1] = parts[parts.length - 1].replace(/[ \t]+$/, "");
+          if (!parts[parts.length - 1]) parts.pop();
+        }
+        const trailing = currentText().match(/\n*$/)?.[0].length || 0;
+        if (trailing < count) parts.push("\n".repeat(count - trailing));
+      };
+
+      const walk = (node, preserveWhitespace = false) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          appendText(node.nodeValue, preserveWhitespace);
+          return;
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+        const tag = node.tagName;
+        if (ignoredTags.has(tag)) return;
+        if (tag === "TABLE") {
+          const rows = rowsFromTableElement(node);
+          if (!rows.length) return;
+          appendBreak();
+          const start = currentText().length;
+          const tableText = rows.map(row => row.map(cell => cell.text).join("\t")).join("\n");
+          parts.push(tableText);
+          tableBlocks.push(tableBlockFromRows(rows, start));
+          appendBreak();
+          return;
+        }
+        if (tag === "BR") {
+          appendBreak(1);
+          return;
+        }
+
+        const isBlock = blockTags.has(tag);
+        if (isBlock) appendBreak();
+        for (const child of node.childNodes) walk(child, preserveWhitespace || tag === "PRE");
+        if (isBlock) appendBreak();
+      };
+
+      for (const child of documentFragment.body.childNodes) walk(child);
+      const rawText = currentText();
+      const text = rawText.trim();
+      if (!text || !tableBlocks.length) return null;
+      const leadingOffset = rawText.length - rawText.trimStart().length;
+      return {
+        text,
+        tableBlocks: tableBlocks.map(block => shiftTableBlock(block, -leadingOffset))
+      };
     }
 
     function tableBlockFromRows(rows, start = 0) {
@@ -2460,13 +2545,20 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return readingUnitForToken(activeIndex)?.kind === "table-row";
     }
 
-    function loadTableRows(rows) {
-      const text = rows.map(row => row.map(cell => cell.text).join("\t")).join("\n");
-      sourceText.value = text;
-      tableBlocks = [tableBlockFromRows(rows, 0)];
+    function loadClipboardContent(content) {
+      if (!content?.text?.trim()) {
+        setStatus(t("clipboardEmpty"));
+        return;
+      }
+      if (content.text.trim() === sourceText.value.trim()) {
+        setStatus(t("clipboardUnchanged"));
+        return;
+      }
+      sourceText.value = content.text;
+      tableBlocks = content.tableBlocks || [];
       rebuildTokens();
       sourceText.focus();
-      setStatus(t("tableLoaded"));
+      setStatus(t("clipboardRichLoaded"));
       openGuidePrompt();
     }
 
@@ -3508,9 +3600,9 @@ The goal is simple: lower the friction of entering a text, and help you return g
             for (const item of clipboardItems) {
               if (!item.types.includes("text/html")) continue;
               const html = await (await item.getType("text/html")).text();
-              const table = parseClipboardTable(html);
-              if (table) {
-                loadTableRows(table.rows);
+              const content = parseClipboardContent(html);
+              if (content) {
+                loadClipboardContent(content);
                 return;
               }
             }
@@ -3541,15 +3633,15 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function handleSourcePaste(event) {
       const clipboardHTML = event.clipboardData?.getData("text/html");
-      const table = parseClipboardTable(clipboardHTML);
+      const content = parseClipboardContent(clipboardHTML);
       const hasSelection = sourceText.selectionStart === 0 && sourceText.selectionEnd === sourceText.value.length;
-      if (!table || (sourceText.value.trim() && !hasSelection)) {
+      if (!content || (sourceText.value.trim() && !hasSelection)) {
         window.setTimeout(openGuidePrompt, 0);
         return;
       }
 
       event.preventDefault();
-      loadTableRows(table.rows);
+      loadClipboardContent(content);
     }
 
     function scrollToTop() {
