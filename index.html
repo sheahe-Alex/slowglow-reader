@@ -1292,7 +1292,7 @@
         </div>
         <div class="action-group support-actions">
           <span class="guide-toggle-wrap">
-            <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">逐句伴读：关</button>
+            <button class="button comfort" id="gentleButton" type="button" aria-pressed="false">专注阅读：关</button>
             <span class="guide-caption" id="gentleHint">当前句浮现，其他文字退后。</span>
           </span>
           <span class="document-actions">
@@ -1392,10 +1392,10 @@
     <section class="mode-prompt-card" role="dialog" aria-modal="true" aria-labelledby="guidePromptTitle" aria-describedby="guidePromptCopy">
       <button class="mode-prompt-close" id="guidePromptClose" type="button" aria-label="关闭">×</button>
       <p class="mode-prompt-kicker" id="guidePromptKicker">第一次使用</p>
-      <h2 class="mode-prompt-title" id="guidePromptTitle">要不要先试试逐句伴读？</h2>
+      <h2 class="mode-prompt-title" id="guidePromptTitle">试试专注阅读？</h2>
       <p class="mode-prompt-copy" id="guidePromptCopy">当前句会浮现，其他文字轻轻退后。它不会自动播放声音，只会先帮你把阅读范围变得更清楚。</p>
       <div class="mode-prompt-actions">
-        <button class="button primary" id="guidePromptAccept" type="button">体验逐句伴读</button>
+        <button class="button primary" id="guidePromptAccept" type="button">体验专注阅读</button>
         <button class="button utility" id="guidePromptDecline" type="button">先不用</button>
       </div>
     </section>
@@ -1506,9 +1506,9 @@
         bionicPrefix: "英文词首加粗",
         anchorPrefix: "句子锚点",
         intensityPrefix: "结构强度",
-        gentle: "逐句伴读：关",
-        exitGentle: "逐句伴读：开",
-        gentleHint: "只让当前句站出来。",
+        gentle: "专注阅读：关",
+        exitGentle: "专注阅读：开",
+        gentleHint: "当前句浮现，其他文字退后。",
         markSentence: "标记这一句",
         unmarkSentence: "取消标记",
         previousSentence: "上一句",
@@ -1538,13 +1538,13 @@
         onboardingSteps: [
           ["放入文字", "粘贴文章、课程材料、文档，或任何想读但难开始的文字。"],
           ["开始伴读", "大字号、高亮和可选声音会陪你往下走。"],
-          ["走神也没关系", "回到高亮处；需要时打开逐句伴读，只让当前句站出来。"]
+          ["走神也没关系", "回到高亮处；需要时打开专注阅读，只让当前句站出来。"]
         ],
         sampleButton: "没有文字？先试一小段示例",
         sampleLoaded: "示例文字已放好。可以点“开始伴读”试试看。",
         sampleText: `伴读 Reader 是一个面向长文、学习材料和严肃内容的低阻力阅读辅助工具。它适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始、想读但难坚持”的文本。
 
-它不是速读工具，也不是翻译器。它不会替你总结，也不会要求你马上变得高效。它只是把文字放大，让高亮带着你往下走；需要时，也可以打开逐句伴读，让当前句站出来，其他文字轻轻退后。
+它不是速读工具，也不是翻译器。它不会替你总结，也不会要求你马上变得高效。它只是把文字放大，让高亮带着你往下走；需要时，也可以打开专注阅读，让当前句站出来，其他文字轻轻退后。
 
 这个工具想做的事情很简单：降低进入文本的阻力，帮助你在走神、卡住或过载的时候，温柔地回到文字里。读一点也算。回到高亮处，再读下一小句。`,
         emptyNote: "不用设置完美，先试一小段就好。读一点也算。",
@@ -1597,16 +1597,16 @@
         tableLoaded: "已识别表格。会保留表格布局，并按行伴读。",
         newTextReady: "可以粘贴下一段文字了。",
         externalLoaded: "文字已放好。可以开始伴读。",
-        gentleOn: "已开启逐句伴读。当前句会浮现出来，其他文字会轻轻退后。",
-        gentleOff: "已退出逐句伴读。",
+        gentleOn: "已开启专注阅读。当前句会浮现出来，其他文字会轻轻退后。",
+        gentleOff: "已退出专注阅读。",
         guidePromptKicker: "第一次使用",
-        guidePromptTitle: "要不要先试试逐句伴读？",
-        guidePromptCopy: "当前句会浮现，其他文字轻轻退后。它不会自动播放声音，只会先帮你把阅读范围变得更清楚。",
-        guidePromptAccept: "体验逐句伴读",
+        guidePromptTitle: "试试专注阅读？",
+        guidePromptCopy: "它会让当前句站出来，其他文字轻轻退后。适合文字很多、容易走神，或不知道从哪里开始的时候。",
+        guidePromptAccept: "体验专注阅读",
         guidePromptDecline: "先不用",
         guidePromptClose: "关闭提示",
-        guidePromptAccepted: "已开启逐句伴读。点“开始伴读”后，当前句会浮现出来。",
-        guidePromptDeclined: "好的。之后也可以随时从顶部打开逐句伴读。",
+        guidePromptAccepted: "已开启专注阅读。点“开始伴读”后，当前句会浮现出来。",
+        guidePromptDeclined: "好的。之后也可以随时从顶部打开专注阅读。",
         rateAfterResume: ({ rate }) => `语速已改为 ${rate}x，点继续后生效。`,
         reviewJumped: "已回到原文对应位置。",
         paused: "已暂停。",
@@ -1655,9 +1655,9 @@
         bionicPrefix: "Bold Word Starts",
         anchorPrefix: "Sentence Anchor",
         intensityPrefix: "Hint Strength",
-        gentle: "Sentence Guide: Off",
-        exitGentle: "Sentence Guide: On",
-        gentleHint: "Let only the current sentence stand forward.",
+        gentle: "Focus Reading: Off",
+        exitGentle: "Focus Reading: On",
+        gentleHint: "Let the current sentence stand forward while the rest gently fades back.",
         markSentence: "Mark Sentence",
         unmarkSentence: "Unmark",
         previousSentence: "Previous",
@@ -1687,13 +1687,13 @@
         onboardingSteps: [
           ["Add text", "Paste an article, course material, document, or any text that feels hard to begin."],
           ["Start reading", "Large text, highlighting, and optional sound help you keep moving."],
-          ["It is okay to drift", "Come back to the highlight. Use Sentence Guide when you want only the current sentence to stand forward."]
+          ["It is okay to drift", "Come back to the highlight. Use Focus Reading when you want only the current sentence to stand forward."]
         ],
         sampleButton: "No text yet? Try a short sample",
         sampleLoaded: "Sample text is ready. Click Start Reading when you want to try it.",
         sampleText: `Reader is a low-friction reading support tool for long-form text, study materials, and serious content. It is for articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
 
-It is not a speed-reading tool or a translator. It does not summarize for you or ask you to become instantly productive. It simply enlarges the text and lets the highlight guide you forward; when needed, Sentence Guide lets the current sentence stand forward while the rest gently fades back.
+It is not a speed-reading tool or a translator. It does not summarize for you or ask you to become instantly productive. It simply enlarges the text and lets the highlight guide you forward; when needed, Focus Reading lets the current sentence stand forward while the rest gently fades back.
 
 The goal is simple: lower the friction of entering a text, and help you return gently when you drift, get stuck, or feel overloaded. A little reading counts. Come back to the highlight, then continue with the next small piece.`,
         emptyNote: "You do not need perfect settings. Try a small passage first. A little reading counts.",
@@ -1746,16 +1746,16 @@ The goal is simple: lower the friction of entering a text, and help you return g
         tableLoaded: "A table was detected. Its layout will stay visible, and reading will move row by row.",
         newTextReady: "Ready for the next passage.",
         externalLoaded: "Text is ready. You can start reading.",
-        gentleOn: "Sentence Guide is on. The current sentence will appear while surrounding text gently fades back.",
-        gentleOff: "Sentence Guide is off.",
+        gentleOn: "Focus Reading is on. The current sentence will appear while surrounding text gently fades back.",
+        gentleOff: "Focus Reading is off.",
         guidePromptKicker: "First time here",
-        guidePromptTitle: "Would you like to try Sentence Guide?",
-        guidePromptCopy: "The current sentence will stand forward while the rest gently fades back. It will not start audio; it only makes the reading area clearer first.",
-        guidePromptAccept: "Try Sentence Guide",
+        guidePromptTitle: "Try Focus Reading?",
+        guidePromptCopy: "It brings the current sentence forward while the rest gently fades back. It can help when the text feels long, your attention drifts, or you do not know where to begin.",
+        guidePromptAccept: "Try Focus Reading",
         guidePromptDecline: "Not now",
         guidePromptClose: "Close prompt",
-        guidePromptAccepted: "Sentence Guide is on. Click Start Reading when you are ready.",
-        guidePromptDeclined: "That is okay. You can turn on Sentence Guide from the top at any time.",
+        guidePromptAccepted: "Focus Reading is on. Click Start Reading when you are ready.",
+        guidePromptDeclined: "That is okay. You can turn on Focus Reading from the top at any time.",
         rateAfterResume: ({ rate }) => `Speed changed to ${rate}x. It will apply when you resume.`,
         reviewJumped: "Jumped back to the source text.",
         paused: "Paused.",

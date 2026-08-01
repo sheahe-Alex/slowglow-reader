@@ -13,7 +13,7 @@ https://sheahe-alex.github.io/slowglow-reader/
 
 它不需要登录，也不会上传文字。你可以把内容复制进去，它会放大显示，可以朗读，也可以关闭朗读只保留高亮导读。
 
-它不是速读工具，也不是翻译器。我最想做的是「逐句伴读」：当前句会浮现出来，其他文字轻轻退后，帮助人一小句一小句地读，不用一下子面对整屏文字。
+它不是速读工具，也不是翻译器。我最想做的是「专注阅读」：当前句会浮现出来，其他文字轻轻退后，帮助人一小句一小句地读，不用一下子面对整屏文字。
 
 如果内容很重要，也可以打开「回看线索」，让本地规则给出少量可以第二遍再回来的词和句；点一下就能回到原文对应位置。
 
@@ -40,7 +40,7 @@ I think of it as a scaffold for deep reading: it does not read for you, but help
 
 It does not require login, and it does not upload your text. You can paste content into it, and it will enlarge the text, read it aloud if you want, or keep the voice off while the highlight still guides you.
 
-It is not a speed-reading tool or a translator. The part I care about most is Sentence Guide. The current sentence appears while surrounding text gently fades back, so you can read one sentence at a time without facing the whole page all at once.
+It is not a speed-reading tool or a translator. The part I care about most is Focus Reading. The current sentence appears while surrounding text gently fades back, so you can read one sentence at a time without facing the whole page all at once.
 
 If the content matters, Review Cues can suggest a few words and sentences you may want to return to on a second pass; click one to jump back to its place in the source text.
 

@@ -159,7 +159,7 @@ class ProductAnatomy(Flowable):
         c.drawString(15, h - 14, "伴读 Reader")
         c.setFillColor(MUTED)
         c.setFont("BanduCN", 6.8)
-        c.drawRightString(w - 15, h - 14, "结构提示: 自动    逐句伴读: 关")
+        c.drawRightString(w - 15, h - 14, "结构提示: 自动    专注阅读: 关")
 
         c.setFillColor(TEAL)
         c.roundRect(12, h - 34, 45, 10, 4, fill=1, stroke=0)
@@ -250,7 +250,7 @@ class AttentionLayers(Flowable):
             ("原文", "保留段落、换行和完整语境", PANEL, INK),
             ("结构", "下划线、点线和少量色块表达关系", colors.HexColor("#e7f0f6"), BLUE),
             ("当前词", "黄色高亮，朗读与视觉同步", colors.HexColor("#fff3a6"), INK),
-            ("逐句伴读", "需要时才让当前句站出来", colors.HexColor("#dceee8"), TEAL_DARK),
+            ("专注阅读", "需要时才让当前句站出来", colors.HexColor("#dceee8"), TEAL_DARK),
         ]
         row_h = (h - 9) / 4
         for i, (label, desc, fill, text_color) in enumerate(rows):
@@ -336,10 +336,10 @@ def build_story():
     story += [P("这些机制共同服务一个目标: 让用户保留自己的理解，而不是获得一个看似完成的结果。", "Quote"), Spacer(1, 5 * mm)]
     story += [P("关键设计决策", "H1CN")]
     story += [P("让注意力有落点，但不制造新的噪音", "H2CN")]
-    story += [bullet("普通模式只突出当前词，结构提示使用下划线、点线和少量色块表达关系"), bullet("逐句伴读才突出整句，周围内容退后，当前词继续移动"), bullet("结构提示默认自动适配中英文: 中文侧重逻辑信号和概念复现，英文侧重信息流"), bullet("英文词首加粗默认开启，但作为低强度视觉引导，设置里可关闭")]
+    story += [bullet("普通模式只突出当前词，结构提示使用下划线、点线和少量色块表达关系"), bullet("专注阅读才突出整句，周围内容退后，当前词继续移动"), bullet("结构提示默认自动适配中英文: 中文侧重逻辑信号和概念复现，英文侧重信息流"), bullet("英文词首加粗默认开启，但作为低强度视觉引导，设置里可关闭")]
     story += [Spacer(1, 3 * mm), AttentionLayers(), Spacer(1, 4 * mm)]
     story += [P("让控制权跟着阅读动作走", "H2CN")]
-    story += [bullet("暂停和继续是同一个动作；暂停后可以上一句 / 下一句，不必从头播放"), bullet("速度在阅读中也可以调整，并在继续时生效"), bullet("标记动作放在逐句伴读的当前句旁；停止后收起输入区和设置，让页面回到自由浏览状态")]
+    story += [bullet("暂停和继续是同一个动作；暂停后可以上一句 / 下一句，不必从头播放"), bullet("速度在阅读中也可以调整，并在继续时生效"), bullet("标记动作放在专注阅读的当前句旁；停止后收起输入区和设置，让页面回到自由浏览状态")]
     story.append(PageBreak())
 
     # Page 3: iteration
@@ -350,9 +350,9 @@ def build_story():
         [P("一整段高亮让人不知道当前读到哪里", "TableBody"), P("改为逐词高亮，并加入朗读与视觉推进同步", "TableBodyMuted")],
         [P("长文本朗读中途漏读、读完一小段就结束", "TableBody"), P("按句子和短块切分语音，继续时从当前位置接着走", "TableBodyMuted")],
         [P("语速、暂停、继续的语义不清", "TableBody"), P("统一暂停 / 继续，支持阅读中调整速度并保留偏好", "TableBodyMuted")],
-        [P("逐句伴读里整句绿色背景随每个词闪动", "TableBody"), P("取消整句动画，只保留当前词的轻微出现效果", "TableBodyMuted")],
+        [P("专注阅读里整句绿色背景随每个词闪动", "TableBody"), P("取消整句动画，只保留当前词的轻微出现效果", "TableBodyMuted")],
         [P("结构提示和当前句整块背景叠加，视觉过载", "TableBody"), P("普通模式取消整句背景，结构提示只表达关系", "TableBodyMuted")],
-        [P("新用户可能永远发现不了逐句伴读", "TableBody"), P("第一次放入较长文本时轻量询问是否体验", "TableBodyMuted")],
+        [P("新用户可能永远发现不了专注阅读", "TableBody"), P("第一次放入较长文本时轻量询问是否体验", "TableBodyMuted")],
         [P("顶部按钮越来越多", "TableBody"), P("将主要动作、阅读控制和低频设置分层，并持续做减法", "TableBodyMuted")],
     ]
     table = Table(rows, colWidths=[67 * mm, 93 * mm], repeatRows=1)
@@ -375,7 +375,7 @@ def build_story():
     # Page 4: outcome and reflection
     story += [Spacer(1, 8 * mm), P("04  结果、边界与下一步", "H1CN")]
     story += [P("已交付", "H2CN")]
-    story += [bullet("可在 Windows、Mac 和移动浏览器使用的响应式网页原型"), bullet("GitHub Pages 在线版，无需安装、注册或登录"), bullet("中文 / English 界面，浏览器语言自动识别，也保留手动切换"), bullet("浏览器系统语音、当前词高亮、逐句伴读、结构提示和本地回看线索"), bullet("保留原文段落与换行，支持从第一遍阅读到第 N 遍回看")]
+    story += [bullet("可在 Windows、Mac 和移动浏览器使用的响应式网页原型"), bullet("GitHub Pages 在线版，无需安装、注册或登录"), bullet("中文 / English 界面，浏览器语言自动识别，也保留手动切换"), bullet("浏览器系统语音、当前词高亮、专注阅读、结构提示和本地回看线索"), bullet("保留原文段落与换行，支持从第一遍阅读到第 N 遍回看")]
     story += [Spacer(1, 3 * mm), P("我学到的", "H2CN")]
     story += [P("辅助阅读产品的“温柔”不主要来自鼓励文案，而来自结构: 更少的选择、更清楚的当前状态、更容易回到上一步，以及不把用户的困难解释成能力不足。", "BodyCN")]
     story += [P("这也改变了我对产品成功的判断。它不需要让用户看起来更高效，而要让用户更愿意再次打开文本，继续形成自己的理解。", "BodyCN")]

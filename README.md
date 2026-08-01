@@ -26,8 +26,8 @@ No installation or login is required. Open the page and paste text into the read
 适合文章、论文、课程材料、文档、长邮件，或任何“想读但难开始/难坚持”的文本。  
 For articles, papers, course materials, documentation, long emails, or any text that feels hard to start or hard to stay with.
 
-它不是速读工具，也不是翻译器。它用大字号、高亮、可选声音和“逐句伴读”帮你进入文本；需要回看时，再用本地规则提供少量回看线索。  
-It is not a speed-reading tool or a translator. It uses large text, highlighting, optional sound, and Sentence Guide to help you enter the text; when you need to review, local rules provide a few review cues.
+它不是速读工具，也不是翻译器。它用大字号、高亮、可选声音和“专注阅读”帮你进入文本；需要回看时，再用本地规则提供少量回看线索。
+It is not a speed-reading tool or a translator. It uses large text, highlighting, optional sound, and Focus Reading to help you enter the text; when you need to review, local rules provide a few review cues.
 
 它不会替你总结，也不抢走学习过程。它只是一个阅读脚手架：在你容易卡住、走神、过载的时候，把你轻轻带回文字里。  
 It does not summarize for you or take over the learning process. It is a reading scaffold: when you get stuck, drift, or feel overloaded, it gently brings you back to the text.
@@ -44,8 +44,8 @@ If you do not have text ready, click "No text yet? Try a short sample" on the pa
    Add text: paste an article, course material, document, or any text that feels hard to begin.
 2. 开始伴读：大字号、高亮和可选声音会陪你往下走。  
    Start reading: large text, highlighting, and optional sound help you keep moving.
-3. 需要时打开逐句伴读：只让当前句站出来。  
-   Use Sentence Guide when needed: let only the current sentence stand forward.
+3. 需要时打开专注阅读：只让当前句站出来。
+   Use Focus Reading when needed: let only the current sentence stand forward.
 
 手机上如果 `读取剪贴板` 不可用，直接点文本框手动粘贴即可。  
 On phones, if `Read Clipboard` does not work, tap the text box and paste manually.
@@ -125,10 +125,10 @@ The core belief:
 - 自动记住语速、字号、行距、宽度和主题 / Remembers speed, font size, line height, width, and theme
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
 - 识别复制来的 HTML 表格并保留行列；表格伴读时按行推进 / Recognize copied HTML tables, keep their rows and columns, and move row by row while reading
-- 逐句伴读：只让当前句站出来，减少一次面对整屏文字的压力 / Sentence Guide: let only the current sentence stand forward, reducing the pressure of facing the whole page at once
-- 第一次放入文字时会轻轻询问是否体验逐句伴读，也可以先跳过 / On first use, a gentle prompt offers Sentence Guide; you can skip it
+- 专注阅读：只让当前句站出来，减少一次面对整屏文字的压力 / Focus Reading: let only the current sentence stand forward, reducing the pressure of facing the whole page at once
+- 第一次放入文字时会轻轻询问是否体验专注阅读，也可以先跳过 / On first use, a gentle prompt offers Focus Reading; you can skip it
 - 可选句子锚点：需要时固定显示当前句 / Optional Sentence Anchor: keep the current sentence visible when needed
-- 在逐句伴读的当前句旁标记：一键留下重点判断，再点一次撤销 / Mark beside the current sentence in Sentence Guide; click again to unmark
+- 在专注阅读的当前句旁标记：一键留下重点判断，再点一次撤销 / Mark beside the current sentence in Focus Reading; click again to unmark
 - 英文默认使用词首加粗，设置里可以关闭 / English word starts are bold by default; you can turn them off in Settings
 - 结构提示默认自动适配语言，设置里可以关闭或调整强度：英文偏信息流，中文偏逻辑信号和概念复现 / Structure hints adapt to the language by default; you can turn them off or adjust their strength in Settings: information flow for English, logic signals and repeated concepts for Chinese
 - 回看线索：本地规则给出少量可能的回看词和回看句，点击即可回到原文对应位置 / Review Cues: local rules suggest a few possible words and sentences; click one to jump back to its place in the source text
@@ -174,8 +174,8 @@ If macOS blocks it, right-click the file, choose "Open", and confirm once more.
 5. 点 `开始伴读`。  
    Click `Start Reading`.
 
-状态不好、文字太压迫时，可以点 `逐句伴读`。  
-When the text feels overwhelming, try `逐句伴读` / Sentence Guide.
+状态不好、文字太压迫时，可以点 `专注阅读`。
+When the text feels overwhelming, try `专注阅读` / Focus Reading.
 
 ## 隐私 / Privacy
 
@@ -221,7 +221,7 @@ You can use:
 - 更正式的跨平台网页版 / A more polished cross-platform web version
 - 更稳定的大段文本导读 / More stable long-text guided reading
 - 可选的 PDF/OCR 辅助 / Optional PDF/OCR support
-- 更细腻的逐句伴读调节 / More nuanced Sentence Guide controls
+- 更细腻的专注阅读调节 / More nuanced Focus Reading controls
 - 多语言阅读体验优化 / Better multilingual reading experience
 
 ## License
