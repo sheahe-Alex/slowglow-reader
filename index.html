@@ -1829,7 +1829,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function speechVoiceForText(text) {
       refreshSpeechVoices();
-      const target = cjkRatio(text) >= 0.25 ? "zh" : "en";
+      const target = speechLanguageForText(text);
       const targetLocales = target === "zh" ? ["zh-cn", "zh", "cmn"] : ["en-us", "en-gb", "en"];
       return speechVoices
         .map(voice => {
@@ -1847,12 +1847,35 @@ The goal is simple: lower the friction of entering a text, and help you return g
         .sort((a, b) => b.score - a.score)[0]?.voice || null;
     }
 
-    // Short speech tasks are more reliable than one long browser utterance.
+    function speechLanguageForText(text) {
+      return cjkRatio(text) >= 0.5 ? "zh" : "en";
+    }
+
+    // Group short sentences to reduce abrupt system-voice handoffs.
     function speechChunksForText(source, maxLength = 460) {
       const sentences = splitSentences(source);
       const chunks = [];
+      let pending = null;
+
+      const flushPending = () => {
+        if (pending) chunks.push(pending);
+        pending = null;
+      };
 
       for (const sentence of sentences) {
+        if (sentence.end - sentence.start <= maxLength) {
+          const sentenceLanguage = speechLanguageForText(sentence.text);
+          const pendingLanguage = pending ? speechLanguageForText(source.slice(pending.start, pending.end)) : null;
+          if (pending && sentence.end - pending.start <= maxLength && sentenceLanguage === pendingLanguage) {
+            pending.end = sentence.end;
+          } else {
+            flushPending();
+            pending = { start: sentence.start, end: sentence.end };
+          }
+          continue;
+        }
+
+        flushPending();
         let start = sentence.start;
         while (start < sentence.end) {
           let end = Math.min(sentence.end, start + maxLength);
@@ -1879,6 +1902,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
           start = end;
         }
       }
+
+      flushPending();
 
       return chunks.length ? chunks : [{ start: 0, end: source.length }];
     }
@@ -2700,10 +2725,16 @@ The goal is simple: lower the friction of entering a text, and help you return g
         return;
       }
 
+      if (!/[\p{L}\p{N}]/u.test(text)) {
+        speechChunkIndex += 1;
+        speakSpeechChunk(runId, firstTokenAtOrAfter(speechChunks[speechChunkIndex]?.start ?? chunk.end));
+        return;
+      }
+
       speechOffset = chunkStart + Math.max(0, leadingWhitespace);
       utterance = new SpeechSynthesisUtterance(text);
       const voice = speechVoiceForText(text);
-      utterance.lang = voice?.lang || (cjkRatio(text) >= 0.25 ? "zh-CN" : "en-US");
+      utterance.lang = voice?.lang || (speechLanguageForText(text) === "zh" ? "zh-CN" : "en-US");
       if (voice) utterance.voice = voice;
       utterance.rate = Number(rateInput.value);
       utterance.pitch = 1;
