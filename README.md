@@ -123,6 +123,7 @@ The core belief:
 - 阅读中调整速度 / Adjust reading speed while it is running
 - 自动记住语速、字号、行距、宽度和主题 / Remembers speed, font size, line height, width, and theme
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
+- 识别复制来的 HTML 表格并保留行列；表格伴读时按行推进 / Recognize copied HTML tables, keep their rows and columns, and move row by row while reading
 - 逐句伴读：只让当前句站出来，减少一次面对整屏文字的压力 / Sentence Guide: let only the current sentence stand forward, reducing the pressure of facing the whole page at once
 - 第一次放入文字时会轻轻询问是否体验逐句伴读，也可以先跳过 / On first use, a gentle prompt offers Sentence Guide; you can skip it
 - 可选句子锚点：需要时固定显示当前句 / Optional Sentence Anchor: keep the current sentence visible when needed
