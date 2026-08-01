@@ -78,6 +78,17 @@ If you often read webpages, the bookmarklet can send selected text into Reader w
 它不是浏览器插件，不需要安装扩展商店里的东西。选中文字后点书签，就会打开在线版并带入文字。  
 It is not a browser extension and does not require an extension store. Select text, click the bookmark, and it opens the online reader with that text.
 
+如果你经常在浏览器版 Codex 里阅读报告，也可以安装可选的浏览器桥接扩展：
+If you often read reports in browser-based Codex, you can also install the optional browser bridge:
+
+- [Browser Bridge / 浏览器桥接](./browser-extension/README.md)
+
+选中文字后右键选择 `Send selection to Bandu Reader / 发送到伴读`，在线版会打开并接收文字。扩展只在本地暂存选中的文字，接收后删除，不把文字放进 URL，也不上传文字。
+Select text, right-click, and choose `Send selection to Bandu Reader`. The online reader opens with the text. The extension stores the selection locally until it is received, then deletes it; it does not put the text in the URL or upload it.
+
+桌面版 Codex 不是网页，扩展无法直接读取它的选区；请复制回答后使用 `读取剪贴板`。
+The desktop Codex app is not a webpage, so the extension cannot read its selection directly; copy the response and use `Read Clipboard` instead.
+
 ## 为什么做 / Why
 
 伴读 Reader 是一个深度阅读脚手架。
@@ -198,6 +209,7 @@ You can use:
 - [Friend Guide / 给朋友看的说明](./Friend-Guide_给朋友看的说明.md)
 - [Share Copy / 分享文案](./Share-Copy_分享文案.md)
 - [Bookmarklet / 书签按钮](./Bookmarklet_书签按钮.md)
+- [Browser Bridge / 浏览器桥接](./browser-extension/README.md)
 - [Product Charter / 产品宪章](./Product-Charter_产品宪章.md)
 
 ## 路线图 / Roadmap

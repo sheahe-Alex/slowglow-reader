@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Bandu Reader - Send Selection",
+  "version": "0.1.0",
+  "description": "Send selected webpage text to Bandu Reader for calmer reading.",
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://sheahe-alex.github.io/slowglow-reader/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Send selection to Bandu Reader"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://sheahe-alex.github.io/slowglow-reader/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": ["reader-bridge.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
