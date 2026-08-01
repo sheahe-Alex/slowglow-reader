@@ -1841,6 +1841,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
           else if (locale.startsWith(target)) score += 20;
           if (voice.localService) score += 15;
           if (/premium|enhanced|natural|neural|siri/.test(name)) score += 10;
+          score += speechVoiceQualityScore(name, target);
           return { voice, score };
         })
         .filter(item => item.score >= 20)
@@ -1849,6 +1850,14 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function speechLanguageForText(text) {
       return cjkRatio(text) >= 0.5 ? "zh" : "en";
+    }
+
+    function speechVoiceQualityScore(name, language) {
+      if (language !== "en") return 0;
+      if (/\b(samantha|alex|ava|karen|fiona|daniel)\b/.test(name)) return 80;
+      if (/\b(eddy|flo|sandy|reed|shelley)\b/.test(name)) return 35;
+      if (/\b(albert|bad news|bahh|bells|boing|bubbles|cellos|fred|good news|jester|junior|organ|ralph|superstar|trinoids|whisper|wobble|zarvox)\b/.test(name)) return -80;
+      return 0;
     }
 
     // Group short sentences to reduce abrupt system-voice handoffs.
