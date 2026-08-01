@@ -155,6 +155,22 @@
       gap: 6px;
     }
 
+    .reading-actions.is-reading .button.context-action:disabled {
+      display: inline-block;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .pause-control {
+      min-width: 5.8em;
+    }
+
+    .pause-control[aria-pressed="true"] {
+      border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
+      background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+      color: var(--ink);
+    }
+
     .guide-toggle-wrap {
       display: inline-flex;
       align-items: center;
@@ -1132,7 +1148,7 @@
           <button class="button primary" id="playButton" type="button">开始伴读</button>
         </div>
         <div class="action-group reading-actions">
-          <button class="button utility context-action" id="pauseButton" type="button" disabled>暂停</button>
+          <button class="button utility context-action pause-control" id="pauseButton" type="button" aria-pressed="false" disabled>暂停</button>
           <button class="button utility context-action" id="previousButton" type="button" disabled>上一句</button>
           <button class="button utility context-action" id="nextButton" type="button" disabled>下一句</button>
           <button class="button utility context-action" id="stopButton" type="button" disabled>停止</button>
@@ -1223,6 +1239,7 @@
     const readerPanel = document.querySelector("#readerPanel");
     const clipboardButton = document.querySelector("#clipboardButton");
     const playButton = document.querySelector("#playButton");
+    const readingActions = document.querySelector(".reading-actions");
     const voiceButton = document.querySelector("#voiceButton");
     const menuButton = document.querySelector("#menuButton");
     const markButton = document.querySelector("#markButton");
@@ -1795,8 +1812,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function updatePlaybackButtons() {
+      readingActions.classList.toggle("is-reading", isReading);
       pauseButton.disabled = !isReading;
       pauseButton.textContent = isPaused ? t("resume") : t("pause");
+      pauseButton.setAttribute("aria-pressed", String(isPaused));
       stopButton.disabled = !isReading;
       updatePlayButton();
       updateMarkButton();
