@@ -273,6 +273,24 @@
       background: color-mix(in srgb, var(--panel) 90%, var(--bg));
     }
 
+    .sound-control {
+      width: 38px;
+      min-width: 38px;
+      padding: 0;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .sound-icon {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .sound-icon[hidden] {
+      display: none;
+    }
+
     .button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -1202,7 +1220,18 @@
             <button class="button utility preference" id="newTextButton" type="button" hidden>换一段</button>
           </span>
           <span class="preference-actions">
-            <button class="button utility preference" id="voiceButton" type="button" aria-pressed="true">朗读：开</button>
+            <button class="button utility preference sound-control" id="voiceButton" type="button" aria-label="朗读声音：开" title="朗读声音：开" aria-pressed="true">
+              <svg class="sound-icon" data-sound-icon="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+                <path d="M16 9.2a4 4 0 0 1 0 5.6"></path>
+                <path d="M18.5 6.8a7.5 7.5 0 0 1 0 10.4"></path>
+              </svg>
+              <svg class="sound-icon" data-sound-icon="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+                <path d="m17 9 4 6"></path>
+                <path d="m21 9-4 6"></path>
+              </svg>
+            </button>
             <button class="button utility preference" id="menuButton" type="button" aria-expanded="false">设置</button>
           </span>
         </div>
@@ -1365,8 +1394,8 @@
         play: "开始伴读",
         replay: "从头再读",
         readingNow: "阅读中",
-        voiceOn: "朗读：开",
-        voiceOff: "朗读：关",
+        voiceOn: "朗读声音：开",
+        voiceOff: "朗读声音：关",
         backToTop: "回到顶部",
         newText: "换一段",
         showMenu: "设置",
@@ -1502,8 +1531,8 @@
         play: "Start Reading",
         replay: "Read Again",
         readingNow: "Reading",
-        voiceOn: "Read Aloud: On",
-        voiceOff: "Read Aloud: Off",
+        voiceOn: "Read-aloud sound: On",
+        voiceOff: "Read-aloud sound: Off",
         backToTop: "Back to top",
         newText: "New text",
         showMenu: "Settings",
@@ -1894,7 +1923,11 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function updateVoiceButton() {
-      voiceButton.textContent = voiceEnabled ? t("voiceOn") : t("voiceOff");
+      const label = voiceEnabled ? t("voiceOn") : t("voiceOff");
+      voiceButton.setAttribute("aria-label", label);
+      voiceButton.title = label;
+      voiceButton.querySelector('[data-sound-icon="on"]').hidden = !voiceEnabled;
+      voiceButton.querySelector('[data-sound-icon="off"]').hidden = voiceEnabled;
       voiceButton.setAttribute("aria-pressed", String(voiceEnabled));
     }
 
