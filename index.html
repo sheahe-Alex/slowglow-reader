@@ -156,8 +156,9 @@
     }
 
     .reading-actions.is-reading .button.context-action:disabled {
-      display: inline-block;
-      visibility: hidden;
+      display: inline-grid;
+      visibility: visible;
+      opacity: 0.34;
       pointer-events: none;
     }
 
@@ -167,6 +168,12 @@
       padding: 0;
       display: inline-grid;
       place-items: center;
+    }
+
+    .reading-actions .paragraph-jump {
+      margin-left: 2px;
+      border-color: color-mix(in srgb, var(--accent) 22%, var(--line));
+      color: color-mix(in srgb, var(--accent) 78%, var(--muted));
     }
 
     .pause-control[aria-pressed="true"] {
@@ -1270,6 +1277,14 @@
             <span class="control-icon" data-icon aria-hidden="true">⏭</span>
             <span class="sr-only">下一句</span>
           </button>
+          <button class="button utility context-action paragraph-jump" id="previousParagraphButton" type="button" aria-label="上一段" title="上一段" disabled>
+            <span class="control-icon" data-icon aria-hidden="true">⏪</span>
+            <span class="sr-only">上一段</span>
+          </button>
+          <button class="button utility context-action paragraph-jump" id="nextParagraphButton" type="button" aria-label="下一段" title="下一段" disabled>
+            <span class="control-icon" data-icon aria-hidden="true">⏩</span>
+            <span class="sr-only">下一段</span>
+          </button>
           <button class="button utility context-action" id="stopButton" type="button" aria-label="停止" title="停止" disabled>
             <span class="control-icon" data-icon aria-hidden="true">⏹</span>
             <span class="sr-only">停止</span>
@@ -1401,6 +1416,8 @@
     const previousButton = document.querySelector("#previousButton");
     const pauseButton = document.querySelector("#pauseButton");
     const stopButton = document.querySelector("#stopButton");
+    const previousParagraphButton = document.querySelector("#previousParagraphButton");
+    const nextParagraphButton = document.querySelector("#nextParagraphButton");
     const flowButton = document.querySelector("#flowButton");
     const bionicButton = document.querySelector("#bionicButton");
     const nextButton = document.querySelector("#nextButton");
@@ -1496,6 +1513,8 @@
         unmarkSentence: "取消标记",
         previousSentence: "上一句",
         nextSentence: "下一句",
+        previousParagraph: "上一段",
+        nextParagraph: "下一段",
         languageButton: "中文 / English",
         rate: "语速 ",
         font: "字号 ",
@@ -1553,8 +1572,12 @@
         noPreviousSentence: "已经是第一句了。",
         previousSentenceReady: "已回到上一句。",
         previousRow: "上一行",
+        previousParagraphReady: "已回到上一段。",
+        noPreviousParagraph: "已经是第一段了。",
         nextSentenceReady: "已进入下一句。",
         nextRow: "下一行",
+        nextParagraphReady: "已进入下一段。",
+        noNextParagraph: "已经是最后一段了。",
         noNextSentence: "已经是最后一句了。",
         copyFailed: "复制失败，可以手动选中笔记内容复制。",
         loaded: ({ tokens, chars }) => `已载入 ${tokens} 个词/片段，约 ${chars} 字符。`,
@@ -1639,6 +1662,8 @@
         unmarkSentence: "Unmark",
         previousSentence: "Previous",
         nextSentence: "Next",
+        previousParagraph: "Previous paragraph",
+        nextParagraph: "Next paragraph",
         languageButton: "English / 中文",
         rate: "Speed ",
         font: "Font ",
@@ -1696,8 +1721,12 @@ The goal is simple: lower the friction of entering a text, and help you return g
         noPreviousSentence: "Already at the first sentence.",
         previousSentenceReady: "Moved back to the previous sentence.",
         previousRow: "Previous row",
+        previousParagraphReady: "Moved back to the previous paragraph.",
+        noPreviousParagraph: "Already at the first paragraph.",
         nextSentenceReady: "Moved to the next sentence.",
         nextRow: "Next row",
+        nextParagraphReady: "Moved to the next paragraph.",
+        noNextParagraph: "Already at the last paragraph.",
         noNextSentence: "Already at the last sentence.",
         copyFailed: "Copy failed. You can manually select and copy the note content.",
         loaded: ({ tokens, chars }) => `Loaded ${tokens} words/chunks, about ${chars} characters.`,
@@ -1953,6 +1982,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
       clipboardButton.textContent = t("clipboard");
       updateIconButton(previousButton, "⏮", t("previousSentence"));
       updateIconButton(nextButton, "⏭", t("nextSentence"));
+      updateIconButton(previousParagraphButton, "⏪", t("previousParagraph"));
+      updateIconButton(nextParagraphButton, "⏩", t("nextParagraph"));
       updateButtonLabel(topButton, t("backToTop"));
       updateButtonLabel(newTextButton, t("clearText"));
       updateVoiceButton();
@@ -1994,6 +2025,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       updateMarkButton();
       updatePreviousButton();
       updateNextButton();
+      updateParagraphButtons();
     }
 
     function guidePromptWasSeen() {
@@ -2083,6 +2115,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       updateMarkButton();
       updatePreviousButton();
       updateNextButton();
+      updateParagraphButtons();
     }
 
     function updateNavigationButtons() {
@@ -2114,7 +2147,14 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function updateNextButton() {
       updateButtonLabel(nextButton, currentUnitIsTableRow() ? t("nextRow") : t("nextSentence"));
-      nextButton.disabled = !(isReading && isPaused) || nextSentenceTokenIndex() < 0;
+      nextButton.disabled = !isReading || nextSentenceTokenIndex() < 0;
+    }
+
+    function updateParagraphButtons() {
+      updateButtonLabel(previousParagraphButton, t("previousParagraph"));
+      updateButtonLabel(nextParagraphButton, t("nextParagraph"));
+      previousParagraphButton.disabled = !isReading || previousParagraphTokenIndex() < 0;
+      nextParagraphButton.disabled = !isReading || nextParagraphTokenIndex() < 0;
     }
 
     function refreshSpeechVoices() {
@@ -2488,6 +2528,22 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return nextSentence ? tokenIndexForChar(nextSentence.start) : -1;
     }
 
+    function previousParagraphTokenIndex() {
+      const source = sourceText.value.trim();
+      const currentParagraphIndex = paragraphIndexForToken(activeIndex);
+      if (!source || currentParagraphIndex <= 0) return -1;
+      const previousParagraph = paragraphRanges(source)[currentParagraphIndex - 1];
+      return previousParagraph ? tokenIndexForChar(previousParagraph.start) : -1;
+    }
+
+    function nextParagraphTokenIndex() {
+      const source = sourceText.value.trim();
+      const paragraphs = paragraphRanges(source);
+      const currentParagraphIndex = paragraphIndexForToken(activeIndex);
+      if (!source || currentParagraphIndex < 0 || currentParagraphIndex >= paragraphs.length - 1) return -1;
+      return tokenIndexForChar(paragraphs[currentParagraphIndex + 1].start);
+    }
+
     function connectorLabelForSentence(sentenceText) {
       const normalized = sentenceText.toLowerCase().replace(/\s+/g, " ").trim();
       for (const group of connectorGroups) {
@@ -2802,7 +2858,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
         return;
       }
 
-      if (isReading && !isPaused) return;
+      if (isReading && !isPaused) {
+        startFromToken(targetIndex);
+        return;
+      }
       if (isReading && isPaused) playbackRunId += 1;
       clearSilentTimer();
       if (voiceEnabled) window.speechSynthesis.cancel();
@@ -2811,6 +2870,50 @@ The goal is simple: lower the friction of entering a text, and help you return g
       render();
       updatePlaybackButtons();
       setStatus(t("nextSentenceReady"));
+    }
+
+    function goToPreviousParagraph() {
+      const targetIndex = previousParagraphTokenIndex();
+      if (targetIndex < 0) {
+        setStatus(t("noPreviousParagraph"));
+        return;
+      }
+
+      if (isReading && !isPaused) {
+        startFromToken(targetIndex);
+        return;
+      }
+
+      if (isReading && isPaused) playbackRunId += 1;
+      clearSilentTimer();
+      if (voiceEnabled) window.speechSynthesis.cancel();
+      utterance = null;
+      activeIndex = targetIndex;
+      render();
+      updatePlaybackButtons();
+      setStatus(t("previousParagraphReady"));
+    }
+
+    function goToNextParagraph() {
+      const targetIndex = nextParagraphTokenIndex();
+      if (targetIndex < 0) {
+        setStatus(t("noNextParagraph"));
+        return;
+      }
+
+      if (isReading && !isPaused) {
+        startFromToken(targetIndex);
+        return;
+      }
+
+      if (isReading && isPaused) playbackRunId += 1;
+      clearSilentTimer();
+      if (voiceEnabled) window.speechSynthesis.cancel();
+      utterance = null;
+      activeIndex = targetIndex;
+      render();
+      updatePlaybackButtons();
+      setStatus(t("nextParagraphReady"));
     }
 
     function annotateInformationFlow(sourceTokens, source) {
@@ -2968,6 +3071,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         updateMarkButton();
         updatePreviousButton();
         updateNextButton();
+        updateParagraphButtons();
         return;
       }
 
@@ -3067,6 +3171,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       updateMarkButton();
       updatePreviousButton();
       updateNextButton();
+      updateParagraphButtons();
     }
 
     function updateGentleGuide(sentenceFocus) {
@@ -3716,6 +3821,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
     stopButton.addEventListener("click", stopReading);
     previousButton.addEventListener("click", goToPreviousSentence);
     nextButton.addEventListener("click", goToNextSentence);
+    previousParagraphButton.addEventListener("click", goToPreviousParagraph);
+    nextParagraphButton.addEventListener("click", goToNextParagraph);
     flowButton.addEventListener("click", () => {
       const nextIndex = (flowModes.indexOf(flowMode) + 1) % flowModes.length;
       flowMode = flowModes[nextIndex];
