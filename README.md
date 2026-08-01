@@ -119,6 +119,7 @@ The core belief:
 - 上一句：阅读中可以退回上一句 / Previous sentence: step back while reading
 - 暂停后可在上一句和下一句之间移动 / While paused, move between the previous and next sentence
 - 停止：停止自动推进，收起粘贴框和设置，保留标注后自由浏览 / Stop: stop auto-advance, hide input and settings, and browse the marked text freely
+- 读完后可一键回到顶部，或清空并换一段新文字 / After reading, jump back to the top or clear the reader for a new passage
 - 阅读中调整速度 / Adjust reading speed while it is running
 - 自动记住语速、字号、行距、宽度和主题 / Remembers speed, font size, line height, width, and theme
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
