@@ -12,8 +12,8 @@ Bandu Reader is a local, no-login, no-upload reading companion.
 不需要安装，不需要登录。打开网页后，把文字粘贴进去即可。  
 No installation or login is required. Open the page and paste text into the reader.
 
-也可以点“导入文件”，把 PDF、TXT、Markdown、HTML 或 CSV 直接带进阅读器。当前扫描 PDF 和图片文字还需要下一阶段的 OCR 支持。
-You can also click “Import File” to bring a PDF, TXT, Markdown, HTML, or CSV file into the reader. Scanned PDFs and text in images will need the next OCR phase.
+也可以点“导入文件”，选择 PDF、图片、TXT、Markdown、HTML 或 CSV。能提取的文字会进入伴读；扫描 PDF 和图片会原样显示、可点开查看，但暂不自动识别或朗读。
+You can also click “Import File” and choose a PDF, image, TXT, Markdown, HTML, or CSV file. Extractable text enters the reading flow; scanned PDFs and images are shown as viewable pages, but are not automatically recognized or read aloud yet.
 
 ## 三件事先知道 / Good To Know
 
@@ -116,7 +116,7 @@ The core belief:
 ## 功能 / Features
 
 - 粘贴或读取剪贴板文字 / Paste or read text from the clipboard
-- 导入 PDF、TXT、Markdown、HTML 或 CSV，并把文字送入同一套阅读流程 / Import PDF, TXT, Markdown, HTML, or CSV files into the same reading flow
+- 导入 PDF、图片、TXT、Markdown、HTML 或 CSV；可提取文字进入伴读，扫描页和图片原样显示并可放大 / Import PDF, images, TXT, Markdown, HTML, or CSV; extractable text enters the reading flow, while scanned pages and images remain visible and can be enlarged
 - 大字号阅读区 / Large reading view
 - 可开关朗读：有声朗读或静音高亮导读 / Optional read-aloud: spoken reading or silent guided highlighting
 - 数字片段会跟随整篇文本的主语言朗读 / Number-only passages follow the dominant language of the text
@@ -131,6 +131,7 @@ The core belief:
 - 自动记住语速、字号、行距、宽度和主题 / Remembers speed, font size, line height, width, and theme
 - 保留原文段落和换行 / Preserve paragraphs and line breaks
 - 识别复制来的 HTML 表格并保留行列；表格伴读时按行推进 / Recognize copied HTML tables, keep their rows and columns, and move row by row while reading
+- 富文本粘贴时保留剪贴板带来的图片及其前后顺序；图片不参与朗读，可点开查看 / Preserve clipboard images and their surrounding order when pasting rich content; images are skipped by read-aloud and can be opened for a closer look
 - 专注阅读：只让当前句站出来，减少一次面对整屏文字的压力 / Focus Reading: let only the current sentence stand forward, reducing the pressure of facing the whole page at once
 - 第一次放入文字时会轻轻询问是否体验专注阅读，也可以先跳过 / On first use, a gentle prompt offers Focus Reading; you can skip it
 - 可选句子锚点：需要时固定显示当前句 / Optional Sentence Anchor: keep the current sentence visible when needed
@@ -177,8 +178,8 @@ If macOS blocks it, right-click the file, choose "Open", and confirm once more.
    Return to Reader.
 4. 点 `读取剪贴板`，或直接粘贴到 `放入文字` 区域。  
    Click `Read Clipboard`, or paste directly into the `Add Text` area.
-   也可以点 `导入文件`，选择 PDF、TXT、Markdown、HTML 或 CSV。
-   You can also click `Import File` and choose a PDF, TXT, Markdown, HTML, or CSV file.
+   也可以点 `导入文件`，选择 PDF、图片、TXT、Markdown、HTML 或 CSV。
+   You can also click `Import File` and choose a PDF, image, TXT, Markdown, HTML, or CSV file.
 5. 点 `开始伴读`。  
    Click `Start Reading`.
 
@@ -195,8 +196,11 @@ The current version is a local web tool.
 - 不上传你的文字 / Your text is not uploaded
 - 不使用在线 AI / No online AI is used
 
-导入文件时，浏览器会在本地读取内容；第一次使用 PDF 功能时，会从 PDF.js 的公开 CDN 懒加载解析器代码，但 PDF 内容不会发送给 CDN。扫描件和图片 OCR 仍在后续阶段。
-When importing a file, the browser reads its contents locally. The first PDF import lazily loads the PDF.js parser code from a public CDN, but the PDF content is not sent to the CDN. OCR for scans and images is still planned for a later phase.
+导入文件时，浏览器会在本地读取内容；第一次使用 PDF 功能时，会从 PDF.js 的公开 CDN 懒加载解析器代码，但 PDF 内容不会发送给 CDN。扫描 PDF 和图片目前只原样显示；OCR 仍在后续阶段。
+When importing a file, the browser reads its contents locally. The first PDF import lazily loads the PDF.js parser code from a public CDN, but the PDF content is not sent to the CDN. Scanned PDFs and images are currently displayed as-is; OCR is still planned for a later phase.
+
+如果粘贴的网页内容只提供外链图片地址，浏览器可能会向图片原站请求该图片；文字不会因此上传。剪贴板直接提供的图片文件仍只在本地显示。
+If pasted web content only provides an external image URL, the browser may request that image from its original site; your text is not uploaded. Image files supplied directly by the clipboard remain local.
 
 如果打开朗读，会使用浏览器和系统提供的语音能力。关闭朗读时，高亮仍会继续推进。  
 If read-aloud is on, it uses your browser and system speech features. If read-aloud is off, the highlight still keeps moving.

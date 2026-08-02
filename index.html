@@ -245,6 +245,16 @@
       line-height: 1;
     }
 
+    .navigation-icon {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .paragraph-jump .navigation-icon {
+      font-size: 13px;
+    }
+
     .sr-only {
       position: absolute;
       width: 1px;
@@ -667,6 +677,84 @@
       line-height: var(--line-height);
       letter-spacing: 0;
       white-space: pre-wrap;
+    }
+
+    .visual-document {
+      display: grid;
+      gap: 24px;
+      max-width: min(var(--max-width), 1100px);
+      margin: 0 auto;
+      white-space: normal;
+    }
+
+    .visual-page {
+      margin: 0;
+    }
+
+    .visual-page-link {
+      display: block;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      box-shadow: 0 8px 26px rgba(38, 42, 39, 0.08);
+    }
+
+    .visual-page-link:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    .visual-page img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .visual-page figcaption {
+      margin-top: 8px;
+      color: var(--muted);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .embedded-media {
+      margin: 1.1em 0 1.35em;
+      text-align: center;
+    }
+
+    .embedded-media-link {
+      display: inline-flex;
+      max-width: 100%;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      box-shadow: 0 8px 24px rgba(38, 42, 39, 0.08);
+    }
+
+    .embedded-media-link:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    .embedded-media img {
+      display: block;
+      max-width: 100%;
+      max-height: 72vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .embedded-media figcaption {
+      margin-top: 7px;
+      color: var(--muted);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
     }
 
     .paragraph {
@@ -1376,19 +1464,19 @@
             <span class="sr-only" id="pauseLabel">暂停</span>
           </button>
           <button class="button utility context-action paragraph-jump" id="previousParagraphButton" type="button" aria-label="上一段" title="上一段" disabled>
-            <span class="control-icon" data-icon aria-hidden="true">◀◀</span>
+            <span class="control-icon navigation-icon" data-icon aria-hidden="true">│◀◀</span>
             <span class="sr-only">上一段</span>
           </button>
           <button class="button utility context-action" id="previousButton" type="button" aria-label="上一句" title="上一句" disabled>
-            <span class="control-icon" data-icon aria-hidden="true">◀</span>
+            <span class="control-icon navigation-icon" data-icon aria-hidden="true">│◀</span>
             <span class="sr-only">上一句</span>
           </button>
           <button class="button utility context-action" id="nextButton" type="button" aria-label="下一句" title="下一句" disabled>
-            <span class="control-icon" data-icon aria-hidden="true">▶</span>
+            <span class="control-icon navigation-icon" data-icon aria-hidden="true">▶│</span>
             <span class="sr-only">下一句</span>
           </button>
           <button class="button utility context-action paragraph-jump" id="nextParagraphButton" type="button" aria-label="下一段" title="下一段" disabled>
-            <span class="control-icon" data-icon aria-hidden="true">▶▶</span>
+            <span class="control-icon navigation-icon" data-icon aria-hidden="true">▶▶│</span>
             <span class="sr-only">下一段</span>
           </button>
           <button class="button utility context-action stop-control" id="stopButton" type="button" aria-label="停止" title="停止" disabled>
@@ -1465,7 +1553,7 @@
           <div class="input-actions">
             <button class="button utility" id="clipboardButton" type="button">读取剪贴板</button>
             <button class="button utility" id="fileButton" type="button">导入文件</button>
-            <input id="fileInput" type="file" accept="application/pdf,.pdf,text/plain,.txt,.md,.markdown,.html,.htm,.csv,.tsv" hidden>
+            <input id="fileInput" type="file" accept="application/pdf,.pdf,image/*,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,text/plain,.txt,.md,.markdown,.html,.htm,.csv,.tsv" hidden>
           </div>
         </div>
         <textarea id="sourceText" placeholder="把想读的文字粘贴到这里。"></textarea>
@@ -1581,6 +1669,9 @@
 
     let tokens = [];
     let tableBlocks = [];
+    let mediaBlocks = [];
+    let visualPages = [];
+    let visualSourceName = "";
     let activeIndex = -1;
     let utterance = null;
     let speechVoices = [];
@@ -1600,7 +1691,7 @@
     let hasCompleted = false;
     let markedSentences = [];
     let playbackRunId = 0;
-    let speechOffset = 0;
+    let speechBoundaryMap = [];
     let silentTimer = null;
     let comfortTimer = null;
     let boundaryTimers = new Set();
@@ -1660,6 +1751,7 @@
         meterEmpty: "当前：0 字符",
         meterStats: ({ chars, words }) => `${chars} 字符 / 约 ${words} 词或词组`,
         meterLong: "这段有点长。可以分两次读，会更轻松。",
+        meterVisual: ({ pages, name, kind }) => kind === "image" ? `显示：1 张图片 / ${name}` : `显示：${pages} 页 / ${name}`,
         progress: ({ current, total }) => `第 ${current} 段 / 共 ${total} 段`,
         comfortDefault: "只看这一句就好。其他文字会轻轻退后。",
         guideDefault: "这一句会显示在这里。",
@@ -1729,17 +1821,25 @@
         clipboardLoaded: "新文字已放好。可以开始伴读。",
         clipboardUnchanged: "剪贴板内容没有变化。",
         clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
-        clipboardRichLoaded: "已保留表格及其前后的文字。表格会按行伴读。",
+        clipboardRichLoaded: "已保留剪贴板中的内容结构；表格会按行伴读，图片会留在原来的位置。",
+        clipboardImagesName: "剪贴板图片",
+        clipboardImagesLoaded: ({ count }) => `已显示剪贴板中的 ${count} 张图片。图片暂不自动朗读，点图片可以放大。`,
+        clipboardImageAlt: "剪贴板中的图片",
         pdfLoading: "正在读取 PDF…",
         pdfPageLoading: ({ current, total }) => `正在读取 PDF… 第 ${current} / ${total} 页`,
         pdfLoaded: ({ pages, chars }) => `已读取 PDF：${pages} 页，${chars} 字符。可以开始伴读。`,
-        pdfNoText: "这个 PDF 没有可复制文字，可能是扫描件。当前先支持有文字层的 PDF。",
+        pdfVisualLoading: ({ current, total }) => `没有找到文字层，正在显示原页面… 第 ${current} / ${total} 页`,
+        pdfVisualLoaded: ({ pages }) => `已显示 PDF：${pages} 页。页面暂不自动朗读，点页面可以放大。`,
+        pdfPageLabel: ({ current, total }) => `第 ${current} 页 / 共 ${total} 页`,
         pdfFailed: "PDF 读取失败。可以先复制其中的文字，或换一个文件试试。",
         fileLoading: "正在读取文件…",
         fileLoaded: ({ name, chars }) => `已导入 ${name}：${chars} 字符。可以开始伴读。`,
+        imageLoaded: ({ name }) => `已显示 ${name}。图片暂不自动朗读，点图片可以放大。`,
+        visualOnly: "这是图片内容，暂不自动朗读。可以点图片放大查看。",
+        visualEnlarge: "放大查看",
         fileEmpty: "这个文件里没有可读文字。",
         fileFailed: "文件读取失败。可以换一个文件，或手动粘贴文字。",
-        fileUnsupported: "当前支持 PDF、TXT、Markdown、HTML 和 CSV 文件。",
+        fileUnsupported: "当前支持 PDF、图片、TXT、Markdown、HTML 和 CSV 文件。",
         newTextReady: "可以粘贴下一段文字了。",
         externalLoaded: "文字已放好。可以开始伴读。",
         gentleOn: "已开启专注阅读。当前句会浮现出来，其他文字会轻轻退后。",
@@ -1826,6 +1926,7 @@
         meterEmpty: "Current: 0 characters",
         meterStats: ({ chars, words }) => `${chars} characters / about ${words} words or chunks`,
         meterLong: "This is a longer passage. Splitting it into two passes may feel lighter.",
+        meterVisual: ({ pages, name, kind }) => kind === "image" ? `Showing: 1 image / ${name}` : `Showing: ${pages} page${pages === 1 ? "" : "s"} / ${name}`,
         progress: ({ current, total }) => `Paragraph ${current} / ${total}`,
         comfortDefault: "Just stay with this sentence. The rest can gently fade back.",
         guideDefault: "This sentence will appear here.",
@@ -1895,17 +1996,25 @@ The goal is simple: lower the friction of entering a text, and help you return g
         clipboardLoaded: "New text is ready. You can start reading.",
         clipboardUnchanged: "Clipboard text has not changed.",
         clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
-        clipboardRichLoaded: "The table and surrounding text were preserved. Table rows will be read row by row.",
+        clipboardRichLoaded: "Clipboard structure was preserved. Tables are read row by row, and images remain in their original positions.",
+        clipboardImagesName: "Clipboard images",
+        clipboardImagesLoaded: ({ count }) => `${count} clipboard image${count === 1 ? "" : "s"} displayed. Images are not read aloud yet; click one to enlarge it.`,
+        clipboardImageAlt: "Image from the clipboard",
         pdfLoading: "Reading PDF…",
         pdfPageLoading: ({ current, total }) => `Reading PDF… page ${current} / ${total}`,
         pdfLoaded: ({ pages, chars }) => `PDF read: ${pages} pages, ${chars} characters. You can start reading.`,
-        pdfNoText: "This PDF has no selectable text and may be a scan. This version supports text-based PDFs first.",
+        pdfVisualLoading: ({ current, total }) => `No text layer found. Showing the original pages… ${current} / ${total}`,
+        pdfVisualLoaded: ({ pages }) => `PDF displayed: ${pages} page${pages === 1 ? "" : "s"}. Pages are not read aloud yet; click one to enlarge it.`,
+        pdfPageLabel: ({ current, total }) => `Page ${current} of ${total}`,
         pdfFailed: "Could not read this PDF. You can copy its text for now, or try another file.",
         fileLoading: "Reading file…",
         fileLoaded: ({ name, chars }) => `Imported ${name}: ${chars} characters. You can start reading.`,
+        imageLoaded: ({ name }) => `${name} is displayed. Images are not read aloud yet; click the image to enlarge it.`,
+        visualOnly: "This is image content, so it is not read aloud yet. Click the image to enlarge it.",
+        visualEnlarge: "Enlarge",
         fileEmpty: "This file does not contain readable text.",
         fileFailed: "Could not read this file. Try another one, or paste the text manually.",
-        fileUnsupported: "This version supports PDF, TXT, Markdown, HTML, and CSV files.",
+        fileUnsupported: "This version supports PDF, images, TXT, Markdown, HTML, and CSV files.",
         newTextReady: "Ready for the next passage.",
         externalLoaded: "Text is ready. You can start reading.",
         gentleOn: "Focus Reading is on. The current sentence will appear while surrounding text gently fades back.",
@@ -2063,6 +2172,41 @@ The goal is simple: lower the friction of entering a text, and help you return g
         voiceLocales: ["ar-sa", "ar-eg", "ar"],
         hints: ["من", "في", "على", "هذا", "هذه", "أن", "ما", "مع", "هو", "هي"],
         stopWords: ["و", "أو", "لكن", "إذا", "ثم", "أن", "إن", "ما", "من", "في", "على", "إلى", "عن", "مع", "ل", "ب", "ك", "هذا", "هذه", "ذلك", "تلك", "الذي", "التي", "الذين", "هو", "هي", "هم", "هن", "أنا", "نحن", "أنت", "أنتم", "كان", "كانت", "يكون", "ليس", "لا", "لم", "لن", "قد", "كما", "حتى", "كل", "أي", "أكثر", "جدا"]
+      },
+      el: {
+        voiceLocales: ["el-gr", "el"],
+        hints: [],
+        stopWords: []
+      },
+      he: {
+        voiceLocales: ["he-il", "he"],
+        hints: [],
+        stopWords: []
+      },
+      hi: {
+        voiceLocales: ["hi-in", "hi"],
+        hints: [],
+        stopWords: []
+      },
+      th: {
+        voiceLocales: ["th-th", "th"],
+        hints: [],
+        stopWords: []
+      },
+      bn: {
+        voiceLocales: ["bn-in", "bn-bd", "bn"],
+        hints: [],
+        stopWords: []
+      },
+      ta: {
+        voiceLocales: ["ta-in", "ta"],
+        hints: [],
+        stopWords: []
+      },
+      te: {
+        voiceLocales: ["te-in", "te"],
+        hints: [],
+        stopWords: []
       }
     };
 
@@ -2102,6 +2246,65 @@ The goal is simple: lower the friction of entering a text, and help you return g
       status.textContent = message;
     }
 
+    function clearVisualDocument() {
+      visualPages.forEach(page => {
+        if (page.url?.startsWith("blob:")) URL.revokeObjectURL(page.url);
+      });
+      visualPages = [];
+      visualSourceName = "";
+    }
+
+    function clearMediaBlocks() {
+      mediaBlocks.forEach(block => {
+        if (block.owned && block.url?.startsWith("blob:")) URL.revokeObjectURL(block.url);
+      });
+      mediaBlocks = [];
+    }
+
+    function renderVisualDocument() {
+      readerPanel.classList.remove("is-empty");
+      reader.innerHTML = `
+        <div class="visual-document">
+          ${visualPages.map((page, index) => {
+            const caption = page.kind === "pdf"
+              ? t("pdfPageLabel", { current: index + 1, total: visualPages.length })
+              : visualSourceName;
+            const alt = page.kind === "pdf" ? `${visualSourceName} · ${caption}` : visualSourceName;
+            return `
+              <figure class="visual-page">
+                <a class="visual-page-link" href="${escapeHTML(page.url)}" target="_blank" rel="noopener" aria-label="${escapeHTML(`${t("visualEnlarge")}：${caption}`)}" title="${escapeHTML(t("visualEnlarge"))}">
+                  <img src="${escapeHTML(page.url)}" alt="${escapeHTML(alt)}">
+                </a>
+                <figcaption>${escapeHTML(caption)}</figcaption>
+              </figure>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function setVisualDocument(pages, name) {
+      clearVisualDocument();
+      clearMediaBlocks();
+      visualPages = pages;
+      visualSourceName = name;
+      sourceText.value = "";
+      clearReflectionNote();
+      tableBlocks = [];
+      tokens = [];
+      activeIndex = -1;
+      hasCompleted = false;
+      markedSentences = [];
+      reviewTargetIndex = -1;
+      window.clearTimeout(reviewTargetTimer);
+      setBrowseMode(false);
+      updateTextMeter();
+      updateNavigationButtons();
+      render();
+      updatePlaybackButtons();
+      notesOutput.innerHTML = `<div class="note-card">${escapeHTML(t("notesIntro"))}</div>`;
+    }
+
     function renderEmptyState() {
       const steps = currentCopyGroup("onboardingSteps");
       readerPanel.classList.add("is-empty");
@@ -2127,7 +2330,15 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function updateTextMeter() {
       const text = sourceText.value.trim();
-      inputPanel.classList.toggle("has-text", Boolean(text));
+      inputPanel.classList.toggle("has-text", Boolean(text) || visualPages.length > 0);
+      if (!text && visualPages.length) {
+        textMeter.textContent = t("meterVisual", {
+          pages: visualPages.length,
+          name: visualSourceName,
+          kind: visualPages[0]?.kind
+        });
+        return;
+      }
       if (!text) {
         textMeter.textContent = t("meterEmpty");
         return;
@@ -2152,10 +2363,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
       fileButton.textContent = t("importFile");
-      updateIconButton(previousParagraphButton, "◀◀", t("previousParagraph"));
-      updateIconButton(previousButton, "◀", t("previousSentence"));
-      updateIconButton(nextButton, "▶", t("nextSentence"));
-      updateIconButton(nextParagraphButton, "▶▶", t("nextParagraph"));
+      updateIconButton(previousParagraphButton, "│◀◀", t("previousParagraph"));
+      updateIconButton(previousButton, "│◀", t("previousSentence"));
+      updateIconButton(nextButton, "▶│", t("nextSentence"));
+      updateIconButton(nextParagraphButton, "▶▶│", t("nextParagraph"));
       updateButtonLabel(topButton, t("backToTop"));
       updateButtonLabel(newTextButton, t("clearText"));
       updateVoiceButton();
@@ -2186,7 +2397,9 @@ The goal is simple: lower the friction of entering a text, and help you return g
       setLabelText(lineInput, t("line"));
       setLabelText(widthInput, t("width"));
 
-      if (!tokens.length) {
+      if (!tokens.length && visualPages.length) {
+        renderVisualDocument();
+      } else if (!tokens.length) {
         renderEmptyState();
         notesOutput.innerHTML = `<div class="note-card">${escapeHTML(t("notesIntro"))}</div>`;
       }
@@ -2295,9 +2508,9 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function updateNavigationButtons() {
-      const hasText = Boolean(sourceText.value.trim());
-      topButton.hidden = !hasText;
-      newTextButton.hidden = !hasText;
+      const hasContent = Boolean(sourceText.value.trim()) || visualPages.length > 0;
+      topButton.hidden = !hasContent;
+      newTextButton.hidden = !hasContent;
     }
 
     function updateVoiceButton() {
@@ -2338,21 +2551,24 @@ The goal is simple: lower the friction of entering a text, and help you return g
       speechVoices = window.speechSynthesis.getVoices().filter(voice => voice.lang);
     }
 
-    function speechVoiceForText(text, context = sourceText.value) {
+    function speechVoiceForText(text, context = sourceText.value, forcedLanguage = "") {
       refreshSpeechVoices();
-      const target = speechLanguageForText(text, context);
+      const target = forcedLanguage || speechLanguageForText(text, context);
       const targetLocales = languageProfiles[target]?.voiceLocales || languageProfiles.en.voiceLocales;
       const targetRoot = target.split("-")[0];
       return speechVoices
         .map(voice => {
           const locale = voice.lang.toLowerCase().replace("_", "-");
           const name = voice.name.toLowerCase();
-          let score = 0;
-          if (locale === targetLocales[0]) score += 100;
-          else if (targetLocales.some(item => locale === item || locale.startsWith(`${item}-`))) score += 60;
-          else if (locale.startsWith(targetRoot)) score += 20;
-          if (voice.localService) score += 15;
-          if (/premium|enhanced|natural|neural|siri/.test(name)) score += 10;
+          let localeScore = 0;
+          if (locale === targetLocales[0]) localeScore = 80;
+          else if (targetLocales.some(item => locale === item || locale.startsWith(`${item}-`))) localeScore = 60;
+          else if (locale.startsWith(targetRoot)) localeScore = 40;
+          if (!localeScore) return { voice, score: -Infinity };
+
+          let score = localeScore;
+          if (voice.default) score += 28;
+          if (voice.localService) score += 5;
           score += speechVoiceQualityScore(name, target);
           return { voice, score };
         })
@@ -2372,53 +2588,147 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return detectTextLanguage(value) || "en";
     }
 
+    const pinyinToneMarks = /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜüńňǹḿ]/i;
+    const pinyinFinalPattern = /^(?:a|o|e|ai|ei|ao|ou|an|en|ang|eng|ong|i|ia|ie|iao|iu|ian|in|iang|ing|iong|u|ua|uo|uai|ui|uan|un|uang|ueng|ü|üe|üan|ün|er|m|n|ng)$/;
+    const pinyinInitialPattern = /^(?:zh|ch|sh|b|p|m|f|d|t|n|l|g|k|h|j|q|x|r|z|c|s|y|w)?/;
+
+    function normalizedPinyinSyllable(value) {
+      const toneMap = {
+        ā: "a", á: "a", ǎ: "a", à: "a",
+        ē: "e", é: "e", ě: "e", è: "e",
+        ī: "i", í: "i", ǐ: "i", ì: "i",
+        ō: "o", ó: "o", ǒ: "o", ò: "o",
+        ū: "u", ú: "u", ǔ: "u", ù: "u",
+        ǖ: "ü", ǘ: "ü", ǚ: "ü", ǜ: "ü",
+        ń: "n", ň: "n", ǹ: "n", ḿ: "m"
+      };
+      return Array.from(String(value || "").toLowerCase())
+        .map(char => toneMap[char] || char)
+        .join("")
+        .replace(/v/g, "ü")
+        .replace(/[1-5]$/, "");
+    }
+
+    function isLikelyPinyinSyllable(value) {
+      const syllable = normalizedPinyinSyllable(value);
+      if (!syllable || !/^[a-zü]+$/.test(syllable)) return false;
+      const initial = syllable.match(pinyinInitialPattern)?.[0] || "";
+      return pinyinFinalPattern.test(syllable.slice(initial.length));
+    }
+
+    function isExplicitPinyinRun(text, context, absoluteStart) {
+      const value = String(text || "");
+      const before = String(context || "").slice(Math.max(0, absoluteStart - 20), absoluteStart);
+      const labelled = /(?:拼音|pinyin)\s*[:：]?\s*$/i.test(before);
+      const toneMarked = pinyinToneMarks.test(value) || /\b[a-züv]{2,6}[1-5]\b/i.test(value);
+      if (!labelled && !toneMarked) return false;
+      const syllables = value.match(/[\p{Script=Latin}]+[1-5]?/gu) || [];
+      return syllables.length > 0 && syllables.every(isLikelyPinyinSyllable);
+    }
+
+    function speechLanguageForLatinRun(text, context, absoluteStart) {
+      if (isExplicitPinyinRun(text, context, absoluteStart)) return "zh";
+      if (detectTextLanguage(context) !== "zh") return speechLanguageForText(text, context);
+      return "en";
+    }
+
     function speechLocaleForLanguage(language) {
       return languageProfiles[language]?.voiceLocales?.[0] || languageProfiles.en.voiceLocales[0];
     }
 
     function speechVoiceQualityScore(name, language) {
-      if (language !== "en") return 0;
-      if (/\b(samantha|alex|ava|karen|fiona|daniel)\b/.test(name)) return 80;
-      if (/\b(eddy|flo|sandy|reed|shelley)\b/.test(name)) return 35;
-      if (/\b(albert|bad news|bahh|bells|boing|bubbles|cellos|fred|good news|jester|junior|organ|ralph|superstar|trinoids|whisper|wobble|zarvox)\b/.test(name)) return -80;
-      return 0;
+      let score = 0;
+      if (/premium/.test(name)) score += 70;
+      else if (/enhanced/.test(name)) score += 62;
+      else if (/natural|neural/.test(name)) score += 56;
+      else if (/siri/.test(name)) score += 48;
+      else if (/online/.test(name)) score += 24;
+
+      if (/compact|espeak|festival/.test(name)) score -= 36;
+      if (/\b(albert|bad news|bahh|bells|boing|bubbles|cellos|fred|good news|jester|junior|organ|ralph|superstar|trinoids|whisper|wobble|zarvox)\b/.test(name)) {
+        score -= 120;
+      }
+
+      if (language === "en") {
+        if (/\b(samantha|alex|ava|karen|fiona|daniel)\b/.test(name)) score += 48;
+        else if (/\b(eddy|flo|sandy|reed|shelley)\b/.test(name)) score += 24;
+      }
+      return score;
     }
 
-    // Group short sentences to reduce abrupt system-voice handoffs.
-    function speechChunksForText(source, maxLength = 460) {
-      const sentences = readingUnits(source);
-      const chunks = [];
-      let pending = null;
+    function speechScriptForChar(char) {
+      if (/\p{N}/u.test(char)) return "number";
+      if (/\p{Script=Han}/u.test(char)) return "zh";
+      if (/\p{Script=Hiragana}|\p{Script=Katakana}/u.test(char)) return "ja";
+      if (/\p{Script=Hangul}/u.test(char)) return "ko";
+      if (/\p{Script=Cyrillic}/u.test(char)) return "ru";
+      if (/\p{Script=Arabic}/u.test(char)) return "ar";
+      if (/\p{Script=Greek}/u.test(char)) return "el";
+      if (/\p{Script=Hebrew}/u.test(char)) return "he";
+      if (/\p{Script=Devanagari}/u.test(char)) return "hi";
+      if (/\p{Script=Thai}/u.test(char)) return "th";
+      if (/\p{Script=Bengali}/u.test(char)) return "bn";
+      if (/\p{Script=Tamil}/u.test(char)) return "ta";
+      if (/\p{Script=Telugu}/u.test(char)) return "te";
+      if (/\p{Script=Latin}/u.test(char)) return "latin";
+      return "";
+    }
 
-      const flushPending = () => {
-        if (pending) chunks.push(pending);
-        pending = null;
+    const speechURLPattern = /\b(?:https?:\/\/|www\.)[^\s<>"'，。！？；：、（）【】「」]+/giu;
+
+    function speechURLRanges(text) {
+      return Array.from(text.matchAll(speechURLPattern))
+        .map(match => ({ start: match.index, end: match.index + match[0].length }));
+    }
+
+    function speechLanguageRuns(source, start, end) {
+      const text = source.slice(start, end);
+      if (!text) return [];
+
+      const runs = [];
+      const urlRanges = speechURLRanges(text);
+      const isInsideURL = index => urlRanges.some(range => index >= range.start && index < range.end);
+      let runScript = "";
+      let runStart = 0;
+      let offset = 0;
+      const pushRun = runEnd => {
+        if (runEnd <= runStart) return;
+        const runText = text.slice(runStart, runEnd);
+        const language = runScript === "latin"
+          ? speechLanguageForLatinRun(runText, source, start + runStart)
+          : languageProfiles[runScript]
+            ? runScript
+            : speechLanguageForText(runText, source);
+        runs.push({ start: start + runStart, end: start + runEnd, language });
       };
 
-      for (const sentence of sentences) {
-        if (sentence.kind === "table-row") {
-          flushPending();
-          chunks.push({ start: sentence.start, end: sentence.end });
-          continue;
+      for (const char of Array.from(text)) {
+        const script = isInsideURL(offset) ? "" : speechScriptForChar(char);
+        if (script && !runScript) {
+          runScript = script;
+        } else if (script && script !== runScript) {
+          pushRun(offset);
+          runScript = script;
+          runStart = offset;
         }
-        if (sentence.end - sentence.start <= maxLength) {
-          const sentenceLanguage = speechLanguageForText(sentence.text, source);
-          const pendingLanguage = pending ? speechLanguageForText(source.slice(pending.start, pending.end), source) : null;
-          if (pending && sentence.end - pending.start <= maxLength && sentenceLanguage === pendingLanguage) {
-            pending.end = sentence.end;
-          } else {
-            flushPending();
-            pending = { start: sentence.start, end: sentence.end };
-          }
-          continue;
-        }
+        offset += char.length;
+      }
 
-        flushPending();
-        let start = sentence.start;
-        while (start < sentence.end) {
-          let end = Math.min(sentence.end, start + maxLength);
-          if (end < sentence.end) {
-            const part = source.slice(start, end);
+      if (!runScript) {
+        return [{ start, end, language: speechLanguageForText(text, source) }];
+      }
+      pushRun(text.length);
+      return runs;
+    }
+
+    function speechChunksForRange(source, start, end, maxLength) {
+      const chunks = [];
+      for (const run of speechLanguageRuns(source, start, end)) {
+        let chunkStart = run.start;
+        while (chunkStart < run.end) {
+          let chunkEnd = Math.min(run.end, chunkStart + maxLength);
+          if (chunkEnd < run.end) {
+            const part = source.slice(chunkStart, chunkEnd);
             const breakPoints = [
               part.lastIndexOf("\n"),
               part.lastIndexOf(" "),
@@ -2429,21 +2739,53 @@ The goal is simple: lower the friction of entering a text, and help you return g
             ];
             const breakPoint = Math.max(...breakPoints);
             if (breakPoint > maxLength * 0.55) {
-              end = start + breakPoint + (/[，,；;]/.test(part[breakPoint]) ? 1 : 0);
+              chunkEnd = chunkStart + breakPoint + (/[，,；;]/.test(part[breakPoint]) ? 1 : 0);
             }
           }
 
-          if (end <= start) end = Math.min(sentence.end, start + maxLength);
-          const splitToken = tokens.find(token => token.start < end && token.end > end);
-          if (splitToken && splitToken.start > start) end = splitToken.start;
-          chunks.push({ start, end });
-          start = end;
+          if (chunkEnd <= chunkStart) chunkEnd = Math.min(run.end, chunkStart + maxLength);
+          const splitToken = tokens.find(token => token.start < chunkEnd && token.end > chunkEnd);
+          if (splitToken && splitToken.start > chunkStart) chunkEnd = splitToken.start;
+          chunks.push({ start: chunkStart, end: chunkEnd, language: run.language });
+          chunkStart = chunkEnd;
         }
+      }
+      return chunks;
+    }
+
+    // Group short sentences while keeping mixed-script runs on a compatible voice.
+    function speechChunksForText(source, maxLength = 460) {
+      const sentences = readingUnits(source);
+      const chunks = [];
+      let pending = null;
+
+      const flushPending = () => {
+        if (pending) chunks.push(pending);
+        pending = null;
+      };
+
+      const appendRange = (start, end) => {
+        for (const chunk of speechChunksForRange(source, start, end, maxLength)) {
+          if (pending && pending.language === chunk.language && chunk.end - pending.start <= maxLength) {
+            pending.end = chunk.end;
+          } else {
+            flushPending();
+            pending = { ...chunk };
+          }
+        }
+      };
+
+      for (const sentence of sentences) {
+        if (sentence.kind === "table-row") {
+          flushPending();
+          chunks.push(...speechChunksForRange(source, sentence.start, sentence.end, maxLength));
+          continue;
+        }
+        appendRange(sentence.start, sentence.end);
       }
 
       flushPending();
-
-      return chunks.length ? chunks : [{ start: 0, end: source.length }];
+      return chunks.length ? chunks : [{ start: 0, end: source.length, language: speechLanguageForText(source, source) }];
     }
 
     function speechChunkIndexForToken(index) {
@@ -2457,8 +2799,174 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return tokens.findIndex(token => token.start >= charIndex);
     }
 
+    const letterByLetterAcronyms = new Set([
+      "AI", "AGI", "API", "UI", "UX", "PDF", "OCR", "ADHD", "LLM", "ML", "DL", "NLP",
+      "ASR", "TTS", "STT", "SSML", "HTML", "CSS", "JS", "JSON", "XML", "URL", "URI",
+      "HTTP", "HTTPS", "CPU", "GPU", "RAM", "ROM", "SQL", "CSV", "TSV", "TXT", "MD",
+      "FAQ", "KPI", "OKR", "MVP", "RAG", "SDK", "CLI", "GUI", "GPA", "SOP", "CV", "PHD", "GPT",
+      "ROIC", "ROE", "ROI", "ROA"
+    ]);
+
+    const spokenAsWholeAcronyms = new Set(["AIDS", "COVID", "LASER", "NASA", "NATO", "RADAR", "SCUBA", "UNESCO", "UNICEF"]);
+    const commonUppercaseWords = new Set([
+      "AM", "AND", "ARE", "AS", "AT", "BE", "BUT", "BY", "DATA", "END", "FILE", "FOR", "FROM",
+      "IN", "IS", "IT", "KEY", "NEW", "NO", "NOTE", "NOT", "OF", "OK", "ON", "OPEN", "OR", "PAGE",
+      "READ", "RESULT", "START", "STOP", "TASK", "TEXT", "THE", "THIS", "THAT", "TO", "USE", "WE", "WITH",
+      "YES", "YOU"
+    ]);
+
+    function shouldSpellAcronym(word) {
+      const upper = word.toUpperCase();
+      if (letterByLetterAcronyms.has(upper)) return true;
+      if (word !== upper || word.length < 2 || word.length > 8) return false;
+      if (spokenAsWholeAcronyms.has(upper)) return false;
+      return /\d/.test(word) || (word.length <= 6 && !commonUppercaseWords.has(upper));
+    }
+
+    const mathSpeechWords = {
+      zh: { "=": "等于", "+": "加", "−": "减", "×": "乘以", "·": "乘以", "÷": "除以", "≤": "小于等于", "≥": "大于等于", "≈": "约等于", "≠": "不等于", "→": "趋向于", "±": "正负", "√": "平方根", "∞": "无穷大", "∑": "总和", "∫": "积分" },
+      en: { "=": "equals", "+": "plus", "−": "minus", "×": "times", "·": "times", "÷": "divided by", "≤": "less than or equal to", "≥": "greater than or equal to", "≈": "approximately", "≠": "not equal to", "→": "approaches", "±": "plus or minus", "√": "square root", "∞": "infinity", "∑": "sum", "∫": "integral" },
+      fr: { "=": "égal à", "+": "plus", "−": "moins", "×": "fois", "·": "fois", "÷": "divisé par", "≤": "inférieur ou égal à", "≥": "supérieur ou égal à", "≈": "environ", "≠": "différent de", "→": "tend vers", "±": "plus ou moins", "√": "racine carrée", "∞": "infini", "∑": "somme", "∫": "intégrale" },
+      de: { "=": "gleich", "+": "plus", "−": "minus", "×": "mal", "·": "mal", "÷": "geteilt durch", "≤": "kleiner oder gleich", "≥": "größer oder gleich", "≈": "ungefähr", "≠": "ungleich", "→": "strebt gegen", "±": "plus oder minus", "√": "Quadratwurzel", "∞": "unendlich", "∑": "Summe", "∫": "Integral" },
+      es: { "=": "igual a", "+": "más", "−": "menos", "×": "por", "·": "por", "÷": "dividido por", "≤": "menor o igual que", "≥": "mayor o igual que", "≈": "aproximadamente", "≠": "distinto de", "→": "tiende a", "±": "más o menos", "√": "raíz cuadrada", "∞": "infinito", "∑": "suma", "∫": "integral" },
+      it: { "=": "uguale a", "+": "più", "−": "meno", "×": "per", "·": "per", "÷": "diviso per", "≤": "minore o uguale a", "≥": "maggiore o uguale a", "≈": "circa", "≠": "diverso da", "→": "tende a", "±": "più o meno", "√": "radice quadrata", "∞": "infinito", "∑": "somma", "∫": "integrale" },
+      pt: { "=": "igual a", "+": "mais", "−": "menos", "×": "vezes", "·": "vezes", "÷": "dividido por", "≤": "menor ou igual a", "≥": "maior ou igual a", "≈": "aproximadamente", "≠": "diferente de", "→": "tende a", "±": "mais ou menos", "√": "raiz quadrada", "∞": "infinito", "∑": "soma", "∫": "integral" },
+      nl: { "=": "gelijk aan", "+": "plus", "−": "min", "×": "maal", "·": "maal", "÷": "gedeeld door", "≤": "kleiner dan of gelijk aan", "≥": "groter dan of gelijk aan", "≈": "ongeveer", "≠": "ongelijk aan", "→": "nadert", "±": "plus of min", "√": "vierkantswortel", "∞": "oneindig", "∑": "som", "∫": "integraal" },
+      ja: { "=": "等しい", "+": "プラス", "−": "マイナス", "×": "掛ける", "·": "掛ける", "÷": "割る", "≤": "以下", "≥": "以上", "≈": "およそ", "≠": "等しくない", "→": "近づく", "±": "プラスマイナス", "√": "平方根", "∞": "無限大", "∑": "総和", "∫": "積分" },
+      ko: { "=": "같다", "+": "더하기", "−": "빼기", "×": "곱하기", "·": "곱하기", "÷": "나누기", "≤": "이하", "≥": "이상", "≈": "약", "≠": "같지 않다", "→": "다가간다", "±": "플러스 마이너스", "√": "제곱근", "∞": "무한대", "∑": "합", "∫": "적분" },
+      ru: { "=": "равно", "+": "плюс", "−": "минус", "×": "умножить на", "·": "умножить на", "÷": "разделить на", "≤": "меньше или равно", "≥": "больше или равно", "≈": "примерно", "≠": "не равно", "→": "стремится к", "±": "плюс-минус", "√": "квадратный корень", "∞": "бесконечность", "∑": "сумма", "∫": "интеграл" },
+      ar: { "=": "يساوي", "+": "زائد", "−": "ناقص", "×": "ضرب", "·": "ضرب", "÷": "قسمة على", "≤": "أصغر من أو يساوي", "≥": "أكبر من أو يساوي", "≈": "تقريبًا", "≠": "لا يساوي", "→": "يقترب من", "±": "زائد أو ناقص", "√": "الجذر التربيعي", "∞": "ما لا نهاية", "∑": "مجموع", "∫": "تكامل" }
+    };
+
+    function mathSpeechPhrase(symbol, language) {
+      const root = String(language || "").split("-")[0];
+      const phrase = mathSpeechWords[root]?.[symbol];
+      return phrase ? ` ${phrase} ` : "";
+    }
+
+    function normalizedSpeechCharacters(text) {
+      const characters = [];
+      for (let index = 0; index < text.length;) {
+        if (text[index] === "\t") {
+          const sourceIndex = index;
+          while (text[index] === "\t") index += 1;
+          characters.push({ char: " ", sourceIndex });
+          continue;
+        }
+        characters.push({ char: text[index], sourceIndex: index });
+        index += 1;
+      }
+
+      const withoutSpaceBeforeNewline = [];
+      for (const item of characters) {
+        if (item.char === "\n") {
+          while (withoutSpaceBeforeNewline[withoutSpaceBeforeNewline.length - 1]?.char === " ") {
+            withoutSpaceBeforeNewline.pop();
+          }
+        }
+        withoutSpaceBeforeNewline.push(item);
+      }
+
+      const collapsed = [];
+      for (const item of withoutSpaceBeforeNewline) {
+        const length = collapsed.length;
+        if (item.char === "\n" && collapsed[length - 1]?.char === "\n" && collapsed[length - 2]?.char === "\n") continue;
+        collapsed.push(item);
+      }
+
+      while (collapsed[0] && /\s/.test(collapsed[0].char)) collapsed.shift();
+      while (collapsed[collapsed.length - 1] && /\s/.test(collapsed[collapsed.length - 1].char)) collapsed.pop();
+      return collapsed;
+    }
+
+    function speechCharactersWithoutMarkdownEmphasis(characters) {
+      const text = characters.map(item => item.char).join("");
+      const hidden = new Set();
+      for (const match of text.matchAll(/\*\*([\p{L}\p{N}][\p{L}\p{N}'’_-]*)\*\*/gu)) {
+        hidden.add(match.index);
+        hidden.add(match.index + 1);
+        const closingStart = match.index + match[0].length - 2;
+        hidden.add(closingStart);
+        hidden.add(closingStart + 1);
+      }
+      return characters.filter((_, index) => !hidden.has(index));
+    }
+
+    function speechTextWithMap(rawText, absoluteStart, language = "") {
+      const characters = speechCharactersWithoutMarkdownEmphasis(normalizedSpeechCharacters(rawText));
+      const normalized = characters.map(item => item.char).join("");
+      const urlRanges = speechURLRanges(normalized);
+      const isInsideURL = index => urlRanges.some(range => index >= range.start && index < range.end);
+      const output = [];
+      const map = [];
+      const appendRange = (start, end) => {
+        for (let index = start; index < end; index += 1) {
+          if (isInsideURL(index)) continue;
+          output.push(normalized[index]);
+          map.push(absoluteStart + characters[index].sourceIndex);
+        }
+      };
+
+      const acronymPattern = /\b[A-Za-z][A-Za-z0-9]{1,7}\b/g;
+      let cursor = 0;
+      if (String(language || "").split("-")[0] === "en" && /^[A-Za-z]$/.test(normalized)) {
+        output.push(normalized.toUpperCase(), ",");
+        map.push(
+          absoluteStart + characters[0].sourceIndex,
+          absoluteStart + characters[0].sourceIndex
+        );
+        cursor = normalized.length;
+      }
+      let match;
+      while ((match = acronymPattern.exec(normalized))) {
+        if (isInsideURL(match.index)) continue;
+        if (!shouldSpellAcronym(match[0])) continue;
+
+        appendRange(cursor, match.index);
+        for (let index = 0; index < match[0].length; index += 1) {
+          output.push(match[0][index]);
+          map.push(absoluteStart + characters[match.index + index].sourceIndex);
+          if (index < match[0].length - 1) {
+            output.push(",", " ");
+            map.push(
+              absoluteStart + characters[match.index + index].sourceIndex,
+              absoluteStart + characters[match.index + index].sourceIndex
+            );
+          }
+        }
+        cursor = match.index + match[0].length;
+      }
+      appendRange(cursor, normalized.length);
+      const spokenOutput = [];
+      const spokenMap = [];
+      output.forEach((char, index) => {
+        const phrase = mathSpeechPhrase(char, language);
+        if (!phrase) {
+          spokenOutput.push(char);
+          spokenMap.push(map[index]);
+          return;
+        }
+        for (const phraseChar of phrase) {
+          spokenOutput.push(phraseChar);
+          spokenMap.push(map[index]);
+        }
+      });
+      const compactOutput = [];
+      const compactMap = [];
+      spokenOutput.forEach((char, index) => {
+        if (char === " " && compactOutput[compactOutput.length - 1] === " ") return;
+        compactOutput.push(char);
+        compactMap.push(spokenMap[index]);
+      });
+      let first = 0;
+      let last = compactOutput.length;
+      while (first < last && /\s/.test(compactOutput[first])) first += 1;
+      while (last > first && /\s/.test(compactOutput[last - 1])) last -= 1;
+      return { text: compactOutput.slice(first, last).join(""), map: compactMap.slice(first, last) };
+    }
+
     function normalizeForSpeech(text) {
-      return text.replace(/\t+/g, " ").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+      return normalizedSpeechCharacters(text).map(item => item.char).join("");
     }
 
     function lowerToken(text) {
@@ -2473,14 +2981,14 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function cjkRatio(text) {
-      const visible = Array.from(text).filter(char => !/\s/.test(char));
+      const visible = Array.from(text).filter(char => /[\p{L}\p{N}]/u.test(char));
       if (!visible.length) return 0;
       const cjk = visible.filter(char => /[\u3400-\u9fff]/.test(char)).length;
       return cjk / visible.length;
     }
 
     function detectScriptLanguage(text) {
-      const visible = Array.from(text).filter(char => !/\s/.test(char));
+      const visible = Array.from(text).filter(char => /[\p{L}\p{N}]/u.test(char));
       if (!visible.length) return "";
 
       const kanaCount = visible.filter(char => /[\u3040-\u30ff]/.test(char)).length;
@@ -2540,8 +3048,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function splitSentences(text) {
       const source = text.trim();
       if (!source) return [];
-      const urlRanges = Array.from(source.matchAll(/\b(?:https?:\/\/|www\.)[^\s<>"'，。！？；]+/giu))
-        .map(match => ({ start: match.index, end: match.index + match[0].length }));
+      const urlRanges = speechURLRanges(source);
       const isInsideURL = index => urlRanges.some(range => index >= range.start && index < range.end);
       const sentences = [];
       let start = 0;
@@ -2594,6 +3101,42 @@ The goal is simple: lower the friction of entering a text, and help you return g
       };
     }
 
+    function shiftMediaBlock(block, offset, maxPosition = Infinity) {
+      const start = Math.max(0, Math.min(maxPosition, block.start + offset));
+      const end = Math.max(start, Math.min(maxPosition, block.end + offset));
+      return {
+        ...block,
+        start,
+        end
+      };
+    }
+
+    function safeClipboardImageURL(value) {
+      const source = String(value || "").trim();
+      if (!source) return "";
+      if (/^data:image\/(?:png|jpe?g|gif|webp|bmp|avif)(?:;[^,]*)?,/i.test(source)) return source;
+      if (source.startsWith("blob:")) return source;
+      try {
+        const url = new URL(source);
+        return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
+      } catch {
+        return "";
+      }
+    }
+
+    function imageURLFromElement(image) {
+      const candidates = [
+        image.getAttribute("src"),
+        image.getAttribute("data-src"),
+        image.getAttribute("data-original-src")
+      ];
+      for (const candidate of candidates) {
+        const safeURL = safeClipboardImageURL(candidate);
+        if (safeURL) return safeURL;
+      }
+      return "";
+    }
+
     function parseClipboardContent(html) {
       if (!html || typeof DOMParser === "undefined") return null;
       const documentFragment = new DOMParser().parseFromString(html, "text/html");
@@ -2606,6 +3149,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       const ignoredTags = new Set(["HEAD", "SCRIPT", "STYLE", "TITLE", "META", "LINK"]);
       const parts = [];
       const tableBlocks = [];
+      const mediaBlocks = [];
 
       const currentText = () => parts.join("");
 
@@ -2624,6 +3168,26 @@ The goal is simple: lower the friction of entering a text, and help you return g
         if (trailing < count) parts.push("\n".repeat(count - trailing));
       };
 
+      const appendImage = image => {
+        if (image.getAttribute("aria-hidden") === "true" || image.getAttribute("role") === "presentation") return;
+        const width = Number(image.getAttribute("width"));
+        const height = Number(image.getAttribute("height"));
+        if (width > 0 && height > 0 && width <= 4 && height <= 4) return;
+        const url = imageURLFromElement(image);
+        if (!url) return;
+        appendBreak();
+        const start = currentText().length;
+        mediaBlocks.push({
+          kind: "image",
+          start,
+          end: start,
+          url,
+          alt: image.getAttribute("alt")?.trim() || image.getAttribute("title")?.trim() || t("clipboardImageAlt"),
+          owned: false
+        });
+        appendBreak();
+      };
+
       const walk = (node, preserveWhitespace = false) => {
         if (node.nodeType === Node.TEXT_NODE) {
           appendText(node.nodeValue, preserveWhitespace);
@@ -2633,6 +3197,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
         const tag = node.tagName;
         if (ignoredTags.has(tag)) return;
+        if (tag === "IMG") {
+          appendImage(node);
+          return;
+        }
         if (tag === "TABLE") {
           const rows = rowsFromTableElement(node);
           if (!rows.length) return;
@@ -2658,11 +3226,12 @@ The goal is simple: lower the friction of entering a text, and help you return g
       for (const child of documentFragment.body.childNodes) walk(child);
       const rawText = currentText();
       const text = rawText.trim();
-      if (!text || !tableBlocks.length) return null;
+      if ((!text && !mediaBlocks.length) || (!tableBlocks.length && !mediaBlocks.length)) return null;
       const leadingOffset = rawText.length - rawText.trimStart().length;
       return {
         text,
-        tableBlocks: tableBlocks.map(block => shiftTableBlock(block, -leadingOffset))
+        tableBlocks: tableBlocks.map(block => shiftTableBlock(block, -leadingOffset)),
+        mediaBlocks: mediaBlocks.map(block => shiftMediaBlock(block, -leadingOffset, text.length))
       };
     }
 
@@ -2742,22 +3311,86 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return readingUnitForToken(activeIndex)?.kind === "table-row";
     }
 
+    function repairCopiedFormulaMarkup(text) {
+      const original = String(text || "");
+      let repaired = original.replace(/\\(?:\\\*|\*){1,2}te(?:\\\*|\*){1,2}xt/g, "\\text");
+      const hasFormulaMarkup = /(?:\\(?:text|mathrm|mathbf|operatorname|frac|sqrt|times|cdot|pm|neq|leq?|geq?|approx|rightarrow|left|right|infty|sum|int)\b|\\\[|\\\]|\\\(|\\\)|\$\$)/.test(repaired);
+      if (!hasFormulaMarkup) return original.trim();
+
+      repaired = repaired
+        .replace(/\\text\{([^{}]*)\}/g, "$1")
+        .replace(/\\(?:mathrm|mathbf|operatorname)\{([^{}]*)\}/g, "$1")
+        .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, " $1 ÷ $2 ")
+        .replace(/\\sqrt\{([^{}]*)\}/g, "√($1)")
+        .replace(/\\times/g, "×")
+        .replace(/\\cdot/g, "·")
+        .replace(/\\pm/g, "±")
+        .replace(/\\neq/g, "≠")
+        .replace(/\\leq?/g, "≤")
+        .replace(/\\geq?/g, "≥")
+        .replace(/\\approx/g, "≈")
+        .replace(/\\rightarrow/g, "→")
+        .replace(/\\infty/g, "∞")
+        .replace(/\\sum/g, "∑")
+        .replace(/\\int/g, "∫")
+        .replace(/\\left|\\right/g, "")
+        .replace(/\\\[/g, "\n")
+        .replace(/\\\]/g, "\n")
+        .replace(/\\\(|\\\)/g, "")
+        .replace(/\$\$/g, "\n")
+        .replace(/\s*([=+−×·≤≥→])\s*/g, " $1 ")
+        .replace(/[ \t]+\n/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+
+      return repaired || original.trim();
+    }
+
     function loadClipboardContent(content) {
-      if (!content?.text?.trim()) {
+      const incomingText = content?.text?.trim() || "";
+      const incomingMedia = content?.mediaBlocks || [];
+      if (!incomingText && incomingMedia.length) {
+        if (isReading) stopReading({ browse: false });
+        setVisualDocument(
+          incomingMedia.map(block => ({ kind: "image", url: block.url })),
+          t("clipboardImagesName")
+        );
+        setStatus(t("clipboardImagesLoaded", { count: incomingMedia.length }));
+        return;
+      }
+      if (!incomingText) {
         setStatus(t("clipboardEmpty"));
         return;
       }
-      if (content.text.trim() === sourceText.value.trim()) {
+      if (incomingText === sourceText.value.trim() && !content.tableBlocks?.length && !incomingMedia.length) {
         setStatus(t("clipboardUnchanged"));
         return;
       }
-      sourceText.value = content.text;
+      if (isReading) stopReading({ browse: false });
+      const hasRichBlocks = content.tableBlocks?.length || incomingMedia.length;
+      const cleanText = hasRichBlocks ? incomingText : repairCopiedFormulaMarkup(incomingText);
+      sourceText.value = cleanText;
       clearReflectionNote();
+      clearMediaBlocks();
       tableBlocks = content.tableBlocks || [];
+      mediaBlocks = incomingMedia;
       rebuildTokens();
       sourceText.focus();
       setStatus(t("clipboardRichLoaded"));
       openGuidePrompt();
+    }
+
+    function imageBlocksFromDataTransfer(dataTransfer, start) {
+      const imageFiles = Array.from(dataTransfer?.files || [])
+        .filter(file => /^image\/(?:png|jpeg|gif|webp|bmp|avif)$/i.test(file.type));
+      return imageFiles.map((file, index) => ({
+        kind: "image",
+        start,
+        end: start,
+        url: URL.createObjectURL(file),
+        alt: file.name || `${t("clipboardImageAlt")} ${index + 1}`,
+        owned: true
+      }));
     }
 
     function paragraphRanges(text) {
@@ -3360,6 +3993,17 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function render() {
+      if (!tokens.length && visualPages.length) {
+        renderVisualDocument();
+        gentleGuide.classList.remove("visible");
+        updateProgress();
+        updateMarkButton();
+        updatePreviousButton();
+        updateNextButton();
+        updateParagraphButtons();
+        return;
+      }
+
       if (!tokens.length) {
         renderEmptyState();
         gentleGuide.classList.remove("visible");
@@ -3413,6 +4057,21 @@ The goal is simple: lower the friction of entering a text, and help you return g
         </div>
       `;
 
+      const renderMediaBlock = block => {
+        const alt = block.alt || t("clipboardImageAlt");
+        const caption = block.alt && block.alt !== t("clipboardImageAlt")
+          ? `<figcaption>${escapeHTML(block.alt)}</figcaption>`
+          : "";
+        return `
+          <figure class="embedded-media">
+            <a class="embedded-media-link" href="${escapeHTML(block.url)}" target="_blank" rel="noopener" referrerpolicy="no-referrer" aria-label="${escapeHTML(`${t("visualEnlarge")}：${alt}`)}" title="${escapeHTML(t("visualEnlarge"))}">
+              <img src="${escapeHTML(block.url)}" alt="${escapeHTML(alt)}" loading="lazy" referrerpolicy="no-referrer">
+            </a>
+            ${caption}
+          </figure>
+        `;
+      };
+
       const legend = currentFlowMode === "off" || annotationIntensity === "off" ? "" : (
         currentFlowMode === "zh"
           ? `<div class="legend">
@@ -3428,7 +4087,11 @@ The goal is simple: lower the friction of entering a text, and help you return g
       );
 
       let paragraphs;
-      if (!tableBlocks.length) {
+      const structuredBlocks = [
+        ...tableBlocks.map(block => ({ ...block, kind: "table" })),
+        ...mediaBlocks.map(block => ({ ...block, kind: "image" }))
+      ].sort((a, b) => a.start - b.start);
+      if (!structuredBlocks.length) {
         paragraphs = renderTokenRange(0, source.length)
           .split(/\n{2,}/)
           .map((block, index) => {
@@ -3446,9 +4109,9 @@ The goal is simple: lower the friction of entering a text, and help you return g
           .join("");
         const blocks = [];
         let cursor = 0;
-        for (const block of tableBlocks) {
+        for (const block of structuredBlocks) {
           blocks.push(normalRange(cursor, block.start));
-          blocks.push(renderTableBlock(block));
+          blocks.push(block.kind === "table" ? renderTableBlock(block) : renderMediaBlock(block));
           cursor = block.end;
         }
         blocks.push(normalRange(cursor, source.length));
@@ -3516,6 +4179,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function rebuildTokens() {
+      if (sourceText.value.trim() && visualPages.length) clearVisualDocument();
       tokens = tokenize(sourceText.value);
       activeIndex = -1;
       hasCompleted = false;
@@ -3645,8 +4309,9 @@ The goal is simple: lower the friction of entering a text, and help you return g
       const token = tokens[startIndex];
       const chunkStart = token && token.start < chunk.end ? token.start : chunk.start;
       const rawText = sourceText.value.trim().slice(chunkStart, chunk.end);
-      const leadingWhitespace = rawText.search(/\S|$/);
-      const text = normalizeForSpeech(rawText);
+      const chunkLanguage = chunk.language || speechLanguageForText(rawText, sourceText.value);
+      const speechText = speechTextWithMap(rawText, chunkStart, chunkLanguage);
+      const text = speechText.text;
       if (!text) {
         speechChunkIndex += 1;
         speakSpeechChunk(runId, firstTokenAtOrAfter(speechChunks[speechChunkIndex]?.start ?? chunk.end));
@@ -3659,10 +4324,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
         return;
       }
 
-      speechOffset = chunkStart + Math.max(0, leadingWhitespace);
+      speechBoundaryMap = speechText.map;
       utterance = new SpeechSynthesisUtterance(text);
-      const voice = speechVoiceForText(text, sourceText.value);
-      utterance.lang = voice?.lang || speechLocaleForLanguage(speechLanguageForText(text, sourceText.value));
+      const voice = speechVoiceForText(text, sourceText.value, chunkLanguage);
+      utterance.lang = voice?.lang || speechLocaleForLanguage(chunkLanguage);
       if (voice) utterance.voice = voice;
       utterance.rate = Number(rateInput.value);
       utterance.pitch = 1;
@@ -3670,7 +4335,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
       utterance.onboundary = event => {
         if (runId !== playbackRunId || event.charIndex == null) return;
-        const nextIndex = tokenIndexForChar(speechOffset + event.charIndex);
+        const sourceCharIndex = speechBoundaryMap[event.charIndex] ?? chunkStart + event.charIndex;
+        const nextIndex = tokenIndexForChar(sourceCharIndex);
         const timer = window.setTimeout(() => {
           boundaryTimers.delete(timer);
           if (runId !== playbackRunId || !isReading || isPaused) return;
@@ -3785,6 +4451,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function play() {
       const text = normalizeForSpeech(sourceText.value);
       if (!text) {
+        if (visualPages.length) {
+          setStatus(t("visualOnly"));
+          return;
+        }
         setStatus(t("pasteFirst"));
         sourceText.focus();
         return;
@@ -3857,6 +4527,76 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
     }
 
+    function canvasToJPEGBlob(canvas) {
+      return new Promise((resolve, reject) => {
+        canvas.toBlob(blob => {
+          if (blob) resolve(blob);
+          else reject(new Error("Could not render PDF page image."));
+        }, "image/jpeg", 0.88);
+      });
+    }
+
+    async function renderPDFPagesAsImages(pdf) {
+      const renderedPages = [];
+      try {
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+          setStatus(t("pdfVisualLoading", { current: pageNumber, total: pdf.numPages }));
+          const page = await pdf.getPage(pageNumber);
+          const naturalViewport = page.getViewport({ scale: 1 });
+          const scale = Math.max(1, Math.min(1.6, 1400 / Math.max(naturalViewport.width, 1)));
+          const viewport = page.getViewport({ scale });
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.ceil(viewport.width);
+          canvas.height = Math.ceil(viewport.height);
+          const canvasContext = canvas.getContext("2d", { alpha: false });
+          if (!canvasContext) throw new Error("Canvas is unavailable.");
+
+          await page.render({ canvasContext, viewport, background: "#ffffff" }).promise;
+          const blob = await canvasToJPEGBlob(canvas);
+          renderedPages.push({
+            kind: "pdf",
+            url: URL.createObjectURL(blob)
+          });
+          canvas.width = 1;
+          canvas.height = 1;
+          page.cleanup?.();
+        }
+        return renderedPages;
+      } catch (error) {
+        renderedPages.forEach(page => URL.revokeObjectURL(page.url));
+        throw error;
+      }
+    }
+
+    function waitForImage(url) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = resolve;
+        image.onerror = () => reject(new Error("Could not decode image."));
+        image.src = url;
+      });
+    }
+
+    async function importImage(file) {
+      stopReading({ browse: false });
+      fileButton.disabled = true;
+      setStatus(t("fileLoading"));
+      const url = URL.createObjectURL(file);
+
+      try {
+        await waitForImage(url);
+        setVisualDocument([{ kind: "image", url }], file.name || "image");
+        setStatus(t("imageLoaded", { name: file.name || "image" }));
+      } catch (error) {
+        URL.revokeObjectURL(url);
+        console.error("[Slowglow Reader] Image import failed", error);
+        setStatus(t("fileFailed"));
+      } finally {
+        fileButton.disabled = false;
+        fileInput.value = "";
+      }
+    }
+
     async function importPDF(file) {
       if (!file) return;
       const isPDF = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
@@ -3873,19 +4613,22 @@ The goal is simple: lower the friction of entering a text, and help you return g
         const pdfjsLib = await loadPDFLibrary();
         const data = new Uint8Array(await file.arrayBuffer());
         const pdf = await pdfjsLib.getDocument({ data }).promise;
-        const pages = [];
+        const textPages = [];
 
         for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
           const page = await pdf.getPage(pageNumber);
           const content = await page.getTextContent();
           const pageText = textFromPDFItems(content.items);
-          if (pageText) pages.push(pageText);
+          if (pageText) textPages.push(pageText);
           setStatus(t("pdfPageLoading", { current: pageNumber, total: pdf.numPages }));
+          page.cleanup?.();
         }
 
-        const text = pages.join("\n\n").trim();
+        const text = textPages.join("\n\n").trim();
         if (!text) {
-          setStatus(t("pdfNoText"));
+          const renderedPages = await renderPDFPagesAsImages(pdf);
+          setVisualDocument(renderedPages, file.name || "PDF");
+          setStatus(t("pdfVisualLoaded", { pages: pdf.numPages }));
           return;
         }
 
@@ -3905,10 +4648,11 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
       const name = file.name || "file";
       const isPDF = file.type === "application/pdf" || /\.pdf$/i.test(name);
+      const isImage = file.type.startsWith("image/") || /\.(?:png|jpe?g|webp|gif|bmp|avif)$/i.test(name);
       const isHTML = file.type === "text/html" || /\.(html?|xhtml)$/i.test(name);
       const isText = file.type.startsWith("text/") || /\.(txt|md|markdown|csv|tsv)$/i.test(name);
 
-      if (!isPDF && !isText && !isHTML) {
+      if (!isPDF && !isImage && !isText && !isHTML) {
         setStatus(t("fileUnsupported"));
         fileInput.value = "";
         return;
@@ -3916,6 +4660,11 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
       if (isPDF) {
         await importPDF(file);
+        return;
+      }
+
+      if (isImage) {
+        await importImage(file);
         return;
       }
 
@@ -3957,6 +4706,42 @@ The goal is simple: lower the friction of entering a text, and help you return g
                 return;
               }
             }
+
+            const clipboardImages = [];
+            let clipboardPlainText = "";
+            for (const item of clipboardItems) {
+              if (!clipboardPlainText && item.types.includes("text/plain")) {
+                clipboardPlainText = await (await item.getType("text/plain")).text();
+              }
+              const imageType = item.types.find(type => /^image\/(?:png|jpeg|gif|webp|bmp|avif)$/i.test(type));
+              if (!imageType) continue;
+              const blob = await item.getType(imageType);
+              clipboardImages.push({
+                kind: "image",
+                url: URL.createObjectURL(blob),
+                alt: t("clipboardImageAlt"),
+                owned: true
+              });
+            }
+
+            if (clipboardImages.length) {
+              const cleanText = repairCopiedFormulaMarkup(clipboardPlainText);
+              if (cleanText) {
+                loadClipboardContent({
+                  text: cleanText,
+                  tableBlocks: [],
+                  mediaBlocks: clipboardImages.map(image => ({
+                    ...image,
+                    start: cleanText.length,
+                    end: cleanText.length
+                  }))
+                });
+              } else {
+                setVisualDocument(clipboardImages, t("clipboardImagesName"));
+                setStatus(t("clipboardImagesLoaded", { count: clipboardImages.length }));
+              }
+              return;
+            }
           } catch {
             // Fall back to plain text when rich clipboard access is unavailable.
           }
@@ -3966,11 +4751,13 @@ The goal is simple: lower the friction of entering a text, and help you return g
           setStatus(t("clipboardEmpty"));
           return;
         }
-        if (text.trim() === sourceText.value.trim()) {
+        const cleanText = repairCopiedFormulaMarkup(text);
+        if (cleanText.trim() === sourceText.value.trim()) {
           setStatus(t("clipboardUnchanged"));
           return;
         }
-        sourceText.value = text;
+        sourceText.value = cleanText;
+        clearMediaBlocks();
         tableBlocks = [];
         rebuildTokens();
         setStatus(t("clipboardLoaded"));
@@ -3984,9 +4771,32 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function handleSourcePaste(event) {
       const clipboardHTML = event.clipboardData?.getData("text/html");
-      const content = parseClipboardContent(clipboardHTML);
+      let content = parseClipboardContent(clipboardHTML);
+      const clipboardText = event.clipboardData?.getData("text/plain") || "";
       const hasSelection = sourceText.selectionStart === 0 && sourceText.selectionEnd === sourceText.value.length;
+      const repairedText = repairCopiedFormulaMarkup(clipboardText);
+      if (!content?.mediaBlocks?.length) {
+        const imageBlocks = imageBlocksFromDataTransfer(
+          event.clipboardData,
+          content?.text?.trim().length || repairedText.length
+        );
+        if (imageBlocks.length) {
+          content = {
+            text: content?.text?.trim() || repairedText,
+            tableBlocks: content?.tableBlocks || [],
+            mediaBlocks: imageBlocks
+          };
+        }
+      }
+      if (!content && repairedText !== clipboardText && (!sourceText.value.trim() || hasSelection)) {
+        event.preventDefault();
+        loadClipboardContent({ text: repairedText, tableBlocks: [], mediaBlocks: [] });
+        return;
+      }
       if (!content || (sourceText.value.trim() && !hasSelection)) {
+        content?.mediaBlocks?.forEach(block => {
+          if (block.owned && block.url?.startsWith("blob:")) URL.revokeObjectURL(block.url);
+        });
         window.setTimeout(openGuidePrompt, 0);
         return;
       }
@@ -4001,6 +4811,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function startNewText() {
       stopReading({ browse: false });
+      clearVisualDocument();
+      clearMediaBlocks();
       sourceText.value = "";
       clearReflectionNote();
       tableBlocks = [];
@@ -4012,12 +4824,13 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     function acceptExternalText(text) {
-      const cleanText = String(text || "").trim();
+      const cleanText = repairCopiedFormulaMarkup(text);
       if (!cleanText) return;
       stopReading({ browse: false });
       setBrowseMode(false);
       sourceText.value = cleanText;
       clearReflectionNote();
+      clearMediaBlocks();
       tableBlocks = [];
       rebuildTokens();
       setStatus(t("externalLoaded"));
@@ -4030,6 +4843,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       setBrowseMode(false);
       sourceText.value = t("sampleText");
       clearReflectionNote();
+      clearMediaBlocks();
       tableBlocks = [];
       rebuildTokens();
       setStatus(t("sampleLoaded"));
@@ -4354,6 +5168,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         clearReflectionNote();
       }
       if (isReading) stopReading({ browse: false });
+      clearMediaBlocks();
       tableBlocks = [];
       rebuildTokens();
     });
@@ -4368,6 +5183,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
       clearBoundaryTimer();
       window.clearTimeout(comfortTimer);
       window.speechSynthesis.cancel();
+      clearMediaBlocks();
+      clearVisualDocument();
     });
 
     if ("speechSynthesis" in window) {
