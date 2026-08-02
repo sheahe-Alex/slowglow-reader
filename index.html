@@ -1042,6 +1042,32 @@
       margin: 12px 0;
     }
 
+    .reflection-note {
+      display: block;
+      margin: 12px 0 16px;
+      color: var(--muted);
+    }
+
+    .reflection-note-title {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .reflection-note textarea {
+      min-height: 72px;
+      max-height: 18rem;
+      font-size: 15px;
+    }
+
+    .reflection-note-hint {
+      display: block;
+      margin-top: 5px;
+      color: color-mix(in srgb, var(--muted) 82%, var(--panel));
+      font-size: 12px;
+    }
+
     .notes-output {
       display: grid;
       grid-template-columns: minmax(220px, 0.9fr) 1.4fr;
@@ -1456,6 +1482,11 @@
         <div class="notes-tools">
           <button class="button" id="copyNotesButton" type="button">复制回看草稿</button>
         </div>
+        <label class="reflection-note" for="reflectionInput">
+          <span class="reflection-note-title" id="reflectionTitle">用自己的话写一句（可选）</span>
+          <textarea id="reflectionInput" rows="3" placeholder="这段主要在说什么？先写下你现在的理解。"></textarea>
+          <span class="reflection-note-hint" id="reflectionHint">不用完整，也不必漂亮。</span>
+        </label>
         <div class="notes-output" id="notesOutput">
           <div class="note-card">这里会用本地规则找少量回看线索，帮你第二遍、第 N 遍回到文本。它不是 AI 总结，也不会联网。</div>
         </div>
@@ -1510,6 +1541,9 @@
     const gentleGuideContent = document.querySelector("#gentleGuideContent");
     const notesPanel = document.querySelector("#notesPanel");
     const copyNotesButton = document.querySelector("#copyNotesButton");
+    const reflectionInput = document.querySelector("#reflectionInput");
+    const reflectionTitle = document.querySelector("#reflectionTitle");
+    const reflectionHint = document.querySelector("#reflectionHint");
     const notesOutput = document.querySelector("#notesOutput");
     const inputPanel = document.querySelector(".input-panel");
     const guidePrompt = document.querySelector("#guidePrompt");
@@ -1561,6 +1595,7 @@
     let reviewTargetIndex = -1;
     let reviewTargetTimer = null;
     let guidePromptReturnFocus = null;
+    let reflectionSource = "";
     let voiceEnabled = localStorage.getItem("slowglow-voice-enabled") !== "false";
     let menuCollapsed = true;
     let uiLanguage = localStorage.getItem("slowglow-ui-language") || (navigator.language?.toLowerCase().startsWith("zh") ? "zh" : "en");
@@ -1632,6 +1667,10 @@
         emptyNote: "不用设置完美，先试一小段就好。读一点也算。",
         notesSummary: "回看线索：词 / 句",
         copyNotes: "复制回看草稿",
+        reflectionTitle: "用自己的话写一句（可选）",
+        reflectionPlaceholder: "这段主要在说什么？先写下你现在的理解。",
+        reflectionHint: "不用完整，也不必漂亮。",
+        noReflection: "尚未填写",
         notesIntro: "这里会用本地规则找少量回看线索，帮你第二遍、第 N 遍回到文本。它不是 AI 总结，也不会联网。",
         noteReminderTitle: "笔记提示",
         noteReminder: "用自己的话记下重点。",
@@ -1783,6 +1822,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
         emptyNote: "You do not need perfect settings. Try a small passage first. A little reading counts.",
         notesSummary: "Review Cues: words / sentences",
         copyNotes: "Copy Review Draft",
+        reflectionTitle: "Write one sentence in your own words (optional)",
+        reflectionPlaceholder: "What is this passage mainly saying? Write what you understand right now.",
+        reflectionHint: "It does not need to be complete or polished.",
+        noReflection: "Not written yet",
         notesIntro: "Local rules can surface a few review cues to help you return to the text on a second or later pass. This is not an AI summary and does not go online.",
         noteReminderTitle: "Note cue",
         noteReminder: "Put key points in your own words.",
@@ -2093,6 +2136,9 @@ The goal is simple: lower the friction of entering a text, and help you return g
       gentleGuideContent.textContent = t("guideDefault");
       notesPanel.querySelector("summary").textContent = t("notesSummary");
       copyNotesButton.textContent = t("copyNotes");
+      reflectionTitle.textContent = t("reflectionTitle");
+      reflectionInput.placeholder = t("reflectionPlaceholder");
+      reflectionHint.textContent = t("reflectionHint");
       guidePromptKicker.textContent = t("guidePromptKicker");
       guidePromptTitle.textContent = t("guidePromptTitle");
       guidePromptCopy.textContent = t("guidePromptCopy");
@@ -2670,6 +2716,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
         return;
       }
       sourceText.value = content.text;
+      clearReflectionNote();
       tableBlocks = content.tableBlocks || [];
       rebuildTokens();
       sourceText.focus();
@@ -2983,9 +3030,10 @@ The goal is simple: lower the friction of entering a text, and help you return g
       }
 
       const { keywords, keySentences, marked } = buildNotesDraft(text);
+      const reflection = reflectionInput.value.trim();
       const draft = [
         t("draftReminder"),
-        `- ${t("noteReminder")}`,
+        reflection || `- ${t("noReflection")}`,
         "",
         t("draftMarked"),
         marked.map(sentence => `- ${sentence}`).join("\n") || `- ${t("none")}`,
@@ -3003,6 +3051,11 @@ The goal is simple: lower the friction of entering a text, and help you return g
       } catch {
         setStatus(t("copyFailed"));
       }
+    }
+
+    function clearReflectionNote() {
+      reflectionInput.value = "";
+      reflectionSource = "";
     }
 
     function isTokenInMarkedSentence(token) {
@@ -3766,6 +3819,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function startNewText() {
       stopReading({ browse: false });
       sourceText.value = "";
+      clearReflectionNote();
       tableBlocks = [];
       rebuildTokens();
       setBrowseMode(false);
@@ -3780,6 +3834,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       stopReading({ browse: false });
       setBrowseMode(false);
       sourceText.value = cleanText;
+      clearReflectionNote();
       tableBlocks = [];
       rebuildTokens();
       setStatus(t("externalLoaded"));
@@ -3791,6 +3846,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       stopReading({ browse: false });
       setBrowseMode(false);
       sourceText.value = t("sampleText");
+      clearReflectionNote();
       tableBlocks = [];
       rebuildTokens();
       setStatus(t("sampleLoaded"));
@@ -4109,9 +4165,15 @@ The goal is simple: lower the friction of entering a text, and help you return g
     copyNotesButton.addEventListener("click", copyNotesDraft);
     markButton.addEventListener("click", markCurrentSentence);
     sourceText.addEventListener("input", () => {
+      if (reflectionInput.value.trim() && reflectionSource && sourceText.value.trim() !== reflectionSource) {
+        clearReflectionNote();
+      }
       if (isReading) stopReading({ browse: false });
       tableBlocks = [];
       rebuildTokens();
+    });
+    reflectionInput.addEventListener("input", () => {
+      reflectionSource = sourceText.value.trim();
     });
     sourceText.addEventListener("paste", handleSourcePaste);
     rateInput.addEventListener("input", handleRateInput);
