@@ -115,6 +115,7 @@ The core belief:
 - 粘贴或读取剪贴板文字 / Paste or read text from the clipboard
 - 大字号阅读区 / Large reading view
 - 可开关朗读：有声朗读或静音高亮导读 / Optional read-aloud: spoken reading or silent guided highlighting
+- 数字片段会跟随整篇文本的主语言朗读 / Number-only passages follow the dominant language of the text
 - 当前词高亮 / Current-word highlight
 - 设置里可选择低饱和的当前词高光颜色 / Choose a muted current-word highlight color in Settings
 - 上一句：阅读中可以退回上一句 / Previous sentence: step back while reading

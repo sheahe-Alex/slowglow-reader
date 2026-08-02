@@ -2227,9 +2227,9 @@ The goal is simple: lower the friction of entering a text, and help you return g
       speechVoices = window.speechSynthesis.getVoices().filter(voice => voice.lang);
     }
 
-    function speechVoiceForText(text) {
+    function speechVoiceForText(text, context = sourceText.value) {
       refreshSpeechVoices();
-      const target = speechLanguageForText(text);
+      const target = speechLanguageForText(text, context);
       const targetLocales = languageProfiles[target]?.voiceLocales || languageProfiles.en.voiceLocales;
       const targetRoot = target.split("-")[0];
       return speechVoices
@@ -2249,8 +2249,16 @@ The goal is simple: lower the friction of entering a text, and help you return g
         .sort((a, b) => b.score - a.score)[0]?.voice || null;
     }
 
-    function speechLanguageForText(text) {
-      return detectTextLanguage(text) || "en";
+    function speechLanguageForText(text, context = sourceText.value) {
+      const value = String(text || "");
+      const numbers = value.match(/[\p{N}]/gu)?.length || 0;
+      const letters = value.match(/[\p{L}]/gu)?.length || 0;
+      const mostlyNumeric = numbers > 0 && numbers >= Math.max(1, letters * 2);
+      if (mostlyNumeric) {
+        const contextWithoutNumbers = String(context || "").replace(/[\p{N}]/gu, " ");
+        return detectTextLanguage(contextWithoutNumbers) || detectTextLanguage(value) || "en";
+      }
+      return detectTextLanguage(value) || "en";
     }
 
     function speechLocaleForLanguage(language) {
@@ -2283,8 +2291,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
           continue;
         }
         if (sentence.end - sentence.start <= maxLength) {
-          const sentenceLanguage = speechLanguageForText(sentence.text);
-          const pendingLanguage = pending ? speechLanguageForText(source.slice(pending.start, pending.end)) : null;
+          const sentenceLanguage = speechLanguageForText(sentence.text, source);
+          const pendingLanguage = pending ? speechLanguageForText(source.slice(pending.start, pending.end), source) : null;
           if (pending && sentence.end - pending.start <= maxLength && sentenceLanguage === pendingLanguage) {
             pending.end = sentence.end;
           } else {
@@ -3523,8 +3531,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
       speechOffset = chunkStart + Math.max(0, leadingWhitespace);
       utterance = new SpeechSynthesisUtterance(text);
-      const voice = speechVoiceForText(text);
-      utterance.lang = voice?.lang || speechLocaleForLanguage(speechLanguageForText(text));
+      const voice = speechVoiceForText(text, sourceText.value);
+      utterance.lang = voice?.lang || speechLocaleForLanguage(speechLanguageForText(text, sourceText.value));
       if (voice) utterance.voice = voice;
       utterance.rate = Number(rateInput.value);
       utterance.pitch = 1;
