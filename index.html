@@ -171,7 +171,12 @@
       place-items: center;
     }
 
-    .reading-actions .context-action::after {
+    .sound-control {
+      position: relative;
+    }
+
+    .reading-actions .context-action::after,
+    .sound-control::after {
       position: absolute;
       top: calc(100% + 8px);
       left: 50%;
@@ -195,7 +200,9 @@
     }
 
     .reading-actions .context-action:hover::after,
-    .reading-actions .context-action:focus-visible::after {
+    .reading-actions .context-action:focus-visible::after,
+    .sound-control:hover::after,
+    .sound-control:focus-visible::after {
       opacity: 1;
       transform: translate(-50%, 0);
     }
@@ -2211,6 +2218,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       const label = voiceEnabled ? t("voiceOn") : t("voiceOff");
       voiceButton.setAttribute("aria-label", label);
       voiceButton.title = label;
+      voiceButton.dataset.tooltip = label;
       voiceButton.querySelector('[data-sound-icon="on"]').hidden = !voiceEnabled;
       voiceButton.querySelector('[data-sound-icon="off"]').hidden = voiceEnabled;
       voiceButton.setAttribute("aria-pressed", String(voiceEnabled));
