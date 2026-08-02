@@ -12,6 +12,9 @@ Bandu Reader is a local, no-login, no-upload reading companion.
 不需要安装，不需要登录。打开网页后，把文字粘贴进去即可。  
 No installation or login is required. Open the page and paste text into the reader.
 
+也可以点“导入 PDF”，把有文字层的 PDF 直接带进阅读器。当前扫描 PDF 和图片文字还需要下一阶段的 OCR 支持。
+You can also click “Import PDF” to bring a text-based PDF into the reader. Scanned PDFs and text in images will need the next OCR phase.
+
 ## 三件事先知道 / Good To Know
 
 - 不需要登录，也不会上传你的文字。  
@@ -113,6 +116,7 @@ The core belief:
 ## 功能 / Features
 
 - 粘贴或读取剪贴板文字 / Paste or read text from the clipboard
+- 导入有文字层的 PDF，并把文字送入同一套阅读流程 / Import text-based PDFs into the same reading flow
 - 大字号阅读区 / Large reading view
 - 可开关朗读：有声朗读或静音高亮导读 / Optional read-aloud: spoken reading or silent guided highlighting
 - 数字片段会跟随整篇文本的主语言朗读 / Number-only passages follow the dominant language of the text
@@ -173,6 +177,8 @@ If macOS blocks it, right-click the file, choose "Open", and confirm once more.
    Return to Reader.
 4. 点 `读取剪贴板`，或直接粘贴到 `放入文字` 区域。  
    Click `Read Clipboard`, or paste directly into the `Add Text` area.
+   也可以点 `导入 PDF`，选择一个有文字层的 PDF。
+   You can also click `Import PDF` and choose a text-based PDF.
 5. 点 `开始伴读`。  
    Click `Start Reading`.
 
@@ -188,6 +194,9 @@ The current version is a local web tool.
 - 不需要 API key / No API key required
 - 不上传你的文字 / Your text is not uploaded
 - 不使用在线 AI / No online AI is used
+
+导入 PDF 时，浏览器会在本地读取文件；第一次使用 PDF 功能时，会从 PDF.js 的公开 CDN 懒加载解析器代码，但 PDF 内容不会发送给 CDN。扫描件和图片 OCR 仍在后续阶段。
+When importing a PDF, the browser reads the file locally. The first PDF import lazily loads the PDF.js parser code from a public CDN, but the PDF content is not sent to the CDN. OCR for scans and images is still planned for a later phase.
 
 如果打开朗读，会使用浏览器和系统提供的语音能力。关闭朗读时，高亮仍会继续推进。  
 If read-aloud is on, it uses your browser and system speech features. If read-aloud is off, the highlight still keeps moving.
@@ -222,7 +231,7 @@ You can use:
 
 - 更正式的跨平台网页版 / A more polished cross-platform web version
 - 更稳定的大段文本导读 / More stable long-text guided reading
-- 可选的 PDF/OCR 辅助 / Optional PDF/OCR support
+- 扫描 PDF 和图片 OCR 辅助 / OCR support for scanned PDFs and images
 - 更细腻的专注阅读调节 / More nuanced Focus Reading controls
 - 多语言阅读体验优化 / Better multilingual reading experience
 

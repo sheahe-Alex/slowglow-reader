@@ -1,4 +1,4 @@
-const CACHE_NAME = "bandu-reader-v1";
+const CACHE_NAME = "bandu-reader-v2";
 const ASSETS = [
   "./",
   "./index.html",

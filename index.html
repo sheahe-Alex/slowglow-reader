@@ -597,6 +597,13 @@
       gap: 10px;
     }
 
+    .input-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
     .panel-heading .button {
       min-height: 34px;
       padding: 0 10px;
@@ -1455,7 +1462,11 @@
       <section class="input-panel">
         <div class="panel-heading">
           <h1 class="panel-title">放入文字</h1>
-          <button class="button utility" id="clipboardButton" type="button">读取剪贴板</button>
+          <div class="input-actions">
+            <button class="button utility" id="clipboardButton" type="button">读取剪贴板</button>
+            <button class="button utility" id="pdfButton" type="button">导入 PDF</button>
+            <input id="pdfInput" type="file" accept="application/pdf,.pdf" hidden>
+          </div>
         </div>
         <textarea id="sourceText" placeholder="把想读的文字粘贴到这里。"></textarea>
         <div class="input-meta">
@@ -1514,6 +1525,8 @@
     const reader = document.querySelector("#reader");
     const readerPanel = document.querySelector("#readerPanel");
     const clipboardButton = document.querySelector("#clipboardButton");
+    const pdfButton = document.querySelector("#pdfButton");
+    const pdfInput = document.querySelector("#pdfInput");
     const playButton = document.querySelector("#playButton");
     const readingActions = document.querySelector(".reading-actions");
     const topButton = document.querySelector("#topButton");
@@ -1605,6 +1618,7 @@
     const copy = {
       zh: {
         clipboard: "读取剪贴板",
+        importPDF: "导入 PDF",
         play: "开始伴读",
         replay: "从头再读",
         readingNow: "阅读中",
@@ -1716,6 +1730,12 @@
         clipboardUnchanged: "剪贴板内容没有变化。",
         clipboardFailed: "读取剪贴板失败。请点左侧文本框后按 Command V。",
         clipboardRichLoaded: "已保留表格及其前后的文字。表格会按行伴读。",
+        pdfLoading: "正在读取 PDF…",
+        pdfPageLoading: ({ current, total }) => `正在读取 PDF… 第 ${current} / ${total} 页`,
+        pdfLoaded: ({ pages, chars }) => `已读取 PDF：${pages} 页，${chars} 字符。可以开始伴读。`,
+        pdfNoText: "这个 PDF 没有可复制文字，可能是扫描件。当前先支持有文字层的 PDF。",
+        pdfFailed: "PDF 读取失败。可以先复制其中的文字，或换一个文件试试。",
+        pdfOnly: "请选择 PDF 文件。",
         newTextReady: "可以粘贴下一段文字了。",
         externalLoaded: "文字已放好。可以开始伴读。",
         gentleOn: "已开启专注阅读。当前句会浮现出来，其他文字会轻轻退后。",
@@ -1760,6 +1780,7 @@
       },
       en: {
         clipboard: "Read Clipboard",
+        importPDF: "Import PDF",
         play: "Start Reading",
         replay: "Read Again",
         readingNow: "Reading",
@@ -1871,6 +1892,12 @@ The goal is simple: lower the friction of entering a text, and help you return g
         clipboardUnchanged: "Clipboard text has not changed.",
         clipboardFailed: "Could not read the clipboard. Click the text box and press Command V.",
         clipboardRichLoaded: "The table and surrounding text were preserved. Table rows will be read row by row.",
+        pdfLoading: "Reading PDF…",
+        pdfPageLoading: ({ current, total }) => `Reading PDF… page ${current} / ${total}`,
+        pdfLoaded: ({ pages, chars }) => `PDF read: ${pages} pages, ${chars} characters. You can start reading.`,
+        pdfNoText: "This PDF has no selectable text and may be a scan. This version supports text-based PDFs first.",
+        pdfFailed: "Could not read this PDF. You can copy its text for now, or try another file.",
+        pdfOnly: "Please choose a PDF file.",
         newTextReady: "Ready for the next passage.",
         externalLoaded: "Text is ready. You can start reading.",
         gentleOn: "Focus Reading is on. The current sentence will appear while surrounding text gently fades back.",
@@ -2116,6 +2143,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function applyLanguage({ resetStatus = false } = {}) {
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
+      pdfButton.textContent = t("importPDF");
       updateIconButton(previousParagraphButton, "◀◀", t("previousParagraph"));
       updateIconButton(previousButton, "◀", t("previousSentence"));
       updateIconButton(nextButton, "▶", t("nextSentence"));
@@ -3759,6 +3787,102 @@ The goal is simple: lower the friction of entering a text, and help you return g
       startFromToken(0);
     }
 
+    const pdfjsVersion = "5.7.284";
+    let pdfLibraryPromise = null;
+
+    function loadPDFLibrary() {
+      if (!pdfLibraryPromise) {
+        pdfLibraryPromise = import(`https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsVersion}/build/pdf.min.mjs`)
+          .then(pdfjsLib => {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsVersion}/build/pdf.worker.min.mjs`;
+            return pdfjsLib;
+          })
+          .catch(error => {
+            pdfLibraryPromise = null;
+            throw error;
+          });
+      }
+      return pdfLibraryPromise;
+    }
+
+    function joinPDFTextItems(parts) {
+      return parts.reduce((line, rawPart) => {
+        const part = String(rawPart || "").replace(/\s+/g, " ").trim();
+        if (!part) return line;
+        if (!line) return part;
+
+        const previous = Array.from(line).slice(-1)[0] || "";
+        const first = Array.from(part)[0] || "";
+        const previousIsCJK = /[\u3400-\u9fff]/.test(previous);
+        const firstIsCJK = /[\u3400-\u9fff]/.test(first);
+        const startsWithPunctuation = /^[)\]}.,!?;:%，。！？；：、]/.test(part);
+        const followsOpeningMark = /[([{\/"'“‘-]$/.test(line);
+        const needsSpace = !previousIsCJK && !firstIsCJK && !startsWithPunctuation && !followsOpeningMark;
+        return `${line}${needsSpace ? " " : ""}${part}`;
+      }, "");
+    }
+
+    function textFromPDFItems(items) {
+      const lines = [];
+      let lineParts = [];
+
+      for (const item of items) {
+        if (typeof item.str === "string") lineParts.push(item.str);
+        if (item.hasEOL) {
+          const line = joinPDFTextItems(lineParts);
+          if (line) lines.push(line);
+          lineParts = [];
+        }
+      }
+
+      const lastLine = joinPDFTextItems(lineParts);
+      if (lastLine) lines.push(lastLine);
+      return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+    }
+
+    async function importPDF(file) {
+      if (!file) return;
+      const isPDF = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+      if (!isPDF) {
+        setStatus(t("pdfOnly"));
+        return;
+      }
+
+      stopReading({ browse: false });
+      pdfButton.disabled = true;
+      setStatus(t("pdfLoading"));
+
+      try {
+        const pdfjsLib = await loadPDFLibrary();
+        const data = new Uint8Array(await file.arrayBuffer());
+        const pdf = await pdfjsLib.getDocument({ data }).promise;
+        const pages = [];
+
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+          const page = await pdf.getPage(pageNumber);
+          const content = await page.getTextContent();
+          const pageText = textFromPDFItems(content.items);
+          if (pageText) pages.push(pageText);
+          setStatus(t("pdfPageLoading", { current: pageNumber, total: pdf.numPages }));
+        }
+
+        const text = pages.join("\n\n").trim();
+        if (!text) {
+          setStatus(t("pdfNoText"));
+          return;
+        }
+
+        acceptExternalText(text);
+        setStatus(t("pdfLoaded", { pages: pdf.numPages, chars: text.length.toLocaleString() }));
+      } catch (error) {
+        console.error("[Slowglow Reader] PDF import failed", error);
+        setStatus(t("pdfFailed"));
+      } finally {
+        pdfButton.disabled = false;
+        pdfInput.value = "";
+      }
+    }
+
     async function readClipboard() {
       try {
         setBrowseMode(false);
@@ -4054,6 +4178,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     clipboardButton.addEventListener("click", readClipboard);
+    pdfButton.addEventListener("click", () => pdfInput.click());
+    pdfInput.addEventListener("change", () => importPDF(pdfInput.files?.[0]));
     topButton.addEventListener("click", scrollToTop);
     newTextButton.addEventListener("click", startNewText);
     reader.addEventListener("click", event => {
