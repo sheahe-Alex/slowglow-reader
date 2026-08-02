@@ -25,8 +25,8 @@ Open the online version:
 打开后，把文字粘贴进去即可。  
 After it opens, paste text into the reader.
 
-也可以点“导入 PDF”，直接选择有文字层的 PDF。扫描 PDF 和图片文字的 OCR 会在后续阶段加入。
-You can also click “Import PDF” and choose a text-based PDF. OCR for scanned PDFs and image text will come in a later phase.
+也可以点“导入文件”，直接选择 PDF、TXT、Markdown、HTML 或 CSV。扫描 PDF 和图片文字的 OCR 会在后续阶段加入。
+You can also click “Import File” and choose a PDF, TXT, Markdown, HTML, or CSV file. OCR for scanned PDFs and image text will come in a later phase.
 
 如果暂时没有文字，可以先点页面里的“没有文字？先试一小段示例”。  
 If you do not have text ready, click "No text yet? Try a short sample" on the page.
@@ -95,8 +95,8 @@ If macOS blocks it:
 5. 点 `开始伴读`。
    Click `Start Reading`.
 
-如果你手里是可以复制文字的 PDF，也可以直接点 `导入 PDF`，不必先打开 PDF 再复制。
-If you have a PDF with selectable text, you can click `Import PDF` directly instead of opening it and copying first.
+如果你手里是 PDF、TXT、Markdown、HTML 或 CSV，也可以直接点 `导入文件`，不必先复制文字。
+If you have a PDF, TXT, Markdown, HTML, or CSV file, you can click `Import File` instead of copying the text first.
 
 第一次放入文字后，页面会轻轻问你要不要体验“专注阅读”。点“体验专注阅读”只会开启模式，不会突然播放声音；也可以点“先不用”，以后从顶部随时打开。
 After you add text for the first time, the page gently asks whether you want to try Focus Reading. Choosing it only turns on the mode; it does not suddenly start audio. You can choose `Not now` and turn it on from the top later.
@@ -124,8 +124,8 @@ If clipboard reading does not work, you can paste the text directly into the lef
 这个版本是本地网页工具。文字只在你的电脑和浏览器里处理，不会上传到服务器。  
 This version is a local web tool. Your text is processed on your computer and in your browser. It is not uploaded to a server.
 
-导入 PDF 时，PDF 内容仍在浏览器本地读取；首次使用会懒加载 PDF 解析器代码，但不会把 PDF 内容上传到解析器服务。
-When importing a PDF, the PDF content is still read locally in the browser. The parser code is loaded lazily the first time, but the PDF content is not uploaded to a parser service.
+导入文件时，内容仍在浏览器本地读取；首次导入 PDF 会懒加载 PDF 解析器代码，但不会把 PDF 内容上传到解析器服务。
+When importing a file, its contents are still read locally in the browser. The PDF parser code is loaded lazily the first time, but the PDF content is not uploaded to a parser service.
 
 ## 一个小提醒 / A Small Reminder
 

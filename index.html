@@ -1464,8 +1464,8 @@
           <h1 class="panel-title">放入文字</h1>
           <div class="input-actions">
             <button class="button utility" id="clipboardButton" type="button">读取剪贴板</button>
-            <button class="button utility" id="pdfButton" type="button">导入 PDF</button>
-            <input id="pdfInput" type="file" accept="application/pdf,.pdf" hidden>
+            <button class="button utility" id="fileButton" type="button">导入文件</button>
+            <input id="fileInput" type="file" accept="application/pdf,.pdf,text/plain,.txt,.md,.markdown,.html,.htm,.csv,.tsv" hidden>
           </div>
         </div>
         <textarea id="sourceText" placeholder="把想读的文字粘贴到这里。"></textarea>
@@ -1525,8 +1525,8 @@
     const reader = document.querySelector("#reader");
     const readerPanel = document.querySelector("#readerPanel");
     const clipboardButton = document.querySelector("#clipboardButton");
-    const pdfButton = document.querySelector("#pdfButton");
-    const pdfInput = document.querySelector("#pdfInput");
+    const fileButton = document.querySelector("#fileButton");
+    const fileInput = document.querySelector("#fileInput");
     const playButton = document.querySelector("#playButton");
     const readingActions = document.querySelector(".reading-actions");
     const topButton = document.querySelector("#topButton");
@@ -1618,7 +1618,7 @@
     const copy = {
       zh: {
         clipboard: "读取剪贴板",
-        importPDF: "导入 PDF",
+        importFile: "导入文件",
         play: "开始伴读",
         replay: "从头再读",
         readingNow: "阅读中",
@@ -1735,7 +1735,11 @@
         pdfLoaded: ({ pages, chars }) => `已读取 PDF：${pages} 页，${chars} 字符。可以开始伴读。`,
         pdfNoText: "这个 PDF 没有可复制文字，可能是扫描件。当前先支持有文字层的 PDF。",
         pdfFailed: "PDF 读取失败。可以先复制其中的文字，或换一个文件试试。",
-        pdfOnly: "请选择 PDF 文件。",
+        fileLoading: "正在读取文件…",
+        fileLoaded: ({ name, chars }) => `已导入 ${name}：${chars} 字符。可以开始伴读。`,
+        fileEmpty: "这个文件里没有可读文字。",
+        fileFailed: "文件读取失败。可以换一个文件，或手动粘贴文字。",
+        fileUnsupported: "当前支持 PDF、TXT、Markdown、HTML 和 CSV 文件。",
         newTextReady: "可以粘贴下一段文字了。",
         externalLoaded: "文字已放好。可以开始伴读。",
         gentleOn: "已开启专注阅读。当前句会浮现出来，其他文字会轻轻退后。",
@@ -1780,7 +1784,7 @@
       },
       en: {
         clipboard: "Read Clipboard",
-        importPDF: "Import PDF",
+        importFile: "Import File",
         play: "Start Reading",
         replay: "Read Again",
         readingNow: "Reading",
@@ -1897,7 +1901,11 @@ The goal is simple: lower the friction of entering a text, and help you return g
         pdfLoaded: ({ pages, chars }) => `PDF read: ${pages} pages, ${chars} characters. You can start reading.`,
         pdfNoText: "This PDF has no selectable text and may be a scan. This version supports text-based PDFs first.",
         pdfFailed: "Could not read this PDF. You can copy its text for now, or try another file.",
-        pdfOnly: "Please choose a PDF file.",
+        fileLoading: "Reading file…",
+        fileLoaded: ({ name, chars }) => `Imported ${name}: ${chars} characters. You can start reading.`,
+        fileEmpty: "This file does not contain readable text.",
+        fileFailed: "Could not read this file. Try another one, or paste the text manually.",
+        fileUnsupported: "This version supports PDF, TXT, Markdown, HTML, and CSV files.",
         newTextReady: "Ready for the next passage.",
         externalLoaded: "Text is ready. You can start reading.",
         gentleOn: "Focus Reading is on. The current sentence will appear while surrounding text gently fades back.",
@@ -2143,7 +2151,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function applyLanguage({ resetStatus = false } = {}) {
       document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
       clipboardButton.textContent = t("clipboard");
-      pdfButton.textContent = t("importPDF");
+      fileButton.textContent = t("importFile");
       updateIconButton(previousParagraphButton, "◀◀", t("previousParagraph"));
       updateIconButton(previousButton, "◀", t("previousSentence"));
       updateIconButton(nextButton, "▶", t("nextSentence"));
@@ -3805,6 +3813,15 @@ The goal is simple: lower the friction of entering a text, and help you return g
       return pdfLibraryPromise;
     }
 
+    function textFromHTMLFile(source) {
+      const documentFragment = new DOMParser().parseFromString(source, "text/html");
+      documentFragment.querySelectorAll("script, style, noscript, template").forEach(node => node.remove());
+      return (documentFragment.body?.innerText || documentFragment.body?.textContent || "")
+        .replace(/\u00a0/g, " ")
+        .replace(/\n[ \t]+\n/g, "\n\n")
+        .trim();
+    }
+
     function joinPDFTextItems(parts) {
       return parts.reduce((line, rawPart) => {
         const part = String(rawPart || "").replace(/\s+/g, " ").trim();
@@ -3849,7 +3866,7 @@ The goal is simple: lower the friction of entering a text, and help you return g
       }
 
       stopReading({ browse: false });
-      pdfButton.disabled = true;
+      fileButton.disabled = true;
       setStatus(t("pdfLoading"));
 
       try {
@@ -3878,8 +3895,50 @@ The goal is simple: lower the friction of entering a text, and help you return g
         console.error("[Slowglow Reader] PDF import failed", error);
         setStatus(t("pdfFailed"));
       } finally {
-        pdfButton.disabled = false;
-        pdfInput.value = "";
+        fileButton.disabled = false;
+        fileInput.value = "";
+      }
+    }
+
+    async function importFile(file) {
+      if (!file) return;
+
+      const name = file.name || "file";
+      const isPDF = file.type === "application/pdf" || /\.pdf$/i.test(name);
+      const isHTML = file.type === "text/html" || /\.(html?|xhtml)$/i.test(name);
+      const isText = file.type.startsWith("text/") || /\.(txt|md|markdown|csv|tsv)$/i.test(name);
+
+      if (!isPDF && !isText && !isHTML) {
+        setStatus(t("fileUnsupported"));
+        fileInput.value = "";
+        return;
+      }
+
+      if (isPDF) {
+        await importPDF(file);
+        return;
+      }
+
+      stopReading({ browse: false });
+      fileButton.disabled = true;
+      setStatus(t("fileLoading"));
+
+      try {
+        const source = await file.text();
+        const text = isHTML ? textFromHTMLFile(source) : source.replace(/\r\n?/g, "\n").trim();
+        if (!text) {
+          setStatus(t("fileEmpty"));
+          return;
+        }
+
+        acceptExternalText(text);
+        setStatus(t("fileLoaded", { name, chars: text.length.toLocaleString() }));
+      } catch (error) {
+        console.error("[Slowglow Reader] File import failed", error);
+        setStatus(t("fileFailed"));
+      } finally {
+        fileButton.disabled = false;
+        fileInput.value = "";
       }
     }
 
@@ -4178,8 +4237,8 @@ The goal is simple: lower the friction of entering a text, and help you return g
     }
 
     clipboardButton.addEventListener("click", readClipboard);
-    pdfButton.addEventListener("click", () => pdfInput.click());
-    pdfInput.addEventListener("change", () => importPDF(pdfInput.files?.[0]));
+    fileButton.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => importFile(fileInput.files?.[0]));
     topButton.addEventListener("click", scrollToTop);
     newTextButton.addEventListener("click", startNewText);
     reader.addEventListener("click", event => {
