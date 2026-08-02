@@ -206,6 +206,23 @@
       color: color-mix(in srgb, var(--accent) 78%, var(--muted));
     }
 
+    .reading-actions.is-reading .pause-control {
+      border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
+      background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+      color: var(--ink);
+    }
+
+    .reading-actions.is-reading .pause-control[aria-pressed="true"] {
+      background: color-mix(in srgb, var(--accent) 16%, var(--panel));
+    }
+
+    .reading-actions .stop-control:hover:not(:disabled),
+    .reading-actions .stop-control:focus-visible {
+      border-color: color-mix(in srgb, #b45b61 48%, var(--line));
+      background: color-mix(in srgb, #b45b61 9%, var(--panel));
+      color: color-mix(in srgb, #8f3540 82%, var(--ink));
+    }
+
     .pause-control[aria-pressed="true"] {
       border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
       background: color-mix(in srgb, var(--accent) 12%, var(--panel));
@@ -1330,7 +1347,7 @@
             <span class="control-icon" data-icon aria-hidden="true">▶▶</span>
             <span class="sr-only">下一段</span>
           </button>
-          <button class="button utility context-action" id="stopButton" type="button" aria-label="停止" title="停止" disabled>
+          <button class="button utility context-action stop-control" id="stopButton" type="button" aria-label="停止" title="停止" disabled>
             <span class="control-icon" data-icon aria-hidden="true">⏹</span>
             <span class="sr-only">停止</span>
           </button>
