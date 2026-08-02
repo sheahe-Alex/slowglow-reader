@@ -2429,14 +2429,26 @@ The goal is simple: lower the friction of entering a text, and help you return g
     function splitSentences(text) {
       const source = text.trim();
       if (!source) return [];
-      const matches = source.matchAll(/[^.!?。！？]+[.!?。！？]?/g);
-      return Array.from(matches)
-        .map(match => ({
-          text: match[0],
-          start: match.index,
-          end: match.index + match[0].length
-        }))
-        .filter(sentence => sentence.text.trim());
+      const urlRanges = Array.from(source.matchAll(/\b(?:https?:\/\/|www\.)[^\s<>"'，。！？；]+/giu))
+        .map(match => ({ start: match.index, end: match.index + match[0].length }));
+      const isInsideURL = index => urlRanges.some(range => index >= range.start && index < range.end);
+      const sentences = [];
+      let start = 0;
+
+      for (let index = 0; index < source.length; index += 1) {
+        if (!/[.!?。！？]/.test(source[index]) || isInsideURL(index)) continue;
+        const end = index + 1;
+        const sentence = source.slice(start, end);
+        if (sentence.trim()) sentences.push({ text: sentence, start, end });
+        start = end;
+      }
+
+      if (start < source.length) {
+        const sentence = source.slice(start);
+        if (sentence.trim()) sentences.push({ text: sentence, start, end: source.length });
+      }
+
+      return sentences;
     }
 
     function rowsFromTableElement(table) {
