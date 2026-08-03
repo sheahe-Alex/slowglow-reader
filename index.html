@@ -3313,9 +3313,18 @@ The goal is simple: lower the friction of entering a text, and help you return g
 
     function repairCopiedFormulaMarkup(text) {
       const original = String(text || "");
-      let repaired = original.replace(/\\(?:\\\*|\*){1,2}te(?:\\\*|\*){1,2}xt/g, "\\text");
+      const hasBrokenTextCommand = /\\*(?:\\?\*){1,2}te(?:\\?\*){1,2}xt(?=\{)/i.test(original);
+      let repaired = original
+        .replace(/\\*(?:\\?\*){1,2}te(?:\\?\*){1,2}xt(?=\{)/gi, "\\text")
+        .replace(/\\+text(?=\{)/g, "\\text");
       const hasFormulaMarkup = /(?:\\(?:text|mathrm|mathbf|operatorname|frac|sqrt|times|cdot|pm|neq|leq?|geq?|approx|rightarrow|left|right|infty|sum|int)\b|\\\[|\\\]|\\\(|\\\)|\$\$)/.test(repaired);
       if (!hasFormulaMarkup) return original.trim();
+
+      if (hasBrokenTextCommand) {
+        repaired = repaired
+          .replace(/\\?\[\s*(?=\\text\{)/g, "")
+          .replace(/(\})\s*\\?\](?=\s*(?:$|\n))/g, "$1");
+      }
 
       repaired = repaired
         .replace(/\\text\{([^{}]*)\}/g, "$1")
@@ -3344,6 +3353,33 @@ The goal is simple: lower the friction of entering a text, and help you return g
         .trim();
 
       return repaired || original.trim();
+    }
+
+    function insertRepairedClipboardText(text) {
+      const start = sourceText.selectionStart ?? sourceText.value.length;
+      const end = sourceText.selectionEnd ?? start;
+      const delta = text.length - (end - start);
+      const nextLength = sourceText.value.length + delta;
+
+      tableBlocks = tableBlocks.flatMap(block => {
+        if (block.end <= start) return [block];
+        if (block.start >= end) return [shiftTableBlock(block, delta)];
+        return [];
+      });
+      mediaBlocks = mediaBlocks.flatMap(block => {
+        if (block.end <= start) return [block];
+        if (block.start >= end) return [shiftMediaBlock(block, delta, nextLength)];
+        if (block.owned && block.url?.startsWith("blob:")) URL.revokeObjectURL(block.url);
+        return [];
+      });
+
+      if (isReading) stopReading({ browse: false });
+      sourceText.setRangeText(text, start, end, "end");
+      clearReflectionNote();
+      rebuildTokens();
+      sourceText.focus();
+      setStatus(t("clipboardLoaded"));
+      openGuidePrompt();
     }
 
     function loadClipboardContent(content) {
@@ -4788,9 +4824,13 @@ The goal is simple: lower the friction of entering a text, and help you return g
           };
         }
       }
-      if (!content && repairedText !== clipboardText && (!sourceText.value.trim() || hasSelection)) {
+      if (!content && repairedText !== clipboardText) {
         event.preventDefault();
-        loadClipboardContent({ text: repairedText, tableBlocks: [], mediaBlocks: [] });
+        if (!sourceText.value.trim() || hasSelection) {
+          loadClipboardContent({ text: repairedText, tableBlocks: [], mediaBlocks: [] });
+        } else {
+          insertRepairedClipboardText(repairedText);
+        }
         return;
       }
       if (!content || (sourceText.value.trim() && !hasSelection)) {
