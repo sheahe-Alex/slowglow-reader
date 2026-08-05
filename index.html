@@ -2840,8 +2840,40 @@ The goal is simple: lower the friction of entering a text, and help you return g
       ar: { "=": "يساوي", "+": "زائد", "−": "ناقص", "×": "ضرب", "·": "ضرب", "÷": "قسمة على", "≤": "أصغر من أو يساوي", "≥": "أكبر من أو يساوي", "≈": "تقريبًا", "≠": "لا يساوي", "→": "يقترب من", "±": "زائد أو ناقص", "√": "الجذر التربيعي", "∞": "ما لا نهاية", "∑": "مجموع", "∫": "تكامل" }
     };
 
-    function mathSpeechPhrase(symbol, language) {
+    const directionalArrowSpeechWords = {
+      zh: "到",
+      en: "to",
+      fr: "vers",
+      de: "zu",
+      es: "a",
+      it: "a",
+      pt: "para",
+      nl: "naar",
+      ja: "から",
+      ko: "에서",
+      ru: "к",
+      ar: "إلى"
+    };
+
+    function arrowRepresentsLimit(text, index) {
+      if (index < 0) return false;
+      const left = text.slice(Math.max(0, index - 32), index).trimEnd();
+      const right = text.slice(index + 1, index + 19).trimStart();
+
+      if (/^(?:[+\-−]?\s*(?:∞|infinity\b|无穷(?:大)?))/iu.test(right)) return true;
+      if (/(?:\blim(?:it)?\b|极限|趋(?:近|向|于)|tend(?:s|ing)?\s+to)[^。！？.!?\n]{0,20}$/iu.test(left)) return true;
+
+      const leftIsVariable = /(?:^|[\s([{=,;:])(?:[a-z]|[α-ω])\s*$/u.test(left);
+      const rightIsLimitValue = /^(?:[+\-−]?\s*\d+(?:\.\d+)?|[a-zα-ω](?:\b|$))/u.test(right);
+      return leftIsVariable && rightIsLimitValue;
+    }
+
+    function mathSpeechPhrase(symbol, language, context = "", index = -1) {
       const root = String(language || "").split("-")[0];
+      if (symbol === "→" && !arrowRepresentsLimit(context, index)) {
+        const directionalPhrase = directionalArrowSpeechWords[root];
+        return directionalPhrase ? ` ${directionalPhrase} ` : "";
+      }
       const phrase = mathSpeechWords[root]?.[symbol];
       return phrase ? ` ${phrase} ` : "";
     }
@@ -2941,8 +2973,9 @@ The goal is simple: lower the friction of entering a text, and help you return g
       appendRange(cursor, normalized.length);
       const spokenOutput = [];
       const spokenMap = [];
+      const spokenContext = output.join("");
       output.forEach((char, index) => {
-        const phrase = mathSpeechPhrase(char, language);
+        const phrase = mathSpeechPhrase(char, language, spokenContext, index);
         if (!phrase) {
           spokenOutput.push(char);
           spokenMap.push(map[index]);
